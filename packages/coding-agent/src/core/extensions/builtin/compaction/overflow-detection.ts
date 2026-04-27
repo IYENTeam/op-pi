@@ -6,6 +6,6 @@ export function isContextOverflowError(_error: unknown): { detected: boolean; co
 	return { detected: false, confidence: "low" };
 }
 
-export function isUsageSilentOverflow(): boolean {
+export function isUsageSilentOverflow(_usage: { inputTokens?: number }, _contextWindow: number): boolean {
 	return false;
 }
