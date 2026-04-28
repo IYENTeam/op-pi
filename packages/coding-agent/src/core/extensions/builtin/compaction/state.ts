@@ -1,3 +1,5 @@
+import type { RestorationTrackerState } from "./restoration-tracker.js";
+
 export interface CompactionYieldSnapshot {
 	savedTokens: number;
 	tokensBefore: number;
@@ -10,6 +12,7 @@ export interface CompactionExtensionState {
 	acceptedAbsolute: number;
 	lastYield: CompactionYieldSnapshot | null;
 	turnId: string | null;
+	restoration: RestorationTrackerState | null;
 }
 
 export function createInitialState(): CompactionExtensionState {
@@ -20,6 +23,7 @@ export function createInitialState(): CompactionExtensionState {
 		acceptedAbsolute: 0,
 		lastYield: null,
 		turnId: null,
+		restoration: null,
 	};
 }
 

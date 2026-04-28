@@ -1,0 +1,220 @@
+import { fauxAssistantMessage, registerFauxProvider } from "@mariozechner/pi-ai";
+import { afterEach, describe, expect, it } from "vitest";
+import { AuthStorage } from "../../src/core/auth-storage.js";
+import { DEFAULT_COMPACTION_SETTINGS } from "../../src/core/compaction/index.js";
+import { shouldStartSpeculativeCompaction } from "../../src/core/extensions/builtin/compaction/policy.js";
+import {
+	applyGeneratedCompaction,
+	applySpeculativeCompaction,
+	createSpeculativeCompactionSnapshot,
+	runExtensionCompaction,
+	type SpeculativeCompactionContext,
+} from "../../src/core/extensions/builtin/compaction/speculative.js";
+import { ModelRegistry } from "../../src/core/model-registry.js";
+import { SessionManager } from "../../src/core/session-manager.js";
+
+const registrations: Array<{ unregister: () => void }> = [];
+
+type TestSpeculativeCompactionContext = SpeculativeCompactionContext & { sessionManager: SessionManager };
+
+afterEach(() => {
+	for (const registration of registrations.splice(0)) {
+		registration.unregister();
+	}
+});
+
+function createContext(options?: { revision?: number }): TestSpeculativeCompactionContext {
+	const registration = registerFauxProvider();
+	registrations.push(registration);
+	const model = registration.getModel();
+	const authStorage = AuthStorage.inMemory();
+	authStorage.setRuntimeApiKey(model.provider, "faux-key");
+	const modelRegistry = ModelRegistry.inMemory(authStorage);
+	modelRegistry.registerProvider(model.provider, {
+		baseUrl: model.baseUrl,
+		apiKey: "faux-key",
+		api: registration.api,
+		models: registration.models.map((registeredModel) => ({
+			id: registeredModel.id,
+			name: registeredModel.name,
+			api: registeredModel.api,
+			reasoning: registeredModel.reasoning,
+			input: registeredModel.input,
+			cost: registeredModel.cost,
+			contextWindow: registeredModel.contextWindow,
+			maxTokens: registeredModel.maxTokens,
+			baseUrl: registeredModel.baseUrl,
+		})),
+	});
+	const sessionManager = SessionManager.inMemory();
+	sessionManager.appendMessage({
+		role: "user",
+		content: [{ type: "text", text: "first user ".repeat(12_000) }],
+		timestamp: Date.now() - 3_000,
+	});
+	sessionManager.appendMessage({
+		...fauxAssistantMessage("first assistant ".repeat(12_000), { timestamp: Date.now() - 2_000 }),
+		api: model.api,
+		provider: model.provider,
+		model: model.id,
+		usage: {
+			input: 50_000,
+			output: 0,
+			cacheRead: 0,
+			cacheWrite: 0,
+			totalTokens: 50_000,
+			cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+		},
+	});
+	sessionManager.appendMessage({
+		role: "user",
+		content: [{ type: "text", text: "second user ".repeat(12_000) }],
+		timestamp: Date.now() - 1_000,
+	});
+
+	return {
+		model,
+		modelRegistry,
+		sessionManager,
+		getContextUsage: () => ({ tokens: 50_000, contextWindow: model.contextWindow, percent: 25 }),
+		getMessageRevision: () => options?.revision ?? 1,
+		applyCompaction: async () => ({ applied: true, reason: "ok" }),
+	};
+}
+
+describe("speculative compaction", () => {
+	it("starts at the 37.5 percent default trigger for a 32k context window", () => {
+		// Given
+		const contextWindow = 32_000;
+
+		// When
+		const beforeTrigger = shouldStartSpeculativeCompaction(
+			{ tokens: 11_999, contextWindow, percent: null },
+			contextWindow,
+			DEFAULT_COMPACTION_SETTINGS,
+		);
+		const atTrigger = shouldStartSpeculativeCompaction(
+			{ tokens: 12_000, contextWindow, percent: null },
+			contextWindow,
+			DEFAULT_COMPACTION_SETTINGS,
+		);
+
+		// Then
+		expect(beforeTrigger).toBe(false);
+		expect(atTrigger).toBe(true);
+	});
+
+	it("uses the synchronously captured preparation when the session changes before generation", () => {
+		// Given
+		const context = createContext();
+		// When
+		const snapshot = createSpeculativeCompactionSnapshot(context, {
+			customInstructions: "Proactively compact before the next agent turn.",
+			generation: 1,
+		});
+		context.sessionManager.appendMessage({
+			role: "user",
+			content: [{ type: "text", text: "late mutation" }],
+			timestamp: Date.now(),
+		});
+		const lateEntryId = context.sessionManager.getEntries()[context.sessionManager.getEntries().length - 1]?.id;
+
+		// Then
+		expect(snapshot?.expectedRevision).toBe(1);
+		expect(snapshot?.preparation.firstKeptEntryId).toBeDefined();
+		expect(snapshot?.preparation.firstKeptEntryId).not.toBe(lateEntryId);
+	});
+
+	it("skips applyCompaction when message revision changes while the summary is in flight", async () => {
+		// Given
+		let revision = 1;
+		const context = createContext({ revision });
+		context.getMessageRevision = () => revision;
+		const snapshot = createSpeculativeCompactionSnapshot(context, { generation: 1 });
+		const appliedSummaries: string[] = [];
+		context.applyCompaction = async (precomputed) => {
+			appliedSummaries.push(precomputed.summary);
+			return { applied: true, reason: "ok" };
+		};
+		revision = 2;
+
+		// When
+		const result = await applySpeculativeCompaction(
+			context,
+			snapshot,
+			() => 1,
+			async () => ({
+				summary: "generated summary",
+				firstKeptEntryId: snapshot?.preparation.firstKeptEntryId ?? "missing",
+				tokensBefore: snapshot?.preparation.tokensBefore ?? 0,
+			}),
+		);
+
+		// Then
+		expect(result).toEqual({ applied: false, reason: "stale" });
+		expect(appliedSummaries).toHaveLength(0);
+	});
+
+	it("skips applyCompaction when a newer speculative generation starts before apply", async () => {
+		// Given
+		const context = createContext();
+		const snapshot = createSpeculativeCompactionSnapshot(context, { generation: 1 });
+		const appliedSummaries: string[] = [];
+		context.applyCompaction = async (precomputed) => {
+			appliedSummaries.push(precomputed.summary);
+			return { applied: true, reason: "ok" };
+		};
+
+		// When
+		const result = await applySpeculativeCompaction(
+			context,
+			snapshot,
+			() => 2,
+			async () => ({
+				summary: "generated summary",
+				firstKeptEntryId: snapshot?.preparation.firstKeptEntryId ?? "missing",
+				tokensBefore: snapshot?.preparation.tokensBefore ?? 0,
+			}),
+		);
+
+		// Then
+		expect(result).toEqual({ applied: false, reason: "stale" });
+		expect(appliedSummaries).toHaveLength(0);
+	});
+
+	it("applies a completed speculative summary on the next blocking threshold", async () => {
+		// Given
+		const context = createContext();
+		const snapshot = createSpeculativeCompactionSnapshot(context, { generation: 1 });
+		const appliedOptions: Array<{ reason: string; expectedRevision?: number }> = [];
+		context.applyCompaction = async (_precomputed, options) => {
+			appliedOptions.push(options);
+			return { applied: true, reason: "ok" };
+		};
+
+		// When
+		const result = await applyGeneratedCompaction(context, snapshot, () => 1, {
+			summary: "completed speculative summary",
+			firstKeptEntryId: snapshot?.preparation.firstKeptEntryId ?? "missing",
+			tokensBefore: snapshot?.preparation.tokensBefore ?? 0,
+		});
+
+		// Then
+		expect(result).toEqual({ applied: true, reason: "ok" });
+		expect(appliedOptions).toEqual([{ reason: "extension", expectedRevision: 1 }]);
+	});
+
+	it("returns unavailable when manual compaction aborts in-flight speculative generation", async () => {
+		// Given
+		const context = createContext();
+		const snapshot = createSpeculativeCompactionSnapshot(context, { generation: 1 });
+		const controller = new AbortController();
+		controller.abort();
+
+		// When
+		const result = snapshot ? await runExtensionCompaction(context, snapshot, controller.signal) : undefined;
+
+		// Then
+		expect(result).toBeUndefined();
+	});
+});

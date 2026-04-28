@@ -31,7 +31,7 @@ type CompactCall = {
 };
 
 type MonitorContext = {
-	compact: (options: { customInstructions: string }) => Promise<{ reason: "extension" }>;
+	applyCompaction: (options: { customInstructions: string }) => Promise<{ applied: boolean; reason: string }>;
 	notify: (message: string) => void;
 	compactCalls: CompactCall[];
 	notifications: string[];
@@ -86,9 +86,9 @@ function createMonitorContext(): MonitorContext {
 	return {
 		compactCalls,
 		notifications,
-		compact: async (options) => {
+		applyCompaction: async (options) => {
 			compactCalls.push({ reason: "extension", customInstructions: options.customInstructions });
-			return { reason: "extension" };
+			return { applied: true, reason: "ok" };
 		},
 		notify: (message) => {
 			notifications.push(message);
@@ -161,7 +161,7 @@ describe("post-compaction degradation monitor", () => {
 
 	describe("Given the no-text counter is 2", () => {
 		describe("When the 3rd no-text assistant message arrives", () => {
-			it("Then recovery compaction is triggered via ctx.compact with reason extension and RECOVERY instructions", async () => {
+			it("Then recovery compaction is triggered with reason extension and RECOVERY instructions", async () => {
 				const registration = registerFauxProvider();
 				registrations.push(registration);
 				const state = createPostCompactionState({ noTextCounter: POST_COMPACTION_NO_TEXT_THRESHOLD - 1 });

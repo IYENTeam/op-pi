@@ -10,7 +10,7 @@
  * `/Users/yeongyu/local-workspaces/omo/src/hooks/preemptive-compaction-degradation-monitor.ts`
  *
  * Pi extension surface differences vs omo:
- * - Recovery dispatch: `ctx.compact({ customInstructions: "RECOVERY: ..." })`
+ * - Recovery dispatch: speculative generation plus `ctx.applyCompaction(...)`
  *   instead of omo's `client.session.summarize(...)`. The "RECOVERY:" prefix
  *   in customInstructions is the disambiguator; CompactionReason stays
  *   "extension" (no new variant in v1).
@@ -39,7 +39,7 @@ export interface DegradationMonitorState {
 }
 
 export interface DegradationMonitorContext {
-	compact: (options: { customInstructions: string }) => Promise<{ reason: "extension" }>;
+	applyCompaction: (options: { customInstructions: string }) => Promise<{ applied: boolean; reason: string }>;
 	notify: (message: string) => void;
 }
 
@@ -120,7 +120,7 @@ export async function handleMessageEnd(
 	state.recoveryAttempts += 1;
 	state.noTextCounter = 0;
 
-	await context.compact({ customInstructions: RECOVERY_INSTRUCTIONS });
+	await context.applyCompaction({ customInstructions: RECOVERY_INSTRUCTIONS });
 	context.notify(RECOVERY_NOTIFICATION);
 }
 

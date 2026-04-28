@@ -1,10 +1,5 @@
-import type { AgentMessage, AgentToolResult } from "@mariozechner/pi-agent-core";
-import { complete, type Message, type TextContent } from "@mariozechner/pi-ai";
-import {
-	DEFAULT_COMPACTION_SETTINGS,
-	estimateContextTokens,
-	serializeConversation,
-} from "../../../compaction/index.js";
+import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import { type CompactionResult, DEFAULT_COMPACTION_SETTINGS } from "../../../compaction/index.js";
 import { convertToLlm } from "../../../messages.js";
 import type { CompactionEntry } from "../../../session-manager.js";
 import type { ExtensionAPI, ExtensionContext } from "../../types.js";
@@ -20,78 +15,34 @@ import {
 import * as overflow from "./overflow-detection.js";
 import * as cap from "./per-turn-cap.js";
 import * as policy from "./policy.js";
-import { buildPrompt, type MergedCompactionPromptVariant } from "./prompts.js";
+import * as restoration from "./restoration-tracker.js";
+import {
+	applyGeneratedCompaction,
+	createSpeculativeCompactionSnapshot,
+	getPromptVariant,
+	hardLimitEmergencyPrune,
+	runExtensionCompaction,
+	type SpeculativeCompactionResult,
+	type SpeculativeCompactionSnapshot,
+} from "./speculative.js";
 import { type CompactionExtensionState, createInitialState, resetTurnCounter } from "./state.js";
 import * as todoBridge from "./todo-bridge.js";
 import { repairOrphanedToolResults } from "./tool-pair-repair.js";
 import * as truncation from "./tool-truncation.js";
 
 const DEFAULT_CONTEXT_WINDOW = 200_000;
-const COMPACTION_BUDGET_RATIO = 0.6;
-const MAX_SUMMARY_TOKENS = 8192;
-const SUMMARY_SCHEMA = "senpi.compaction.summary.v1";
+const EMERGENCY_COMPACTION_INSTRUCTIONS =
+	"EMERGENCY: hard context limit reached. Produce an aggressive recovery summary that preserves current goal, constraints, files touched, tool outcomes, and exact next steps. Prefer concise factual state over transcript detail.";
+const PROACTIVE_COMPACTION_INSTRUCTIONS = "Proactively compact before the next agent turn.";
 
 function approxTokens(text: string): number {
 	return Math.ceil(text.length / 4);
-}
-
-function getSummaryText(message: Message): string {
-	const content = Array.isArray(message.content)
-		? message.content
-		: [{ type: "text" as const, text: message.content }];
-	return content
-		.filter((content): content is TextContent => content.type === "text")
-		.map((content) => content.text)
-		.join("\n")
-		.trim();
 }
 
 function isMonitorableMessageEvent(event: { message: AgentMessage }): event is {
 	message: AgentMessage & { content: Array<{ type: string; text?: string }> };
 } {
 	return "content" in event.message && Array.isArray(event.message.content);
-}
-
-function getPromptVariant(event: {
-	reason: string;
-	preparation: { previousSummary?: string; isSplitTurn: boolean };
-}): MergedCompactionPromptVariant {
-	if (event.reason === "branch") return "branch";
-	if (event.preparation.previousSummary) return "update";
-	if (event.preparation.isSplitTurn) return "turn_prefix";
-	return "default";
-}
-
-function pruneToolResults(messages: AgentMessage[], contextWindow: number): AgentMessage[] {
-	const toolResults = messages
-		.filter((message) => message.role === "toolResult")
-		.map((message): AgentToolResult<undefined> => ({ content: message.content, details: undefined }));
-	if (toolResults.length === 0) return messages;
-
-	const prunedResults = truncation.prePruneToolOutputsToBudget(toolResults, contextWindow * COMPACTION_BUDGET_RATIO);
-	let resultIndex = 0;
-	return messages.map((message) => {
-		if (message.role !== "toolResult") return message;
-		const pruned = prunedResults[resultIndex];
-		resultIndex++;
-		return pruned ? { ...message, content: pruned.content } : message;
-	});
-}
-
-function truncateContextMessages(messages: AgentMessage[]): AgentMessage[] {
-	const toolResults = messages
-		.filter((message) => message.role === "toolResult")
-		.map((message): AgentToolResult<undefined> => ({ content: message.content, details: undefined }));
-	if (toolResults.length === 0) return messages;
-
-	const truncatedResults = truncation.truncateOversizedToolResults(toolResults);
-	let resultIndex = 0;
-	return messages.map((message) => {
-		if (message.role !== "toolResult") return message;
-		const truncated = truncatedResults[resultIndex];
-		resultIndex++;
-		return truncated ? { ...message, content: truncated.content } : message;
-	});
 }
 
 function updateLastYield(state: CompactionExtensionState, entry: CompactionEntry): CompactionExtensionState {
@@ -108,8 +59,64 @@ function recentCheckpoint(ctx: ExtensionContext): checkpointState.AgentCheckpoin
 export default function compactionExtension(pi: ExtensionAPI): void {
 	let state: CompactionExtensionState = createInitialState();
 	const degradationState = createDegradationMonitorState();
+	const restorationState = state.restoration ?? restoration.createRestorationTrackerState();
+	state = { ...state, restoration: restorationState };
+	let speculativeGeneration = 0;
+	let speculativeJob:
+		| {
+				generation: number;
+				snapshot: SpeculativeCompactionSnapshot;
+				controller: AbortController;
+				promise: Promise<CompactionResult | undefined>;
+		  }
+		| undefined;
+
+	function invalidateSpeculativeCompaction(): void {
+		speculativeGeneration++;
+		speculativeJob?.controller.abort();
+		speculativeJob = undefined;
+	}
+
+	function startSpeculativeCompaction(ctx: ExtensionContext, customInstructions: string): void {
+		if (speculativeJob) return;
+		const generation = ++speculativeGeneration;
+		const snapshot = createSpeculativeCompactionSnapshot(ctx, { generation, customInstructions });
+		if (!snapshot) return;
+
+		const controller = new AbortController();
+		const promise = runExtensionCompaction(ctx, snapshot, controller.signal).catch(() => undefined);
+		speculativeJob = { generation, snapshot, controller, promise };
+	}
+
+	async function applyBlockingCompaction(
+		ctx: ExtensionContext,
+		customInstructions: string,
+	): Promise<SpeculativeCompactionResult> {
+		const pendingJob = speculativeJob;
+		if (pendingJob) {
+			const compaction = await pendingJob.promise;
+			const result = await applyGeneratedCompaction(
+				ctx,
+				pendingJob.snapshot,
+				() => speculativeGeneration,
+				compaction,
+			);
+			if (result.applied || result.reason === "stale") {
+				speculativeJob = undefined;
+				return result;
+			}
+			speculativeJob = undefined;
+		}
+
+		const generation = ++speculativeGeneration;
+		const snapshot = createSpeculativeCompactionSnapshot(ctx, { generation, customInstructions });
+		if (!snapshot) return { applied: false, reason: "unavailable" };
+		const compaction = await runExtensionCompaction(ctx, snapshot);
+		return await applyGeneratedCompaction(ctx, snapshot, () => speculativeGeneration, compaction);
+	}
 
 	pi.on("session_before_compact", async (event, ctx) => {
+		invalidateSpeculativeCompaction();
 		if (cap.shouldRejectByCap(state, { reason: event.reason }).cancel) return { cancel: true };
 		if (breaker.isTripped(state, Date.now()) && !breaker.shouldBypass(state, { reason: event.reason }))
 			return { cancel: true };
@@ -119,66 +126,50 @@ export default function compactionExtension(pi: ExtensionAPI): void {
 
 		const model = ctx.model;
 		if (!model) return undefined;
-		const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-		if (!auth.ok || !auth.apiKey) return undefined;
-
-		const contextWindow = ctx.getContextUsage()?.contextWindow ?? model.contextWindow ?? DEFAULT_CONTEXT_WINDOW;
-		const messages = pruneToolResults(
-			[...event.preparation.messagesToSummarize, ...event.preparation.turnPrefixMessages],
-			contextWindow,
-		);
-		const promptVariant = getPromptVariant(event);
-		const prompt = buildPrompt({
-			variant: promptVariant,
-			previousSummary: event.preparation.previousSummary,
-			customInstructions: event.customInstructions,
-		});
-		const conversationText = serializeConversation(convertToLlm(messages));
-		const response = await complete(
+		const snapshot = {
+			generation: ++speculativeGeneration,
+			expectedRevision: ctx.getMessageRevision(),
 			model,
-			{
-				systemPrompt: prompt.system,
-				messages: [
-					{
-						role: "user",
-						content: [
-							{ type: "text", text: `${prompt.user}\n\n<conversation>\n${conversationText}\n</conversation>` },
-						],
-						timestamp: Date.now(),
-					},
-				],
-			},
-			{
-				apiKey: auth.apiKey,
-				headers: auth.headers,
-				extraBody: auth.extraBody,
-				maxTokens: MAX_SUMMARY_TOKENS,
-				signal: event.signal,
-			},
-		);
-		const summary = getSummaryText(response);
-		if (!summary) return undefined;
-
-		const tokenEstimate = estimateContextTokens(convertToLlm(messages)).tokens + approxTokens(summary);
-		if (tokenEstimate > contextWindow * COMPACTION_BUDGET_RATIO) return { cancel: true };
+			contextWindow: ctx.getContextUsage()?.contextWindow ?? model.contextWindow ?? DEFAULT_CONTEXT_WINDOW,
+			preparation: event.preparation,
+			promptVariant: getPromptVariant(event),
+			customInstructions: event.customInstructions,
+		};
+		const compaction = await runExtensionCompaction(ctx, snapshot, event.signal);
+		if (!compaction) return { cancel: true };
 
 		return {
-			compaction: {
-				summary,
-				firstKeptEntryId: event.preparation.firstKeptEntryId,
-				tokensBefore: event.preparation.tokensBefore,
-				details: { schema: SUMMARY_SCHEMA, promptVariant, tokenEstimate },
-			},
+			compaction,
 		};
 	});
 
 	pi.on("session_compact", async (event, ctx) => {
+		invalidateSpeculativeCompaction();
 		if (event.accepted) {
+			const branchEntries = ctx.sessionManager.getBranch();
+			const firstKeptIndex = branchEntries.findIndex((entry) => entry.id === event.compactionEntry.firstKeptEntryId);
+			const keptEntries = firstKeptIndex === -1 ? [] : branchEntries.slice(firstKeptIndex);
 			state = cap.incrementAccepted(state);
 			state = breaker.recordSuccess(state);
 			state = updateLastYield(state, event.compactionEntry);
 			resetOnSessionCompact(degradationState);
 			todoBridge.restoreTodosIfMissing(pi, ctx);
+			const usage = ctx.getContextUsage();
+			if (DEFAULT_COMPACTION_SETTINGS.restorationEnabled) {
+				restoration.preparePendingPayload(restorationState, {
+					accepted: true,
+					reason: event.reason,
+					compactionEntryId: event.compactionEntry.id,
+					contextWindow: usage?.contextWindow ?? ctx.model?.contextWindow ?? DEFAULT_CONTEXT_WINDOW,
+					usageTokens: usage?.tokens ?? null,
+					reserveTokens: DEFAULT_COMPACTION_SETTINGS.reserveTokens,
+					settings: DEFAULT_COMPACTION_SETTINGS,
+					keptMessages: keptEntries.flatMap((entry) => {
+						if (entry.type !== "message") return [];
+						return [entry.message];
+					}),
+				});
+			}
 			return;
 		}
 		state = breaker.recordFailure(state, Date.now(), { route: event.reason });
@@ -187,31 +178,43 @@ export default function compactionExtension(pi: ExtensionAPI): void {
 
 	pi.on("before_agent_start", async (event, ctx) => {
 		let systemPrompt = event.systemPrompt;
+		const message = restoration.consumePendingPayload(restorationState);
 		const checkpoint = recentCheckpoint(ctx);
 		if (checkpoint) systemPrompt = checkpointState.injectRestorationDirective(systemPrompt, checkpoint);
 
 		const usage = ctx.getContextUsage();
 		const contextWindow = usage?.contextWindow ?? ctx.model?.contextWindow ?? DEFAULT_CONTEXT_WINDOW;
-		if (
+		const settings = ctx.getCompactionSettings();
+		if (usage && policy.isAtHardLimit(usage, contextWindow, settings.reserveTokens)) {
+			await applyBlockingCompaction(ctx, EMERGENCY_COMPACTION_INSTRUCTIONS);
+		} else if (
 			usage &&
-			policy.shouldTriggerCompaction(usage, contextWindow, DEFAULT_COMPACTION_SETTINGS, state.lastYield ?? undefined)
+			policy.shouldTriggerCompaction(usage, contextWindow, settings, state.lastYield ?? undefined)
 		) {
-			ctx.compact({ customInstructions: "Proactively compact before the next agent turn." });
+			await applyBlockingCompaction(ctx, PROACTIVE_COMPACTION_INSTRUCTIONS);
+		} else if (
+			usage &&
+			policy.shouldStartSpeculativeCompaction(usage, contextWindow, settings, state.lastYield ?? undefined)
+		) {
+			startSpeculativeCompaction(ctx, PROACTIVE_COMPACTION_INSTRUCTIONS);
 		}
 
-		return systemPrompt === event.systemPrompt ? undefined : { systemPrompt };
+		if (systemPrompt === event.systemPrompt && !message) return undefined;
+		return message ? { systemPrompt, message } : { systemPrompt };
 	});
 
-	pi.on("context", (event) => {
-		const truncatedMessages = truncateContextMessages(event.messages);
-		return { messages: repairOrphanedToolResults(convertToLlm(truncatedMessages)) };
+	pi.on("context", (event, ctx) => {
+		const contextWindow = ctx.getContextUsage()?.contextWindow ?? ctx.model?.contextWindow ?? DEFAULT_CONTEXT_WINDOW;
+		const emergency = hardLimitEmergencyPrune(event.messages, contextWindow);
+		return { messages: repairOrphanedToolResults(convertToLlm(emergency.messages)) };
 	});
 
 	pi.on("turn_end", async (_event, ctx) => {
 		handleTurnEnd(degradationState);
 		if (degradationState.recoveryTriggeredThisCycle) return;
-		if (state.lastYield && state.lastYield.savedTokens <= 0)
-			ctx.compact({ customInstructions: RECOVERY_INSTRUCTIONS });
+		if (state.lastYield && state.lastYield.savedTokens <= 0) {
+			void applyBlockingCompaction(ctx, RECOVERY_INSTRUCTIONS);
+		}
 	});
 
 	pi.on("agent_end", () => {
@@ -221,22 +224,26 @@ export default function compactionExtension(pi: ExtensionAPI): void {
 	pi.on("message_end", async (event, ctx) => {
 		if (isMonitorableMessageEvent(event)) {
 			await handleMessageEnd(degradationState, event, {
-				compact: async (options) => {
-					ctx.compact(options);
-					return { reason: "extension" };
+				applyCompaction: async (options) => {
+					return await applyBlockingCompaction(ctx, options.customInstructions);
 				},
 				notify: (message) => ctx.ui.notify(message, "warning"),
 			});
 		}
 		if (event.message.role === "assistant" && event.message.stopReason === "error") {
 			const detected = overflow.isContextOverflowError(new Error(event.message.errorMessage ?? ""));
-			if (detected.detected)
-				ctx.compact({ customInstructions: `RECOVERY: context overflow detected (${detected.confidence})` });
+			if (detected.detected) {
+				void applyBlockingCompaction(ctx, `RECOVERY: context overflow detected (${detected.confidence})`);
+			}
 		}
 	});
 
 	pi.on("tool_result", (event) => {
 		const [truncated] = truncation.truncateOversizedToolResults([{ content: event.content, details: event.details }]);
 		return truncated ? { content: truncated.content, details: event.details, isError: event.isError } : undefined;
+	});
+
+	pi.on("tool_call", (event) => {
+		restoration.trackToolCall(restorationState, event);
 	});
 }
