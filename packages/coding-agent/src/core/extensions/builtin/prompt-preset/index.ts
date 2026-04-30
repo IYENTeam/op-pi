@@ -1,25 +1,31 @@
-import { categorizeTools } from "../../../dynamic-prompt/tool-categorization.js";
-import { buildToolSection } from "../../../dynamic-prompt/tool-section.js";
+import type { BuildDynamicSystemPromptOptions } from "../../../dynamic-prompt/build.js";
 import { SettingsManager } from "../../../settings-manager.js";
 import type { ExtensionAPI, ExtensionContext, ModelSelectEvent } from "../../types.js";
-import { resolvePreset } from "./presets.js";
+import { resolvePreset, resolvePresetName } from "./presets.js";
 import { loadPromptPresetSettings } from "./settings.js";
 
-function createToolSectionBuilder(event: {
-	systemPromptOptions:
-		| {
-				selectedTools?: string[];
-				toolSnippets?: Record<string, string>;
-				promptGuidelines?: string[];
-		  }
-		| undefined;
-}): () => string {
-	return () =>
-		buildToolSection({
-			tools: categorizeTools(event.systemPromptOptions?.selectedTools ?? []),
-			toolSnippets: event.systemPromptOptions?.toolSnippets ?? {},
-			promptGuidelines: event.systemPromptOptions?.promptGuidelines ?? [],
-		});
+interface SystemPromptOptionsLike {
+	cwd?: string;
+	selectedTools?: string[];
+	toolSnippets?: Record<string, string>;
+	promptGuidelines?: string[];
+	contextFiles?: Array<{ path: string; content: string }>;
+	skills?: BuildDynamicSystemPromptOptions["skills"];
+}
+
+function eventOptionsToBuilderInput(
+	event: { systemPromptOptions: SystemPromptOptionsLike | undefined },
+	ctx: Pick<ExtensionContext, "cwd">,
+): Partial<BuildDynamicSystemPromptOptions> {
+	const options = event.systemPromptOptions ?? {};
+	return {
+		cwd: options.cwd ?? ctx.cwd,
+		selectedTools: options.selectedTools,
+		toolSnippets: options.toolSnippets,
+		promptGuidelines: options.promptGuidelines,
+		contextFiles: options.contextFiles,
+		skills: options.skills,
+	};
 }
 
 function getSettings(ctx: ExtensionContext): ReturnType<typeof loadPromptPresetSettings> {
@@ -31,7 +37,7 @@ function getPresetName(ctx: ExtensionContext, event?: Pick<ModelSelectEvent, "mo
 	if (!model) {
 		return "fallback (senpi-current)";
 	}
-	return resolvePreset(model, getSettings(ctx))?.name ?? "fallback (senpi-current)";
+	return resolvePresetName(model, getSettings(ctx)) ?? "fallback (senpi-current)";
 }
 
 function refreshHeader(ctx: ExtensionContext, event?: Pick<ModelSelectEvent, "model">): void {
@@ -49,7 +55,7 @@ export default function promptPresetExtension(pi: ExtensionAPI): void {
 			return undefined;
 		}
 
-		const preset = resolvePreset(model, getSettings(ctx), createToolSectionBuilder(event));
+		const preset = resolvePreset(model, getSettings(ctx), eventOptionsToBuilderInput(event, ctx));
 		if (!preset) {
 			return undefined;
 		}
@@ -63,7 +69,7 @@ export default function promptPresetExtension(pi: ExtensionAPI): void {
 
 	pi.on("model_select", async (event, ctx) => {
 		refreshHeader(ctx, event);
-		const preset = resolvePreset(event.model, getSettings(ctx), createToolSectionBuilder(event));
+		const preset = resolvePreset(event.model, getSettings(ctx), eventOptionsToBuilderInput(event, ctx));
 		return {
 			systemPrompt: preset?.prompt ?? null,
 			systemPromptName: preset?.name ?? "fallback (senpi-current)",

@@ -38,7 +38,7 @@ describe("prompt preset resolver", () => {
 	it.each([
 		{ id: "gpt-5.4", provider: "openai", api: "openai-responses" as const },
 		{ id: "gpt-5.5", provider: "openai-codex", api: "openai-codex-responses" as const },
-	])("returns hephaestus preset for $provider/$id", ({ id, provider, api }) => {
+	])("returns gpt-5 preset for $provider/$id", ({ id, provider, api }) => {
 		// given
 		const settings: PromptPresetSettings = { promptPreset: "auto" };
 		const model = createModel(id, provider, api);
@@ -47,30 +47,52 @@ describe("prompt preset resolver", () => {
 		const preset = resolvePreset(model, settings);
 
 		// then
-		expect(preset?.name).toBe("hephaestus");
-		expect(preset?.prompt).toContain("# Stop Rules");
-		expect(preset?.prompt).toContain("You are Hephaestus");
-		expect(preset?.prompt.length).toBeGreaterThan(4_000);
+		expect(preset?.name).toBe("gpt-5");
+		expect(preset?.prompt).toContain("You are senpi");
+		expect(preset?.prompt).toContain("## Model Notes (GPT-5)");
+		expect(preset?.prompt).toContain("outcome-first");
+		expect(preset?.prompt).toContain("## Intent Gate");
+		expect(preset?.prompt).toContain("I read this as");
+		expect(preset?.prompt.length).toBeGreaterThan(2_000);
 	});
 
 	it.each([
-		{ id: "moonshotai/kimi-k2.6", provider: "kimi" },
-		{ id: "claude-opus-4-7", provider: "anthropic" },
-		{ id: "claude-opus-4-6", provider: "anthropic" },
+		{ id: "claude-opus-4-7", provider: "anthropic", api: "anthropic-messages" as const },
+		{ id: "claude-opus-4-6", provider: "anthropic", api: "anthropic-messages" as const },
 		{ id: "us.anthropic.claude-opus-4-6-v1", provider: "amazon-bedrock", api: "bedrock-converse-stream" as const },
-	])("returns sisyphus preset for $provider/$id", ({ id, provider, api }) => {
+	])("returns claude-opus preset for $provider/$id", ({ id, provider, api }) => {
 		// given
 		const settings: PromptPresetSettings = { promptPreset: "auto" };
-		const model = createModel(id, provider, api ?? "anthropic-messages");
+		const model = createModel(id, provider, api);
 
 		// when
 		const preset = resolvePreset(model, settings);
 
 		// then
-		expect(preset?.name).toBe("sisyphus");
-		expect(preset?.prompt).toContain("<intent>");
-		expect(preset?.prompt).toContain("You are Sisyphus");
-		expect(preset?.prompt.length).toBeGreaterThan(4_000);
+		expect(preset?.name).toBe("claude-opus");
+		expect(preset?.prompt).toContain("You are senpi");
+		expect(preset?.prompt).toContain("## Model Notes (Claude Opus)");
+		expect(preset?.prompt).toContain("more literally");
+		expect(preset?.prompt).toContain("## Intent Gate");
+		expect(preset?.prompt).toContain("I read this as");
+		expect(preset?.prompt.length).toBeGreaterThan(2_000);
+	});
+
+	it("returns kimi-k2-6 preset for kimi/moonshotai/kimi-k2.6", () => {
+		// given
+		const settings: PromptPresetSettings = { promptPreset: "auto" };
+		const model = createModel("moonshotai/kimi-k2.6", "kimi", "openai-completions");
+
+		// when
+		const preset = resolvePreset(model, settings);
+
+		// then
+		expect(preset?.name).toBe("kimi-k2-6");
+		expect(preset?.prompt).toContain("You are senpi");
+		expect(preset?.prompt).toContain("## Model Notes (Kimi K2)");
+		expect(preset?.prompt).toContain("Toggle RL");
+		expect(preset?.prompt).toContain("intent gate routing line is exempt");
+		expect(preset?.prompt).toContain("## Intent Gate");
 	});
 
 	it.each([
@@ -94,29 +116,73 @@ describe("prompt preset resolver", () => {
 		expect(activePrompt).toContain("Current working directory: /repo");
 	});
 
-	it("allows settings.json to force sisyphus regardless of model id", () => {
+	it("allows settings.json to force claude-opus regardless of model id", () => {
 		// given
-		const settings: PromptPresetSettings = { promptPreset: "sisyphus" };
+		const settings: PromptPresetSettings = { promptPreset: "claude-opus" };
 		const model = createModel("gpt-5.5", "openai-codex", "openai-codex-responses");
 
 		// when
 		const preset = resolvePreset(model, settings);
 
 		// then
-		expect(preset?.name).toBe("sisyphus");
-		expect(preset?.prompt).toContain("<intent>");
+		expect(preset?.name).toBe("claude-opus");
+		expect(preset?.prompt).toContain("## Model Notes (Claude Opus)");
 	});
 
-	it("allows settings.json to force hephaestus regardless of model id", () => {
+	it("allows settings.json to force gpt-5 regardless of model id", () => {
 		// given
-		const settings: PromptPresetSettings = { promptPreset: "hephaestus" };
+		const settings: PromptPresetSettings = { promptPreset: "gpt-5" };
 		const model = createModel("claude-opus-4-7", "anthropic", "anthropic-messages");
 
 		// when
 		const preset = resolvePreset(model, settings);
 
 		// then
-		expect(preset?.name).toBe("hephaestus");
-		expect(preset?.prompt).toContain("# Stop Rules");
+		expect(preset?.name).toBe("gpt-5");
+		expect(preset?.prompt).toContain("## Model Notes (GPT-5)");
+	});
+
+	it("allows settings.json to force kimi-k2-6 regardless of model id", () => {
+		// given
+		const settings: PromptPresetSettings = { promptPreset: "kimi-k2-6" };
+		const model = createModel("gpt-5.5", "openai-codex", "openai-codex-responses");
+
+		// when
+		const preset = resolvePreset(model, settings);
+
+		// then
+		expect(preset?.name).toBe("kimi-k2-6");
+		expect(preset?.prompt).toContain("## Model Notes (Kimi K2)");
+		expect(preset?.prompt).toContain("Toggle RL");
+	});
+
+	it("does not include Kimi tuning in claude-opus preset", () => {
+		// given
+		const settings: PromptPresetSettings = { promptPreset: "auto" };
+		const model = createModel("claude-opus-4-7", "anthropic", "anthropic-messages");
+
+		// when
+		const preset = resolvePreset(model, settings);
+
+		// then
+		expect(preset?.name).toBe("claude-opus");
+		expect(preset?.prompt).not.toContain("Toggle RL");
+		expect(preset?.prompt).not.toContain("Model Notes (Kimi K2)");
+		expect(preset?.prompt).not.toContain("Model Notes (GPT-5)");
+	});
+
+	it("does not include Kimi tuning in gpt-5 preset", () => {
+		// given
+		const settings: PromptPresetSettings = { promptPreset: "auto" };
+		const model = createModel("gpt-5.5", "openai-codex", "openai-codex-responses");
+
+		// when
+		const preset = resolvePreset(model, settings);
+
+		// then
+		expect(preset?.name).toBe("gpt-5");
+		expect(preset?.prompt).not.toContain("Toggle RL");
+		expect(preset?.prompt).not.toContain("Model Notes (Kimi K2)");
+		expect(preset?.prompt).not.toContain("Model Notes (Claude Opus)");
 	});
 });

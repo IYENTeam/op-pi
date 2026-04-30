@@ -1,12 +1,16 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
-import { buildHephaestusBasePrompt } from "./hephaestus-base.js";
+import type { BuildDynamicSystemPromptOptions } from "../../../dynamic-prompt/build.js";
+import { buildClaudeOpusPrompt } from "./claude-opus.js";
+import { buildGpt5Prompt } from "./gpt-5.js";
+import { buildKimiK26Prompt } from "./kimi-k2-6.js";
 import type { PromptPresetName, PromptPresetSettings } from "./settings.js";
-import { buildSisyphusBasePrompt } from "./sisyphus-base.js";
 
 export type { PromptPresetSettings } from "./settings.js";
 
+type ResolvedPresetName = Exclude<PromptPresetName, "auto">;
+
 export interface ResolvedPromptPreset {
-	name: Exclude<PromptPresetName, "auto">;
+	name: ResolvedPresetName;
 	prompt: string;
 }
 
@@ -14,42 +18,73 @@ function normalizeModelId(modelId: string): string {
 	return modelId.toLowerCase();
 }
 
-function isHephaestusModel(modelId: string): boolean {
+function isGpt5FamilyModel(modelId: string): boolean {
 	const normalized = normalizeModelId(modelId);
 	return normalized.includes("gpt-5.4") || normalized.includes("gpt-5.5");
 }
 
-function isSisyphusModel(modelId: string): boolean {
-	const normalized = normalizeModelId(modelId);
-	return normalized.includes("kimi-k2.6") || normalized.includes("opus-4-7") || normalized.includes("opus-4-6");
+function isKimiK26Model(modelId: string): boolean {
+	return normalizeModelId(modelId).includes("kimi-k2.6");
 }
 
-function buildPreset(
-	name: Exclude<PromptPresetName, "auto">,
-	buildSenpiToolSection: () => string,
-): ResolvedPromptPreset {
-	if (name === "hephaestus") {
-		return { name, prompt: buildHephaestusBasePrompt(buildSenpiToolSection) };
+function isClaudeOpusModel(modelId: string): boolean {
+	const normalized = normalizeModelId(modelId);
+	return normalized.includes("opus-4-7") || normalized.includes("opus-4-6");
+}
+
+export function resolvePresetName(
+	model: Pick<Model<Api>, "id" | "provider">,
+	settings: PromptPresetSettings,
+): ResolvedPresetName | undefined {
+	if (
+		settings.promptPreset === "claude-opus" ||
+		settings.promptPreset === "kimi-k2-6" ||
+		settings.promptPreset === "gpt-5"
+	) {
+		return settings.promptPreset;
 	}
-	return { name, prompt: buildSisyphusBasePrompt(buildSenpiToolSection) };
+
+	if (isGpt5FamilyModel(model.id)) {
+		return "gpt-5";
+	}
+	if (isKimiK26Model(model.id)) {
+		return "kimi-k2-6";
+	}
+	if (isClaudeOpusModel(model.id)) {
+		return "claude-opus";
+	}
+	return undefined;
+}
+
+function buildPreset(name: ResolvedPresetName, options: BuildDynamicSystemPromptOptions): ResolvedPromptPreset {
+	if (name === "gpt-5") {
+		return { name, prompt: buildGpt5Prompt(options) };
+	}
+	if (name === "kimi-k2-6") {
+		return { name, prompt: buildKimiK26Prompt(options) };
+	}
+	return { name, prompt: buildClaudeOpusPrompt(options) };
+}
+
+function withDefaults(options: Partial<BuildDynamicSystemPromptOptions> = {}): BuildDynamicSystemPromptOptions {
+	return {
+		cwd: options.cwd ?? "",
+		selectedTools: options.selectedTools ?? [],
+		toolSnippets: options.toolSnippets ?? {},
+		promptGuidelines: options.promptGuidelines ?? [],
+		contextFiles: options.contextFiles ?? [],
+		skills: options.skills ?? [],
+	};
 }
 
 export function resolvePreset(
 	model: Pick<Model<Api>, "id" | "provider">,
 	settings: PromptPresetSettings,
-	buildSenpiToolSection: () => string = () => "",
+	options?: Partial<BuildDynamicSystemPromptOptions>,
 ): ResolvedPromptPreset | undefined {
-	if (settings.promptPreset === "sisyphus" || settings.promptPreset === "hephaestus") {
-		return buildPreset(settings.promptPreset, buildSenpiToolSection);
+	const name = resolvePresetName(model, settings);
+	if (!name) {
+		return undefined;
 	}
-
-	if (isHephaestusModel(model.id)) {
-		return buildPreset("hephaestus", buildSenpiToolSection);
-	}
-
-	if (isSisyphusModel(model.id)) {
-		return buildPreset("sisyphus", buildSenpiToolSection);
-	}
-
-	return undefined;
+	return buildPreset(name, withDefaults(options));
 }

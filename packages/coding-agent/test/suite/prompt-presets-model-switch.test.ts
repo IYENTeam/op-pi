@@ -45,10 +45,12 @@ describe("prompt preset model switching", () => {
 		const promptChange = await harness.session.setModel(getRequiredModel(harness, "claude-opus-4-7"));
 
 		// then
-		expect(promptChange?.systemPromptName).toBe("sisyphus");
-		expect(harness.session.systemPrompt).toContain("You are Sisyphus");
-		expect(extensionEvents).toEqual(["gpt-5.5->claude-opus-4-7:sisyphus"]);
-		expect(harness.eventsOfType("system_prompt_change").map((event) => event.systemPromptName)).toEqual(["sisyphus"]);
+		expect(promptChange?.systemPromptName).toBe("claude-opus");
+		expect(harness.session.systemPrompt).toContain("## Model Notes (Claude Opus)");
+		expect(extensionEvents).toEqual(["gpt-5.5->claude-opus-4-7:claude-opus"]);
+		expect(harness.eventsOfType("system_prompt_change").map((event) => event.systemPromptName)).toEqual([
+			"claude-opus",
+		]);
 	});
 
 	it("resets to the base prompt when switching from a preset model to fallback", async () => {
@@ -71,7 +73,7 @@ describe("prompt preset model switching", () => {
 		// then
 		expect(promptChange?.systemPromptName).toBe("fallback (senpi-current)");
 		expect(harness.session.systemPrompt).toContain("## Available Tools");
-		expect(harness.session.systemPrompt).not.toContain("You are Sisyphus");
+		expect(harness.session.systemPrompt).not.toContain("## Model Notes (Claude Opus)");
 		expect(harness.eventsOfType("system_prompt_change").map((event) => event.systemPromptName)).toEqual([
 			"fallback (senpi-current)",
 		]);
@@ -96,7 +98,7 @@ describe("prompt preset model switching", () => {
 
 		// then
 		expect(promptChange).toBeUndefined();
-		expect(harness.session.systemPrompt).toContain("You are Sisyphus");
+		expect(harness.session.systemPrompt).toContain("## Model Notes (Claude Opus)");
 		expect(harness.eventsOfType("system_prompt_change")).toEqual([]);
 	});
 });

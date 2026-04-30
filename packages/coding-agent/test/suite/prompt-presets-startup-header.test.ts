@@ -78,7 +78,7 @@ describe("prompt preset startup header", () => {
 		await handlers.session_start[0]({ type: "session_start", reason: "startup" }, context);
 
 		// then
-		expect(getHeaderText()).toContain("Prompt preset: hephaestus");
+		expect(getHeaderText()).toContain("Prompt preset: gpt-5");
 	});
 
 	it("refreshes header text on model_select", async () => {
@@ -100,6 +100,6 @@ describe("prompt preset startup header", () => {
 		);
 
 		// then
-		expect(getHeaderText()).toContain("Prompt preset: sisyphus");
+		expect(getHeaderText()).toContain("Prompt preset: claude-opus");
 	});
 });
