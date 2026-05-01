@@ -12,6 +12,12 @@
 - Changed `openai-api-parallel-tool-calls` to use the synced `pi-openai-api-parallel-tool-calls` source layout.
 - Changed `bash-timeout` to use the synced `pi-bash-timeout` source layout and added `enabledBuiltinExtensions` settings allowlist support for builtin extensions.
 
+## [0.71.1] - 2026-05-01
+
+### Added
+
+- Added `websocket-cached` to the transport setting options for the OpenAI Codex provider used with ChatGPT subscription auth. This keeps the same WebSocket open for a session and, after the first request, sends only the new conversation items instead of resending the full chat history when possible.
+
 ## [0.71.0] - 2026-04-30
 
 ### Breaking Changes
