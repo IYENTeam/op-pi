@@ -12,6 +12,15 @@ const builtinRoot = join(packageDir, "src", "core", "extensions", "builtin");
 
 const FILES = [
 	{
+		source: "pi-openai-api-parallel-tool-calls/src/index.ts",
+		target: "openai-api-parallel-tool-calls/index.ts",
+		transform: (content) =>
+			content.replace(
+				'import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";',
+				'import type { ExtensionAPI } from "../../types.js";',
+			),
+	},
+	{
 		source: "pi-bash-timeout/src/index.ts",
 		target: "bash-timeout/index.ts",
 		transform: (content) =>
@@ -82,6 +91,7 @@ const FILES = [
 ];
 
 const PACKAGES = [
+	{ id: "openai-api-parallel-tool-calls", packageDir: "pi-openai-api-parallel-tool-calls" },
 	{ id: "bash-timeout", packageDir: "pi-bash-timeout" },
 	{ id: "webfetch", packageDir: "pi-webfetch" },
 	{ id: "gpt-apply-patch", packageDir: "pi-apply-patch" },

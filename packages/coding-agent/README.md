@@ -360,7 +360,7 @@ The default export can also be `async`. pi waits for async extension factories b
 
 Place in `~/.senpi/agent/extensions/`, `.senpi/extensions/`, or a [senpi package](#pi-packages) to share with others. See [docs/extensions.md](docs/extensions.md) and [examples/extensions/](examples/extensions/).
 
-Builtin extensions ship inside senpi and load before user extensions. Configure them in `settings.json` with `enabledBuiltinExtensions` to allow only specific builtin ids, or `disabledBuiltinExtensions` to skip ids while keeping the default set. The `bash-timeout`, `webfetch`, and `gpt-apply-patch` builtin snapshots are refreshed from the sibling `pi-extensions` checkout at build time when available, and their source versions are recorded in `src/core/extensions/builtin/external-versions.json`.
+Builtin extensions ship inside senpi and load before user extensions. Configure them in `settings.json` with `enabledBuiltinExtensions` to allow only specific builtin ids, or `disabledBuiltinExtensions` to skip ids while keeping the default set. The `openai-api-parallel-tool-calls`, `bash-timeout`, `webfetch`, and `gpt-apply-patch` builtin snapshots are refreshed from the sibling `pi-extensions` checkout at build time when available, and their source versions are recorded in `src/core/extensions/builtin/external-versions.json`.
 
 ### Themes
 
@@ -623,7 +623,7 @@ senpi --thinking high "Solve this complex problem"
 | `PI_TELEMETRY` | Override install/update telemetry. Use `1`/`true`/`yes` to enable or `0`/`false`/`no` to disable. This does not disable update checks |
 | `PI_CACHE_RETENTION` | Set to `long` for extended prompt cache (Anthropic: 1h, OpenAI: 24h) |
 | `PI_BASH_DEFAULT_TIMEOUT_SECONDS` | Default timeout in seconds applied to `bash` tool calls when the model omits `timeout` (default: `120`). |
-| `PI_BASH_MAX_TIMEOUT_SECONDS` | Maximum timeout in seconds. Larger values requested by the model are capped to this (default: `600`, automatically raised to default if a smaller value is configured). |
+| `PI_BASH_MAX_TIMEOUT_SECONDS` | Recommended maximum timeout in seconds for prompt guidance (default: `600`, automatically raised to default if a smaller value is configured). Explicit timeout values are preserved. |
 | `VISUAL`, `EDITOR` | External editor for Ctrl+G |
 
 ---

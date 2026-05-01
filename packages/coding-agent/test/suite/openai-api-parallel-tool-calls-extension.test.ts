@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	addOpenAIApiParallelToolCallsToPayload,
 	PARALLEL_TOOL_CALLS_SECTION,
-} from "../../src/core/extensions/builtin/openai-api-parallel-tool-calls.js";
+} from "../../src/core/extensions/builtin/openai-api-parallel-tool-calls/index.js";
 
 describe("PARALLEL_TOOL_CALLS_SECTION content", () => {
 	it("does not reference phantom lsp_* tools", () => {

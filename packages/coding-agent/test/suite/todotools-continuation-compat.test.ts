@@ -7,7 +7,7 @@ import { type FauxResponseStep, fauxAssistantMessage, fauxToolCall } from "@mari
 import { Type } from "typebox";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CONFIG_DIR_NAME, ENV_AGENT_DIR } from "../../src/config.js";
-import openaiApiParallelToolCallsExtension from "../../src/core/extensions/builtin/openai-api-parallel-tool-calls.js";
+import openaiApiParallelToolCallsExtension from "../../src/core/extensions/builtin/openai-api-parallel-tool-calls/index.js";
 import { resolveContinuationConfig } from "../../src/core/extensions/builtin/todotools/continuation/config.js";
 import { CONTINUATION_DIRECTIVE } from "../../src/core/extensions/builtin/todotools/continuation/prompt.js";
 import todotoolsExtension, {
@@ -116,6 +116,8 @@ function createMockUI(): {
 			onTerminalInput: vi.fn().mockReturnValue(() => {}),
 			setStatus: vi.fn(),
 			setWorkingMessage: vi.fn(),
+			setWorkingVisible: vi.fn(),
+			setWorkingIndicator: vi.fn(),
 			setHiddenThinkingLabel: vi.fn(),
 			setWidget,
 			setFooter: vi.fn(),
@@ -126,9 +128,16 @@ function createMockUI(): {
 			setEditorText: vi.fn(),
 			getEditorText: vi.fn().mockReturnValue(""),
 			editor: vi.fn().mockResolvedValue(undefined),
+			addAutocompleteProvider: vi.fn(),
 			setEditorComponent: vi.fn(),
+			getEditorComponent: vi.fn().mockReturnValue(undefined),
+			getAllThemes: vi.fn().mockReturnValue([]),
+			getTheme: vi.fn().mockReturnValue(undefined),
+			setTheme: vi.fn().mockReturnValue({ success: true }),
+			getToolsExpanded: vi.fn().mockReturnValue(false),
+			setToolsExpanded: vi.fn(),
 			theme: {} as never,
-		} as unknown as ExtensionUIContext,
+		},
 	};
 }
 
@@ -220,8 +229,22 @@ function createExtensionContext(harness: Harness, uiContext: ExtensionUIContext)
 		cwd: harness.tempDir,
 		hasUI: true,
 		sessionManager: harness.sessionManager,
+		modelRegistry: undefined as never,
+		model: undefined,
+		serviceTier: undefined,
+		isIdle: vi.fn().mockReturnValue(true),
+		signal: undefined,
+		abort: vi.fn(),
+		hasPendingMessages: vi.fn().mockReturnValue(false),
+		shutdown: vi.fn(),
+		getContextUsage: vi.fn().mockReturnValue(undefined),
+		getCompactionSettings: vi.fn().mockReturnValue(undefined as never),
+		compact: vi.fn(),
+		getMessageRevision: vi.fn().mockReturnValue(0),
+		applyCompaction: vi.fn().mockResolvedValue({ applied: true, reason: "ok" }),
+		getSystemPrompt: vi.fn().mockReturnValue(""),
 		ui: uiContext,
-	} as unknown as ExtensionContext;
+	};
 }
 
 function getTodotoolsExtension(extensions: Extension[]): Extension {

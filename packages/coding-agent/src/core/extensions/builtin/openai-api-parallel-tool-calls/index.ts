@@ -1,5 +1,5 @@
 import type { Api } from "@mariozechner/pi-ai";
-import type { ExtensionAPI } from "../types.js";
+import type { ExtensionAPI } from "../../types.js";
 
 type ProviderPayload = Record<string, unknown>;
 
@@ -58,14 +58,12 @@ Before modifying any file, gather enough context to get the change right on the 
 Multiple well-informed edits in one pass beats a cycle of edit-then-fix-then-fix-again.
 `;
 
-export default function (pi: ExtensionAPI) {
+export default function openaiApiParallelToolCallsExtension(pi: ExtensionAPI): void {
 	pi.on("before_provider_request", (event, ctx) => {
 		return addOpenAIApiParallelToolCallsToPayload(ctx.model?.api, event.payload);
 	});
 
-	pi.on("before_agent_start", async (event) => {
-		return {
-			systemPrompt: `${event.systemPrompt}\n${PARALLEL_TOOL_CALLS_SECTION}`,
-		};
-	});
+	pi.on("before_agent_start", async (event) => ({
+		systemPrompt: `${event.systemPrompt}\n${PARALLEL_TOOL_CALLS_SECTION}`,
+	}));
 }

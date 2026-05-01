@@ -4,7 +4,7 @@ import backgroundTaskExtension from "./background-task/index.js";
 import bashTimeoutExtension from "./bash-timeout/index.js";
 import compactionExtension from "./compaction/index.js";
 import gptApplyPatchExtension from "./gpt-apply-patch/index.js";
-import openaiApiParallelToolCallsExtension from "./openai-api-parallel-tool-calls.js";
+import openaiApiParallelToolCallsExtension from "./openai-api-parallel-tool-calls/index.js";
 import permissionSystemExtension from "./permission-system/index.js";
 import promptPresetExtension from "./prompt-preset/index.js";
 import redrawsExtension from "./redraws.js";
