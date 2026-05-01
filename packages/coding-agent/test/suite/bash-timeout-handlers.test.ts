@@ -56,14 +56,14 @@ describe("bashTimeoutExtension factory wiring", () => {
 		expect(input.timeout).toBeUndefined();
 	});
 
-	it("caps massive timeouts to max", async () => {
+	it("preserves massive explicit timeouts", async () => {
 		const { api, handlers } = makeApiMock();
 		bashTimeoutExtension(api as never);
 		const input: BashToolInputLike = { command: "sleep 99999", timeout: 999_999 };
 
 		await handlers.tool_call[0]({ toolName: "bash", input });
 
-		expect(input.timeout).toBe(BASH_MAX_TIMEOUT_SECONDS);
+		expect(input.timeout).toBe(999_999);
 	});
 
 	it("preserves valid in-range timeouts", async () => {
@@ -87,7 +87,7 @@ describe("bashTimeoutExtension factory wiring", () => {
 		expect(result.systemPrompt).toContain("You are helpful.");
 		expect(result.systemPrompt).toContain("Bash Tool Timeout Policy");
 		expect(result.systemPrompt).toContain(`Default timeout: ${BASH_DEFAULT_TIMEOUT_SECONDS}s`);
-		expect(result.systemPrompt).toContain(`Maximum timeout: ${BASH_MAX_TIMEOUT_SECONDS}s`);
+		expect(result.systemPrompt).toContain(`Recommended maximum timeout: ${BASH_MAX_TIMEOUT_SECONDS}s`);
 	});
 
 	it("respects PI_BASH_DEFAULT_TIMEOUT_SECONDS env override at factory load time", async () => {

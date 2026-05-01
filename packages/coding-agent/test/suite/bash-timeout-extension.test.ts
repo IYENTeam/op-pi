@@ -75,12 +75,21 @@ describe("applyBashTimeout", () => {
 		expect(result).toEqual({ command: "sleep 1", timeout: 30 });
 	});
 
-	it("caps a user-supplied timeout above the maximum", () => {
+	it("preserves a user-supplied timeout above the maximum", () => {
 		const input = { command: "sleep 99999", timeout: 9999 };
 
 		const result = applyBashTimeout(input, defaults);
 
-		expect(result).toEqual({ command: "sleep 99999", timeout: 600 });
+		expect(result).toEqual({ command: "sleep 99999", timeout: 9999 });
+	});
+
+	it("preserves millisecond-style host timeouts instead of capping them as seconds", () => {
+		const input = { command: "sleep 30", timeout: 30_000 };
+
+		const result = applyBashTimeout(input, defaults);
+
+		expect(result).toBe(input);
+		expect(result.timeout).toBe(30_000);
 	});
 
 	it("treats a non-positive timeout as missing and applies default", () => {
@@ -105,14 +114,14 @@ describe("buildBashTimeoutPrompt", () => {
 		const prompt = buildBashTimeoutPrompt({ defaultSeconds: 120, maxSeconds: 600 });
 
 		expect(prompt).toContain("Default timeout: 120s (2 min)");
-		expect(prompt).toContain("Maximum timeout: 600s (10 min)");
+		expect(prompt).toContain("Recommended maximum timeout: 600s (10 min)");
 	});
 
 	it("falls back to seconds for non-minute-aligned values", () => {
 		const prompt = buildBashTimeoutPrompt({ defaultSeconds: 45, maxSeconds: 90 });
 
 		expect(prompt).toContain("Default timeout: 45s (45s)");
-		expect(prompt).toContain("Maximum timeout: 90s (90s)");
+		expect(prompt).toContain("Recommended maximum timeout: 90s (90s)");
 	});
 
 	it("instructs the model to set timeout explicitly for long-running commands", () => {
