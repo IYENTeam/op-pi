@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added the `webfetch` builtin extension, vendored from `pi-webfetch`, for bounded URL retrieval as markdown, text, or HTML.
+- Added build-time syncing for vendored builtin extensions from `../pi-extensions`, with `external-versions.json` recording the source package versions.
+
+### Changed
+
+- Changed `bash-timeout` to use the synced `pi-bash-timeout` source layout and added `enabledBuiltinExtensions` settings allowlist support for builtin extensions.
+
 ## [0.71.0] - 2026-04-30
 
 ### Breaking Changes

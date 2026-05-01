@@ -173,20 +173,23 @@ Project skill`,
 			);
 
 			mkdirSync(agentDir, { recursive: true });
-			mkdirSync(join(cwd, ".pi"), { recursive: true });
+			mkdirSync(projectConfigDir, { recursive: true });
 			symlinkSync(sharedExtDir, join(agentDir, "extensions"), "dir");
-			symlinkSync(sharedExtDir, join(cwd, ".pi", "extensions"), "dir");
+			symlinkSync(sharedExtDir, join(projectConfigDir, "extensions"), "dir");
 
 			const loader = new DefaultResourceLoader({ cwd, agentDir });
 			await loader.reload();
 
 			const extensionsResult = loader.getExtensions();
-			expect(extensionsResult.extensions).toHaveLength(1);
+			const discoveredExtensions = extensionsResult.extensions.filter(
+				(extension) => !extension.path.startsWith("<builtin:"),
+			);
+			expect(discoveredExtensions).toHaveLength(1);
 			expect(extensionsResult.errors).toEqual([]);
 
 			// mergePaths processes project paths before user paths, so the project
 			// alias is the canonical survivor.
-			expect(extensionsResult.extensions[0].path).toBe(join(cwd, ".pi", "extensions", "shared.ts"));
+			expect(discoveredExtensions[0].path).toBe(join(projectConfigDir, "extensions", "shared.ts"));
 		});
 
 		it("should keep both extensions loaded when command names collide", async () => {
@@ -359,8 +362,42 @@ Content`,
 				"<builtin:openai-api-parallel-tool-calls>",
 				"<builtin:service-tier>",
 				"<builtin:bash-timeout>",
+				"<builtin:webfetch>",
 				"<builtin:compaction>",
 			]);
+		});
+
+		it("should allow settings to load only selected builtin extensions", async () => {
+			// given
+			mkdirSync(projectConfigDir, { recursive: true });
+			writeFileSync(
+				join(projectConfigDir, "settings.json"),
+				JSON.stringify({ enabledBuiltinExtensions: ["bash-timeout", "webfetch"] }, null, 2),
+			);
+			const loader = new DefaultResourceLoader({ cwd, agentDir });
+
+			// when
+			await loader.reload();
+			const builtinPaths = loader.getExtensions().extensions.map((extension) => extension.path);
+
+			// then
+			expect(builtinPaths).toEqual(["<builtin:bash-timeout>", "<builtin:webfetch>"]);
+		});
+
+		it("should let disabled builtin extensions override the builtin allowlist", async () => {
+			// given
+			const settingsManager = SettingsManager.inMemory({
+				enabledBuiltinExtensions: ["bash-timeout", "webfetch"],
+				disabledBuiltinExtensions: ["bash-timeout"],
+			});
+			const loader = new DefaultResourceLoader({ cwd, agentDir, settingsManager });
+
+			// when
+			await loader.reload();
+			const builtinPaths = loader.getExtensions().extensions.map((extension) => extension.path);
+
+			// then
+			expect(builtinPaths).toEqual(["<builtin:webfetch>"]);
 		});
 
 		it("should allow settings to disable selected builtin extensions", async () => {

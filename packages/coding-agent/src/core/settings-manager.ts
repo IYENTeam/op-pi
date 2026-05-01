@@ -110,6 +110,7 @@ export interface Settings {
 	collapseChangelog?: boolean; // Show condensed changelog after update (use /changelog for full)
 	enableInstallTelemetry?: boolean; // default: true - anonymous version/update ping after changelog-detected updates
 	packages?: PackageSource[]; // Array of npm/git package sources (string or object with filtering)
+	enabledBuiltinExtensions?: string[]; // Optional allowlist of builtin extension ids to load (default: all)
 	disabledBuiltinExtensions?: string[]; // Builtin extension ids to skip loading (e.g. ["background-task"])
 	extensions?: string[]; // Array of local extension file paths or directories
 	skills?: string[]; // Array of local skill file paths or directories
@@ -857,6 +858,10 @@ export class SettingsManager {
 
 	getDisabledBuiltinExtensions(): string[] {
 		return [...(this.settings.disabledBuiltinExtensions ?? [])];
+	}
+
+	getEnabledBuiltinExtensions(): string[] | undefined {
+		return this.settings.enabledBuiltinExtensions ? [...this.settings.enabledBuiltinExtensions] : undefined;
 	}
 
 	setPackages(packages: PackageSource[]): void {

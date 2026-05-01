@@ -212,6 +212,8 @@ Paths in `~/.senpi/agent/settings.json` resolve relative to `~/.senpi/agent`. Pa
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `packages` | array | `[]` | npm/git packages to load resources from |
+| `enabledBuiltinExtensions` | string[] | all builtins | Optional allowlist of builtin extension ids to load |
+| `disabledBuiltinExtensions` | string[] | `[]` | Builtin extension ids to skip; overrides `enabledBuiltinExtensions` |
 | `extensions` | string[] | `[]` | Local extension file paths or directories |
 | `skills` | string[] | `[]` | Local skill file paths or directories |
 | `prompts` | string[] | `[]` | Local prompt template paths or directories |

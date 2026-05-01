@@ -1,0 +1,14 @@
+{
+	"extensions": {
+		"bash-timeout": {
+			"packageName": "pi-bash-timeout",
+			"version": "0.1.0",
+			"source": "../pi-extensions/pi-bash-timeout"
+		},
+		"webfetch": {
+			"packageName": "pi-webfetch",
+			"version": "0.1.0",
+			"source": "../pi-extensions/pi-webfetch"
+		}
+	}
+}

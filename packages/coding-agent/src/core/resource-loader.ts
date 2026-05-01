@@ -786,9 +786,14 @@ export class DefaultResourceLoader implements ResourceLoader {
 	}> {
 		const extensions: Extension[] = [];
 		const errors: Array<{ path: string; error: string }> = [];
+		const enabledBuiltinExtensions = this.settingsManager.getEnabledBuiltinExtensions();
+		const enabledBuiltinExtensionSet = enabledBuiltinExtensions ? new Set(enabledBuiltinExtensions) : undefined;
 		const disabledBuiltinExtensions = new Set(this.settingsManager.getDisabledBuiltinExtensions());
 
 		for (const builtinExtension of this.builtinExtensionFactories) {
+			if (enabledBuiltinExtensionSet && !enabledBuiltinExtensionSet.has(builtinExtension.id)) {
+				continue;
+			}
 			if (disabledBuiltinExtensions.has(builtinExtension.id)) {
 				continue;
 			}

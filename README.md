@@ -50,6 +50,9 @@ A new extension loading tier that ships first-party extensions as part of the co
 | **openai-api-parallel-tool-calls** | Intercepts OpenAI provider requests and adds `parallel_tool_calls: true` to payloads when tools are present. Covers `openai-completions`, `openai-responses`, `openai-codex-responses`, and `azure-openai-responses` APIs. Also injects an Execution Strategy section into the system prompt that describes parallelization and context-breadth guidance without hardcoding specific tool names. |
 | **redraws** | Adds `/tui` command to display full-redraw count for TUI debugging. |
 | **bash-timeout** | Applies a default timeout (120s) to every `bash` tool call when the model omits one and caps over-generous timeouts at a maximum (600s). Mirrors free-code's behavior. Configurable via `PI_BASH_DEFAULT_TIMEOUT_SECONDS` and `PI_BASH_MAX_TIMEOUT_SECONDS`. Injects a system-prompt rider so the model knows the active limits. |
+| **webfetch** | Fetches HTTP(S) URLs as markdown, plain text, or HTML with bounded timeout and response-size limits. |
+
+Builtin extensions are loaded by default. Set `enabledBuiltinExtensions` in `settings.json` to load only selected builtin ids, or `disabledBuiltinExtensions` to skip specific builtin ids. Vendored builtins from `pi-extensions` are refreshed during the coding-agent build when `../pi-extensions` or `SENPI_BUILTIN_EXTENSIONS_SOURCE` exists; the included source versions are recorded in `packages/coding-agent/src/core/extensions/builtin/external-versions.json`.
 
 **Global defaults** (seeded to `~/.senpi/agent/extensions/` on first run):
 
