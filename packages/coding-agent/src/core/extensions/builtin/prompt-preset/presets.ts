@@ -18,9 +18,17 @@ function normalizeModelId(modelId: string): string {
 	return modelId.toLowerCase();
 }
 
-function isGpt5FamilyModel(modelId: string): boolean {
+type Gpt5Version = "gpt-5.4" | "gpt-5.5";
+
+function extractGpt5Version(modelId: string): Gpt5Version | undefined {
 	const normalized = normalizeModelId(modelId);
-	return normalized.includes("gpt-5.4") || normalized.includes("gpt-5.5");
+	if (normalized.includes("gpt-5.4")) {
+		return "gpt-5.4";
+	}
+	if (normalized.includes("gpt-5.5")) {
+		return "gpt-5.5";
+	}
+	return undefined;
 }
 
 function isKimiK26Model(modelId: string): boolean {
@@ -39,13 +47,16 @@ export function resolvePresetName(
 	if (
 		settings.promptPreset === "claude-opus" ||
 		settings.promptPreset === "kimi-k2-6" ||
-		settings.promptPreset === "gpt-5"
+		settings.promptPreset === "gpt-5" ||
+		settings.promptPreset === "gpt-5.4" ||
+		settings.promptPreset === "gpt-5.5"
 	) {
 		return settings.promptPreset;
 	}
 
-	if (isGpt5FamilyModel(model.id)) {
-		return "gpt-5";
+	const gpt5Version = extractGpt5Version(model.id);
+	if (gpt5Version) {
+		return gpt5Version;
 	}
 	if (isKimiK26Model(model.id)) {
 		return "kimi-k2-6";
@@ -57,7 +68,7 @@ export function resolvePresetName(
 }
 
 function buildPreset(name: ResolvedPresetName, options: BuildDynamicSystemPromptOptions): ResolvedPromptPreset {
-	if (name === "gpt-5") {
+	if (name === "gpt-5" || name === "gpt-5.4" || name === "gpt-5.5") {
 		return { name, prompt: buildGpt5Prompt(options) };
 	}
 	if (name === "kimi-k2-6") {

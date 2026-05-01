@@ -36,9 +36,25 @@ function fallbackPrompt(): string {
 
 describe("prompt preset resolver", () => {
 	it.each([
-		{ id: "gpt-5.4", provider: "openai", api: "openai-responses" as const },
-		{ id: "gpt-5.5", provider: "openai-codex", api: "openai-codex-responses" as const },
-	])("returns gpt-5 preset for $provider/$id", ({ id, provider, api }) => {
+		{
+			id: "gpt-5.4",
+			provider: "openai",
+			api: "openai-responses" as const,
+			expectedName: "gpt-5.4" as const,
+		},
+		{
+			id: "gpt-5.5",
+			provider: "openai-codex",
+			api: "openai-codex-responses" as const,
+			expectedName: "gpt-5.5" as const,
+		},
+		{
+			id: "gpt-5.5-pro",
+			provider: "openai",
+			api: "openai-responses" as const,
+			expectedName: "gpt-5.5" as const,
+		},
+	])("returns $expectedName preset for $provider/$id", ({ id, provider, api, expectedName }) => {
 		// given
 		const settings: PromptPresetSettings = { promptPreset: "auto" };
 		const model = createModel(id, provider, api);
@@ -47,7 +63,7 @@ describe("prompt preset resolver", () => {
 		const preset = resolvePreset(model, settings);
 
 		// then
-		expect(preset?.name).toBe("gpt-5");
+		expect(preset?.name).toBe(expectedName);
 		expect(preset?.prompt).toContain("You are senpi");
 		expect(preset?.prompt).toContain("## Model Notes (GPT-5)");
 		expect(preset?.prompt).toContain("outcome-first");
@@ -180,9 +196,35 @@ describe("prompt preset resolver", () => {
 		const preset = resolvePreset(model, settings);
 
 		// then
-		expect(preset?.name).toBe("gpt-5");
+		expect(preset?.name).toBe("gpt-5.5");
 		expect(preset?.prompt).not.toContain("Toggle RL");
 		expect(preset?.prompt).not.toContain("Model Notes (Kimi K2)");
 		expect(preset?.prompt).not.toContain("Model Notes (Claude Opus)");
+	});
+
+	it("allows settings.json to force gpt-5.4 regardless of model id", () => {
+		// given
+		const settings: PromptPresetSettings = { promptPreset: "gpt-5.4" };
+		const model = createModel("claude-opus-4-7", "anthropic", "anthropic-messages");
+
+		// when
+		const preset = resolvePreset(model, settings);
+
+		// then
+		expect(preset?.name).toBe("gpt-5.4");
+		expect(preset?.prompt).toContain("## Model Notes (GPT-5)");
+	});
+
+	it("allows settings.json to force gpt-5.5 regardless of model id", () => {
+		// given
+		const settings: PromptPresetSettings = { promptPreset: "gpt-5.5" };
+		const model = createModel("claude-opus-4-7", "anthropic", "anthropic-messages");
+
+		// when
+		const preset = resolvePreset(model, settings);
+
+		// then
+		expect(preset?.name).toBe("gpt-5.5");
+		expect(preset?.prompt).toContain("## Model Notes (GPT-5)");
 	});
 });
