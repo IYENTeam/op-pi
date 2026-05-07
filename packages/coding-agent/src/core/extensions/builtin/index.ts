@@ -1,5 +1,6 @@
 import type { ExtensionFactory } from "../types.js";
 import agentSystemExtension from "./agent-system/index.js";
+import anthropicCodeExecutionExtension from "./anthropic-code-execution/index.js";
 import anthropicToolSearchExtension from "./anthropic-tool-search/index.js";
 import anthropicWebFetchExtension from "./anthropic-web-fetch/index.js";
 import anthropicWebSearchExtension from "./anthropic-web-search/index.js";
@@ -35,6 +36,7 @@ export const builtinExtensions: BuiltinExtensionFactory[] = [
 	{ id: "anthropic-web-search", factory: anthropicWebSearchExtension },
 	{ id: "anthropic-web-fetch", factory: anthropicWebFetchExtension },
 	{ id: "anthropic-tool-search", factory: anthropicToolSearchExtension },
+	{ id: "anthropic-code-execution", factory: anthropicCodeExecutionExtension },
 	{ id: "openai-web-search", factory: openaiWebSearchExtension },
 	{ id: "openai-api-parallel-tool-calls", factory: openaiApiParallelToolCallsExtension },
 	{ id: "service-tier", factory: serviceTierExtension },
