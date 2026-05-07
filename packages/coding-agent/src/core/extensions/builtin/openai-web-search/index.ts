@@ -4,6 +4,26 @@ import type { ExtensionAPI } from "../../types.js";
 type ToolDefinition = Record<string, unknown>;
 
 const OPENAI_RESPONSES_APIS: ReadonlySet<Api> = new Set(["openai-responses", "azure-openai-responses"]);
+const ENABLE_ENV = "PI_OPENAI_WEB_SEARCH";
+
+function parseEnableEnv(envVar: string): boolean {
+	const envValue = process.env[envVar];
+	if (!envValue) {
+		return true;
+	}
+
+	const normalized = envValue.trim().toLowerCase();
+	if (normalized === "0" || normalized === "false" || normalized === "no" || normalized === "off") {
+		return false;
+	}
+
+	if (normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on") {
+		return true;
+	}
+
+	// Unknown values fall back to default-on behavior.
+	return true;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
@@ -38,6 +58,10 @@ export function addOpenAiWebSearchToPayload(api: Api | undefined, payload: unkno
 		return payload;
 	}
 
+	if (!isOpenaiWebSearchEnabled()) {
+		return payload;
+	}
+
 	if (!isRecord(payload)) {
 		return payload;
 	}
@@ -58,6 +82,10 @@ export function addOpenAiWebSearchToPayload(api: Api | undefined, payload: unkno
 	};
 }
 
+export function isOpenaiWebSearchEnabled(): boolean {
+	return parseEnableEnv(ENABLE_ENV);
+}
+
 export const OPENAI_WEB_SEARCH_SECTION = `
 ## Web Search
 
@@ -73,6 +101,10 @@ export default function openaiWebSearchExtension(pi: ExtensionAPI): void {
 
 	pi.on("before_agent_start", async (event, ctx) => {
 		if (!isOpenAiResponsesApi(ctx.model?.api)) {
+			return undefined;
+		}
+
+		if (!isOpenaiWebSearchEnabled()) {
 			return undefined;
 		}
 

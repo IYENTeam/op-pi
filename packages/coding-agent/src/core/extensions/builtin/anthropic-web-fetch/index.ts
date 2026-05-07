@@ -4,7 +4,27 @@ import type { ExtensionAPI } from "../../types.js";
 type ToolDefinition = Record<string, unknown>;
 
 const NATIVE_WEB_FETCH_TYPE = "web_fetch_20260309";
+const ENABLE_ENV = "PI_ANTHROPIC_WEB_FETCH";
 const MAX_USES_ENV = "PI_ANTHROPIC_WEB_FETCH_MAX_USES";
+
+function parseEnableEnv(envVar: string): boolean {
+	const envValue = process.env[envVar];
+	if (!envValue) {
+		return true;
+	}
+
+	const normalized = envValue.trim().toLowerCase();
+	if (normalized === "0" || normalized === "false" || normalized === "no" || normalized === "off") {
+		return false;
+	}
+
+	if (normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on") {
+		return true;
+	}
+
+	// Unknown values fall back to default-on behavior.
+	return true;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
@@ -68,6 +88,10 @@ export function addAnthropicWebFetchToPayload(api: Api | undefined, payload: unk
 		return payload;
 	}
 
+	if (!isAnthropicWebFetchEnabled()) {
+		return payload;
+	}
+
 	if (!isRecord(payload)) {
 		return payload;
 	}
@@ -85,6 +109,10 @@ export function addAnthropicWebFetchToPayload(api: Api | undefined, payload: unk
 	};
 }
 
+export function isAnthropicWebFetchEnabled(): boolean {
+	return parseEnableEnv(ENABLE_ENV);
+}
+
 export const ANTHROPIC_WEB_FETCH_SECTION = `
 ## Web Fetch
 
@@ -99,6 +127,10 @@ export default function anthropicWebFetchExtension(pi: ExtensionAPI): void {
 
 	pi.on("before_agent_start", async (event, ctx) => {
 		if (ctx.model?.api !== "anthropic-messages") {
+			return undefined;
+		}
+
+		if (!isAnthropicWebFetchEnabled()) {
 			return undefined;
 		}
 

@@ -1,12 +1,16 @@
 import { afterEach, describe, expect, it } from "vitest";
-import {
+import anthropicWebSearchExtension, {
 	ANTHROPIC_WEB_SEARCH_SECTION,
 	addAnthropicWebSearchToPayload,
+	isAnthropicWebSearchEnabled,
 } from "../../src/core/extensions/builtin/anthropic-web-search/index.js";
+import type { ExtensionAPI } from "../../src/core/extensions/types.js";
 
+const ENABLE_ENV = "PI_ANTHROPIC_WEB_SEARCH";
 const MAX_USES_ENV = "PI_ANTHROPIC_WEB_SEARCH_MAX_USES";
 
 afterEach(() => {
+	delete process.env[ENABLE_ENV];
 	delete process.env[MAX_USES_ENV];
 });
 
@@ -91,6 +95,84 @@ describe("anthropic-web-search builtin extension", () => {
 			name: "web_search",
 			max_uses: 10,
 		});
+	});
+
+	it("returns original payload reference when explicitly disabled", () => {
+		process.env[ENABLE_ENV] = "0";
+		const payload = {
+			tools: [{ name: "web_search", description: "function tool" }],
+		};
+
+		const result = addAnthropicWebSearchToPayload("anthropic-messages", payload);
+
+		expect(result).toBe(payload);
+	});
+
+	it("still behaves as default-on when enable env is unset", () => {
+		const payload = {
+			tools: [{ name: "other_tool" }],
+		};
+
+		const result = addAnthropicWebSearchToPayload("anthropic-messages", payload) as {
+			tools: Array<Record<string, unknown>>;
+		};
+
+		expect(result.tools).toContainEqual({
+			type: "web_search_20250305",
+			name: "web_search",
+			max_uses: 5,
+		});
+	});
+});
+
+describe("isAnthropicWebSearchEnabled", () => {
+	it("returns true when env is unset", () => {
+		expect(isAnthropicWebSearchEnabled()).toBe(true);
+	});
+
+	it.each(["1", "true", "yes", "on", "TRUE", "YES", "  on  "])("returns true for truthy value %s", (value) => {
+		process.env[ENABLE_ENV] = value;
+		expect(isAnthropicWebSearchEnabled()).toBe(true);
+	});
+
+	it.each(["0", "false", "no", "off", "OFF", "  no  "])("returns false for falsy value %s", (value) => {
+		process.env[ENABLE_ENV] = value;
+		expect(isAnthropicWebSearchEnabled()).toBe(false);
+	});
+
+	it.each(["garbage", "enable", "enabled"])("returns true for unknown value %s", (value) => {
+		process.env[ENABLE_ENV] = value;
+		expect(isAnthropicWebSearchEnabled()).toBe(true);
+	});
+});
+
+describe("anthropic-web-search before_agent_start", () => {
+	it("does not append system prompt when explicitly disabled", async () => {
+		process.env[ENABLE_ENV] = "off";
+
+		type BeforeAgentStartHandler = (
+			event: { systemPrompt: string },
+			ctx: { model?: { api?: string } },
+		) => Promise<{ systemPrompt: string } | undefined>;
+
+		let beforeAgentStartHandler: BeforeAgentStartHandler | undefined;
+		const pi = {
+			on(eventName: string, handler: unknown) {
+				if (eventName === "before_agent_start") {
+					beforeAgentStartHandler = handler as BeforeAgentStartHandler;
+				}
+			},
+		} satisfies Pick<ExtensionAPI, "on">;
+
+		anthropicWebSearchExtension(pi as ExtensionAPI);
+		expect(beforeAgentStartHandler).toBeDefined();
+
+		const result = await beforeAgentStartHandler?.(
+			{ systemPrompt: "system" },
+			{ model: { api: "anthropic-messages" } },
+		);
+
+		expect(result).toBeUndefined();
 	});
 });
 
