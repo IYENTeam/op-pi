@@ -44,6 +44,11 @@
 			"packageName": "pi-openai-web-search",
 			"version": "0.1.0",
 			"source": "../pi-extensions/pi-openai-web-search"
+		},
+		"openai-code-interpreter": {
+			"packageName": "pi-openai-code-interpreter",
+			"version": "0.1.0",
+			"source": "../pi-extensions/pi-openai-code-interpreter"
 		}
 	}
 }
