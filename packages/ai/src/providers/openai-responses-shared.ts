@@ -19,6 +19,7 @@ import type {
 	Context,
 	ImageContent,
 	Model,
+	ProviderNativeContent,
 	StopReason,
 	TextContent,
 	TextSignatureV1,
@@ -207,6 +208,7 @@ export function convertResponsesMessages<TApi extends Api>(
 						const reasoningItem = JSON.parse(block.thinkingSignature) as ResponseReasoningItem;
 						output.push(reasoningItem);
 					}
+				} else if (block.type === "providerNative") {
 				} else if (block.type === "text") {
 					const textBlock = block as TextContent;
 					const parsedSignature = parseTextSignature(textBlock.textSignature);
@@ -398,6 +400,14 @@ export async function processResponsesStream<TApi extends Api>(
 				};
 				output.content.push(currentBlock);
 				stream.push({ type: "toolcall_start", contentIndex: blockIndex(), partial: output });
+			} else {
+				currentItem = null;
+				currentBlock = null;
+				output.content.push({
+					type: "providerNative",
+					subtype: item.type,
+					raw: item,
+				} satisfies ProviderNativeContent);
 			}
 		} else if (event.type === "response.reasoning_summary_part.added") {
 			if (currentItem && currentItem.type === "reasoning") {
