@@ -19,6 +19,26 @@
 			"packageName": "pi-apply-patch",
 			"version": "0.1.0",
 			"source": "../pi-extensions/pi-apply-patch"
+		},
+		"anthropic-web-search": {
+			"packageName": "pi-anthropic-web-search",
+			"version": "0.1.0",
+			"source": "../pi-extensions/pi-anthropic-web-search"
+		},
+		"anthropic-web-fetch": {
+			"packageName": "pi-anthropic-web-fetch",
+			"version": "0.1.0",
+			"source": "../pi-extensions/pi-anthropic-web-fetch"
+		},
+		"anthropic-tool-search": {
+			"packageName": "pi-anthropic-tool-search",
+			"version": "0.1.0",
+			"source": "../pi-extensions/pi-anthropic-tool-search"
+		},
+		"openai-web-search": {
+			"packageName": "pi-openai-web-search",
+			"version": "0.1.0",
+			"source": "../pi-extensions/pi-openai-web-search"
 		}
 	}
 }
