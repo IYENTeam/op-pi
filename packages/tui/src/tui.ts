@@ -1143,6 +1143,12 @@ export class TUI extends Container {
 				return;
 			}
 
+			if (newLines.length > this.previousLines.length) {
+				const lineCountDelta = newLines.length - this.previousLines.length;
+				const maxViewportTop = Math.max(0, newLines.length - height);
+				viewportTop = Math.min(maxViewportTop, prevViewportTop + lineCountDelta);
+			}
+
 			let firstVisibleChanged = -1;
 			let lastVisibleChanged = -1;
 			for (let row = 0; row < height; row++) {
@@ -1162,7 +1168,13 @@ export class TUI extends Container {
 				this.previousLines = newLines;
 				this.previousWidth = width;
 				this.previousHeight = height;
-				this.previousViewportTop = prevViewportTop;
+				this.previousViewportTop = viewportTop;
+				return;
+			}
+
+			if (viewportTop !== prevViewportTop) {
+				logRedraw(`growth changed visible viewport (${prevViewportTop} -> ${viewportTop})`);
+				fullRender(true);
 				return;
 			}
 

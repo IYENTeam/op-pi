@@ -673,6 +673,29 @@ describe("TUI differential rendering", () => {
 		tui.stop();
 	});
 
+	it("keeps the viewport anchored when content expands above the visible rows", async () => {
+		const terminal = new VirtualTerminal(40, 5);
+		const tui = new TUI(terminal);
+		const component = new TestComponent();
+		tui.addChild(component);
+
+		const stableTail = Array.from({ length: 8 }, (_, i) => `Tail ${i}`);
+		component.lines = ["collapsed", ...stableTail];
+		tui.start();
+		await terminal.waitForRender();
+
+		assert.deepStrictEqual(terminal.getViewport(), ["Tail 3", "Tail 4", "Tail 5", "Tail 6", "Tail 7"]);
+
+		const expandedBody = Array.from({ length: 60 }, (_, i) => `Expanded ${i}`);
+		component.lines = ["collapsed", ...expandedBody, ...stableTail];
+		tui.requestRender();
+		await terminal.waitForRender();
+
+		assert.deepStrictEqual(terminal.getViewport(), ["Tail 3", "Tail 4", "Tail 5", "Tail 6", "Tail 7"]);
+
+		tui.stop();
+	});
+
 	it("clears stale content when maxLinesRendered was inflated by a transient component", async () => {
 		const terminal = new VirtualTerminal(40, 10);
 		const tui = new TUI(terminal);
