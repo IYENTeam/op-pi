@@ -18,8 +18,6 @@ An opinionated fork of [badlogic/pi-mono](https://github.com/badlogic/pi-mono) t
 
 > **Upstream**: [pi-mono](https://github.com/badlogic/pi-mono) by [@mariozechner](https://github.com/badlogic) -- tools for building AI agents and managing LLM deployments.
 
-## What This Fork Adds
-
 ## Why "senpi"
 
 `senpi` is a small joke on **senpai**, but it is also literal project positioning: this fork aims to be a more **sane** pi with practical additions that make everyday agent work smoother without abandoning upstream's core design.
@@ -146,7 +144,8 @@ For Slack/chat automation and workflows see [earendil-works/pi-chat](https://git
 npm install          # Install all dependencies
 npm run build        # Build all packages (dependency order)
 npm run check        # Lint, format, and type check
-./test.sh            # Run tests (skips LLM-dependent tests without API keys)
+npm test             # Run tests (skips LLM-dependent tests without API keys)
+./pi-test.sh         # Live-API integration suite (env-gated; requires API keys)
 ```
 
 > `npm run check` requires `npm run build` first. The web-ui package uses `tsc` which needs compiled `.d.ts` files from dependencies.

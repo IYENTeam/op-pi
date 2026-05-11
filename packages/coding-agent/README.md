@@ -10,7 +10,7 @@
 <p align="center">
   <a href="https://discord.com/invite/3cU7Bz4UPx"><img alt="Discord" src="https://img.shields.io/badge/discord-community-5865F2?style=flat-square&logo=discord&logoColor=white" /></a>
   <a href="https://www.npmjs.com/package/@code-yeongyu/senpi"><img alt="npm" src="https://img.shields.io/npm/v/@code-yeongyu/senpi?style=flat-square" /></a>
-  <a href="https://github.com/code-yeongyu/sanepi-mono/actions/workflows/ci.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/badlogic/pi-mono/ci.yml?style=flat-square&branch=main" /></a>
+  <a href="https://github.com/code-yeongyu/senpi-mono/actions/workflows/ci.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/code-yeongyu/senpi-mono/ci.yml?style=flat-square&branch=main" /></a>
 </p>
 <p align="center">
   <strong>senpi</strong> is a senpai-name pun, and also a more <strong>sane</strong> pi with practical extras.
@@ -462,21 +462,25 @@ See [docs/rpc.md](docs/rpc.md) for the protocol.
 
 ## Philosophy
 
-Senpi is aggressively extensible so it doesn't have to dictate your workflow. Features that other tools bake in can be built with [extensions](#extensions), [skills](#skills), or installed from third-party [senpi packages](#pi-packages). This keeps the core minimal while letting you shape senpi to fit how you work.
+Senpi inherits upstream pi's extension-first design — the **core stays minimal**, every feature is reachable through the [extension API](docs/extensions.md). The senpi fork's bet is that a small, opinionated set of features is so commonly wanted that shipping them as **builtin extensions** (loaded by default, disable per-id via `disabledBuiltinExtensions`) beats forcing every user to bolt them on. Anything you do not want is still one settings flag away from being off.
 
-**No MCP.** Build CLI tools with READMEs (see [Skills](#skills)), or build an extension that adds MCP support. [Why?](https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/)
+Upstream pi-mono explicitly omits these features. Senpi ships them as builtins (see the root [README](../../README.md#what-this-fork-adds) for the full list):
 
-**No sub-agents.** There's many ways to do this. Spawn senpi instances via tmux, or build your own with [extensions](#extensions), or install a package that does it your way.
+- **Sub-agents** — `task`, `background_output`, `background_cancel` tools via [`background-task`](src/core/extensions/builtin/background-task/AGENTS.md). Used for parallel exploration and long-running QA.
+- **Permission popups** — full opencode-style permission flow via [`permission-system`](src/core/extensions/builtin/permission-system/AGENTS.md). Opt-in per tool/rule; non-interactive modes auto-deny unknown calls.
+- **Built-in to-dos** — `todowrite` / `todoread` tools with branch-aware persistence and a continuation loop. Required by senpi's dynamic prompt; remove the builtin id to opt out.
+- **Dynamic system prompt** — intent gate + tool categorization + policy enforcement via [`dynamic-prompt/`](src/core/dynamic-prompt/AGENTS.md). Replaces upstream's static prompt.
+- **Per-model prompt presets** — `gpt-5.x`, `claude-opus-4-{5,6,7}`, `kimi-k2-6` via [`prompt-preset`](src/core/extensions/builtin/prompt-preset/AGENTS.md).
+- **GPT `apply_patch` tool** — Codex-style freeform grammar via [`gpt-apply-patch`](src/core/extensions/builtin/gpt-apply-patch/AGENTS.md), activated only for GPT models.
+- **Compaction pipeline** — speculative + restoration + degradation monitoring via [`compaction`](src/core/extensions/builtin/compaction/AGENTS.md).
 
-**No permission popups.** Run in a container, or build your own confirmation flow with [extensions](#extensions) inline with your environment and security requirements.
+Senpi still keeps the things upstream **does** drop:
 
-**No plan mode.** Write plans to files, or build it with [extensions](#extensions), or install a package.
+**No MCP** — build CLI tools with READMEs (see [Skills](#skills)) or add MCP via an extension. [Why?](https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/)
+**No plan mode** — write plans to files, or build it via an extension.
+**No background bash** — use tmux for full observability and direct interaction.
 
-**No built-in to-dos.** They confuse models. Use a TODO.md file, or build your own with [extensions](#extensions).
-
-**No background bash.** Use tmux. Full observability, direct interaction.
-
-Read the [blog post](https://mariozechner.at/posts/2025-11-30-pi-coding-agent/) for the full rationale.
+Read upstream's [blog post](https://mariozechner.at/posts/2025-11-30-pi-coding-agent/) for the original rationale that senpi forks from.
 
 ---
 

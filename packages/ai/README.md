@@ -434,7 +434,7 @@ Do not use `stream()` or `complete()` for image generation. Image generation is 
 ### Basic Image Generation
 
 ```typescript
-import { getImageModel, generateImages } from '@mariozechner/pi-ai';
+import { getImageModel, generateImages } from '@earendil-works/pi-ai';
 
 const model = getImageModel('openrouter', 'google/gemini-2.5-flash-image');
 

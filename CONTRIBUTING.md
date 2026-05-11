@@ -1,6 +1,6 @@
-# Contributing to pi
+# Contributing to senpi
 
-This guide exists to save both sides time.
+senpi is an opinionated fork of [badlogic/pi-mono](https://github.com/badlogic/pi-mono). This guide covers the fork-specific contribution rules. For the upstream contribution culture, see pi-mono's [CONTRIBUTING.md](https://github.com/badlogic/pi-mono/blob/main/CONTRIBUTING.md).
 
 ## The One Rule
 
@@ -8,86 +8,58 @@ This guide exists to save both sides time.
 
 Using AI to write code is fine. Submitting AI-generated slop without understanding it is not.
 
-If you use an agent, run it from the `pi-mono` root directory so it picks up `AGENTS.md` automatically. Your agent must follow the rules and guidelines in that file.
+If you use an agent, run it from the `senpi-mono` root directory so it picks up `AGENTS.md` automatically. Your agent must follow the rules and guidelines in that file and in the nearest subdirectory `AGENTS.md`.
 
-## Contribution Gate
+## Fork Strategy (READ BEFORE EDITING `src/`)
 
-All issues and PRs from new contributors are auto-closed by default.
+senpi periodically rebases on `upstream/main` (i.e. `badlogic/pi-mono`). To keep rebases clean:
 
-Issues submitted Friday through Sunday are not reviewed. If something is urgent, ask on Discord: https://discord.com/invite/3cU7Bz4UPx
-
-Maintainers review auto-closed issues daily and reopen worthwhile ones. Issues that do not meet the quality bar below will not be reopened or receive a reply.
-
-Approval happens through maintainer replies on issues:
-
-- `lgtmi`: your future issues will not be auto-closed
-- `lgtm`: your future issues and PRs will not be auto-closed
-
-`lgtmi` does not grant rights to submit PRs. Only `lgtm` grants rights to submit PRs.
-
-## Quality Bar For Issues
-
-If you open an issue, you must use one of the two GitHub issue templates.
-
-If you open an issue, keep it short, concrete, and worth reading.
-
-- Keep it concise. If it does not fit on one screen, it is too long.
-- Write in your own voice.
-- State the bug or request clearly.
-- Explain why it matters.
-- If you want to implement the change yourself, say so.
-
-If the issue is real and written well, a maintainer may reopen it, reply `lgtmi`, or reply `lgtm`.
-
-## Blocking
-
-If you ignore this document twice, or if you spam the tracker with agent-generated issues, your GitHub account will be permanently blocked.
-
-If you send a large volume of issues through automation, your GitHub account will be permanently blocked. No taksies backsies.
+1. **Extension-first** — every new feature lands as a builtin extension under `packages/coding-agent/src/core/extensions/builtin/`, or as a user extension under `packages/coding-agent/examples/extensions/`. Touch `core/` only when no extension hook can do the job.
+2. **`changes.md` contract** — any modification to an upstream-tracked file MUST add a section to the nearest `changes.md` documenting *what changed, why, why an extension couldn't handle it, and expected merge-conflict zones*. See the existing files for templates.
+3. **Skim the relevant `AGENTS.md`** in the directory you are about to modify. It tells you which patterns are load-bearing.
 
 ## Before Submitting a PR
 
-Do not open a PR unless you have already been approved with `lgtm`.
-
-Before submitting a PR:
-
 ```bash
-npm run check
-./test.sh
+npm run check     # Biome + tsgo + browser-smoke + web-ui check (pre-commit equivalent)
+npm test          # Vitest across workspaces (skips live-API)
+./pi-test.sh      # Optional: live-API integration suite (env-gated; requires API keys)
 ```
 
-Both must pass.
+`npm run check` and `npm test` must pass. `./pi-test.sh` is only required when your change touches a provider that the live tests exercise.
 
 Do not edit `CHANGELOG.md`. Changelog entries are added by maintainers.
 
-If you are adding a new provider to `packages/ai`, see `AGENTS.md` for required tests.
+If you are adding a new provider to `packages/ai`, see [`packages/ai/src/providers/AGENTS.md`](packages/ai/src/providers/AGENTS.md) for the 7-step checklist and required cross-provider tests.
+
+## Quality Bar for Issues
+
+If you open an issue:
+
+- Keep it concise. If it does not fit on one screen, it is too long.
+- State the bug or request clearly.
+- Explain why it matters.
+- Include a repro (minimal reproduction or exact command + observed vs expected).
+- If you want to implement the change yourself, say so.
 
 ## Philosophy
 
-pi's core is minimal. If your feature does not belong in the core, it should be an extension. PRs that bloat the core will likely be rejected.
+senpi's core stays minimal. Most "this could be a feature" requests should be implemented as extensions ([`packages/coding-agent/src/core/extensions/builtin/`](packages/coding-agent/src/core/extensions/builtin/AGENTS.md) for in-tree, [`packages/coding-agent/examples/extensions/`](packages/coding-agent/examples/extensions/) for external).
 
-## Questions?
+If your change must modify upstream-tracked source:
 
-Ask on [Discord](https://discord.com/invite/nKXTsAcmbT).
+1. Confirm no extension hook covers it (read [docs/extensions.md](packages/coding-agent/docs/extensions.md)).
+2. Add a `changes.md` section before sending the PR.
 
-## FAQ
+PRs that bloat the core or skip `changes.md` will be asked to convert to an extension or document the modification.
 
-### Why are new issues and PRs auto-closed?
+## Style
 
-pi receives more issues than the maintainers can responsibly review in real time. Many reports do not meet the quality bar in this guide or do not follow CONTRIBUTING.md. Some are slung at the repository mindlessly via an agent instead of being reviewed and shaped by the person submitting them. Auto-closing creates a buffer so maintainers can review the tracker on their own schedule and reopen the issues that meet the quality bar.
+- TAB indent (Biome `indentWidth: 3`). 120-column line width.
+- Match the style of the surrounding file. The codebase is largely consistent — Biome plus the existing patterns are the source of truth.
+- Use the path aliases defined in root `tsconfig.json` (`@earendil-works/pi-*`, `@code-yeongyu/senpi*`).
 
-### Why are weekend issues not reviewed?
+## Communication
 
-Maintainers need uninterrupted time away from the issue tracker. Issues submitted Friday through Sunday are auto-closed and are not part of the Monday review queue. If a problem is urgent, ask on Discord and include the short version, a repro, and the relevant logs.
-
-### Why do some issues get no reply?
-
-A reply is maintenance work too. Low-signal issues, unclear reports, duplicates, and issues that do not follow this guide may be closed without discussion. This keeps time available for reproducible bugs, thoughtful requests, and contributors who have done the work to make their report actionable.
-
-### Why not let AI triage everything?
-
-AI can help group duplicates, summarize reports, and spot missing information. It is not trusted to make final maintainer decisions. Polished AI-generated issues can still be wrong, misleading, or expensive to investigate. Human review remains the final gate.
-
-### Is this hostile to contributors?
-
-No. It is a guardrail against burnout and tracker spam. Short, concrete, reproducible issues are welcome. Thoughtful contributions are welcome. Automated slop, entitlement, and large volumes of low-effort reports are not.
+- Issue and PR discussion happens on GitHub: <https://github.com/code-yeongyu/senpi-mono>.
+- Upstream pi-mono discussions: <https://discord.com/invite/3cU7Bz4UPx>.

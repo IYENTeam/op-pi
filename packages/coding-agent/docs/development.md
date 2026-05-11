@@ -1,12 +1,12 @@
 # Development
 
-See [AGENTS.md](../../../AGENTS.md) for additional guidelines.
+See [AGENTS.md](../../../AGENTS.md) at the monorepo root for fork-specific guidelines (`changes.md` contract, extension-first philosophy, tab indent / 120 width, etc.).
 
 ## Setup
 
 ```bash
-git clone https://github.com/earendil-works/pi-mono
-cd pi-mono
+git clone https://github.com/code-yeongyu/senpi-mono
+cd senpi-mono
 npm install
 npm run build
 ```
@@ -14,20 +14,20 @@ npm run build
 Run from source:
 
 ```bash
-/path/to/pi-mono/pi-test.sh
+/path/to/senpi-mono/pi-test.sh
 ```
 
-The script can be run from any directory. Pi keeps the caller's current working directory.
+The script can be run from any directory. Senpi keeps the caller's current working directory.
 
 ## Forking / Rebranding
 
-Configure via `package.json`:
+This repo is itself a rebrand of upstream `pi-mono` to `senpi`. The runtime identity (CLI name, config dir, env var prefix) is configured via `package.json`:
 
 ```json
 {
   "piConfig": {
-    "name": "pi",
-    "configDir": ".pi"
+    "name": "senpi",
+    "configDir": ".senpi"
   }
 }
 ```
@@ -36,7 +36,7 @@ Change `name`, `configDir`, and `bin` field for your fork. Affects CLI banner, c
 
 ## Path Resolution
 
-Three execution modes: npm install, standalone binary, tsx from source.
+Three execution modes: npm install, standalone binary (`bun build --compile`), tsx from source.
 
 **Always use `src/config.ts`** for package assets:
 
@@ -55,17 +55,26 @@ Never use `__dirname` directly for package assets.
 ## Testing
 
 ```bash
-./test.sh                         # Run non-LLM tests (no API keys needed)
-npm test                          # Run all tests
-npm test -- test/specific.test.ts # Run specific test
+npm test            # Vitest across workspaces (skips live-API; default test runner)
+./pi-test.sh        # Live-API integration suite (env-gated; requires API keys)
+npm run check       # Biome + tsgo + browser-smoke + web-ui check (pre-commit equivalent)
+```
+
+Run a specific test:
+
+```bash
+npm test --workspace @code-yeongyu/senpi -- test/specific.test.ts
 ```
 
 ## Project Structure
 
 ```
 packages/
-  ai/           # LLM provider abstraction
-  agent/        # Agent loop and message types  
-  tui/          # Terminal UI components
-  coding-agent/ # CLI and interactive mode
+  ai/           # @earendil-works/pi-ai — LLM provider abstraction
+  agent/        # @earendil-works/pi-agent-core — Agent loop and message types
+  tui/          # @earendil-works/pi-tui — Terminal UI components
+  coding-agent/ # @code-yeongyu/senpi — CLI and interactive mode (this package)
+  web-ui/       # @earendil-works/pi-web-ui — Lit chat components
 ```
+
+See the monorepo root [AGENTS.md](../../../AGENTS.md) for the full task → location map.
