@@ -222,3 +222,5 @@ A tiny, completely unserious love letter to the [Ganbare Ganbare Senpai](https:/
 - **Ganbare, ganbare, senpi! 頑張れ頑張れ先輩!** *Do your best, do your best, senpai!*
 
 Yes, the entire project name is a senpai pun. Type strictly, run the tests, write a `changes.md`, keep the merge surface tiny — and *gan ganbare ganbare senpi ora!*
+
+Shoutout to [plugsuits](https://github.com/minpeter/plugsuits): senpi's compaction system takes inspiration from its design.
