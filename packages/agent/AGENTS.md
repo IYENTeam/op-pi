@@ -55,3 +55,4 @@ src/
 
 - Author header is `Mario Zechner` (upstream). The fork's only intentional source change is in `src/changes.md`.
 - `README.md` doubles as quick-start docs; keep it in sync with public API edits.
+- `docs/agent-harness.md` covers the harness layer in depth (configuration knobs, lifecycle, hook contracts).

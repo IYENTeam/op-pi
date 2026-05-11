@@ -1,6 +1,6 @@
 # senpi-mono
 
-**Generated:** 2026-05-10 · **Commit:** d90b859e · **Branch:** main
+**Generated:** 2026-05-11 · **Commit:** 4b3f407d · **Branch:** main
 
 ## OVERVIEW
 
@@ -33,9 +33,18 @@ senpi-mono/
 | Task | Location |
 |------|----------|
 | Add LLM provider | [`packages/ai/src/providers/`](packages/ai/src/providers/AGENTS.md) — 7-step checklist |
+| Add text-format tool-call protocol (Hermes/XML/YAML) | [`packages/ai/src/tool-call-middleware/`](packages/ai/src/tool-call-middleware/AGENTS.md) |
 | Add senpi tool/command/flag | builtin extension in [`packages/coding-agent/src/core/extensions/builtin/`](packages/coding-agent/src/core/extensions/AGENTS.md) |
 | Add core senpi tool | [`packages/coding-agent/src/core/tools/`](packages/coding-agent/src/core/tools/AGENTS.md) — only if upstream parity required |
+| Change senpi system prompt | [`packages/coding-agent/src/core/dynamic-prompt/`](packages/coding-agent/src/core/dynamic-prompt/AGENTS.md) (or extensions/builtin/prompt-preset/ for per-model) |
+| Modify built-in extensions | [`packages/coding-agent/src/core/extensions/builtin/`](packages/coding-agent/src/core/extensions/builtin/AGENTS.md) — see per-extension AGENTS.md |
+| Sub-agent / background-task work | [`packages/coding-agent/src/core/extensions/builtin/background-task/`](packages/coding-agent/src/core/extensions/builtin/background-task/AGENTS.md) |
+| Permission/agent system | [`permission-system/`](packages/coding-agent/src/core/extensions/builtin/permission-system/AGENTS.md) + [`agent-system/`](packages/coding-agent/src/core/extensions/builtin/agent-system/AGENTS.md) |
+| Compaction policy | [`compaction/`](packages/coding-agent/src/core/extensions/builtin/compaction/AGENTS.md) (builtin extension; `core/compaction/` only holds constants) |
+| Per-model prompt presets | [`prompt-preset/`](packages/coding-agent/src/core/extensions/builtin/prompt-preset/AGENTS.md) |
+| GPT `apply_patch` tool | [`gpt-apply-patch/`](packages/coding-agent/src/core/extensions/builtin/gpt-apply-patch/AGENTS.md) |
 | Add TUI component | [`packages/coding-agent/src/modes/interactive/`](packages/coding-agent/src/modes/interactive/AGENTS.md) |
+| Cross-cutting utility (git, shell, paths, image) | [`packages/coding-agent/src/utils/`](packages/coding-agent/src/utils/AGENTS.md) |
 | Modify agent loop semantics | `packages/agent/src/agent-loop.ts` — see [`packages/agent/AGENTS.md`](packages/agent/AGENTS.md) |
 | Modify renderer | `packages/tui/src/tui.ts` `doRender()` — see [`packages/tui/AGENTS.md`](packages/tui/AGENTS.md) |
 | Document fork mod | new section in nearest existing `changes.md` (or create one alongside the modified file) |

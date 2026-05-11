@@ -83,6 +83,7 @@ test/
 ## NOTES
 
 - The MODERN test harness is `test/suite/harness.ts`. `test/test-harness.ts` is legacy and only kept for already-converted suites.
+- Test docs: [`test/suite/README.md`](test/suite/README.md) (harness-based suite rules), [`test/integration/README.md`](test/integration/README.md) (API-key-gated live tests), [`test/fixtures/compaction/README.md`](test/fixtures/compaction/README.md) (per-feature compaction fixtures).
 - `docs/extensions.md` is the 2262-line capability reference. Read it before claiming "no extension hook can do X".
 - `examples/extensions/` ships canonical extension reference implementations (sandbox, custom-provider-anthropic, custom-provider-gitlab-duo, with-deps).
 - The Bun binary build (`build:binary`) compiles `dist/bun/cli.js` into a single executable; `copy-binary-assets` copies fonts/themes/templates into `dist/`.
