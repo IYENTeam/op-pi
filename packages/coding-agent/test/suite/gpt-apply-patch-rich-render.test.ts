@@ -2,7 +2,13 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import stripAnsi from "strip-ansi";
 import { afterEach, describe, expect, it } from "vitest";
-import { createApplyPatchTool, renderPatchPreview } from "../../src/core/extensions/builtin/gpt-apply-patch/index.js";
+import {
+	createApplyPatchTool,
+	PATCH_PREVIEW_MAX_CHARS,
+	PATCH_PREVIEW_MAX_LINES,
+	renderPatchPreview,
+	truncatePreview,
+} from "../../src/core/extensions/builtin/gpt-apply-patch/index.js";
 import type { ToolRenderContext } from "../../src/core/extensions/types.js";
 import { initTheme, theme } from "../../src/modes/interactive/theme/theme.js";
 import type { Harness } from "./harness.js";
@@ -138,6 +144,26 @@ describe("gpt apply_patch rich TUI rendering", () => {
 		expect(rendered).toContain("-30 line-30");
 		expect(rendered).toContain("+30 line-30 updated");
 		expect(rendered).not.toContain(" 1 line-1");
+	});
+
+	it("keeps truncated previews within the configured line and character caps", () => {
+		const plainPreview = truncatePreview(
+			Array.from({ length: PATCH_PREVIEW_MAX_LINES + 12 }, (_, index) => `line-${index + 1}`).join("\n"),
+		);
+		const oversizedPreview = truncatePreview(`${"x".repeat(PATCH_PREVIEW_MAX_CHARS + 500)}\nend`);
+		const oversizedChangedHunkPreview = truncatePreview(
+			[
+				...Array.from({ length: 20 }, (_, index) => ` ${index + 1} line-${index + 1}`),
+				`-21 ${"x".repeat(PATCH_PREVIEW_MAX_CHARS + 500)}`,
+				"+21 changed",
+			].join("\n"),
+		);
+
+		expect(plainPreview.split("\n")).toHaveLength(PATCH_PREVIEW_MAX_LINES);
+		expect(oversizedPreview.length).toBeLessThanOrEqual(PATCH_PREVIEW_MAX_CHARS);
+		expect(oversizedPreview).toContain("…");
+		expect(oversizedChangedHunkPreview.length).toBeLessThanOrEqual(PATCH_PREVIEW_MAX_CHARS);
+		expect(oversizedChangedHunkPreview.split("\n").length).toBeLessThanOrEqual(PATCH_PREVIEW_MAX_LINES);
 	});
 
 	it("renders expanded patch previews with OpenCode-like highlighted diff rows", () => {

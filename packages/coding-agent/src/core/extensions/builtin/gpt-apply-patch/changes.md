@@ -4,7 +4,7 @@
 
 ### What changed
 
-- `preview-format.ts`: Large apply_patch previews now truncate around the first changed hunk instead of showing only the file head and tail.
+- `preview-format.ts`: Large apply_patch previews now truncate around the first changed hunk instead of showing only the file head and tail, while still enforcing the configured preview line and character caps.
 
 ### Why
 
