@@ -53,8 +53,8 @@ The release script (`scripts/release.mjs`) imports `scripts/calver.mjs` to compu
 
 ### CalVer rules
 
-- First release of the day: `YYYY.MM.DD` (e.g. `2026.05.13`).
-- Same-day re-release: `YYYY.MM.DD-N` where N ≥ 2 (e.g. `2026.05.13-2`).
+- First release of the day: `YYYY.M.D` (e.g. `2026.5.13`).
+- Same-day re-release: `YYYY.M.D-N` where N ≥ 2 (e.g. `2026.5.13-2`).
 - All 5 workspaces always share the version.
 - Tags are `v<version>` — `build-binaries.yml` triggers on these.
 
@@ -77,10 +77,6 @@ gh workflow run sync-upstream.yml
 > Do not edit `CHANGELOG.md`. Changelog entries are added by maintainers.
 
 This still applies. The release script will surface `[Unreleased]` entries; maintainers curate them before cutting a release.
-
-### `verify:pms` and the first CalVer release
-
-`npm run verify:pms` may fail at the pnpm step until the first CalVer release is published to npm. This is documented in [AGENTS.md § VERSIONING & UPSTREAM SYNC](AGENTS.md#versioning--upstream-sync). Use `SENPI_SKIP_PM_VERIFY=1` to skip locally if needed; CI should skip the pnpm matrix entry until after the first publish.
 
 ## Quality Bar for Issues
 

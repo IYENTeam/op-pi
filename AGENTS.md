@@ -87,22 +87,22 @@ This fork uses **CalVer** (Calendar Versioning) with an explicit upstream sync p
 
 ### Version format
 
-- **First release of the day**: `YYYY.MM.DD` (e.g. `2026.05.13`).
-- **Same-day re-release**: `YYYY.MM.DD-N` where N ≥ 2 (e.g. `2026.05.13-2`, `2026.05.13-3`). Note: there is no `-1`; the bare date IS the first release.
+- **First release of the day**: `YYYY.M.D` (e.g. `2026.5.13`).
+- **Same-day re-release**: `YYYY.M.D-N` where N ≥ 2 (e.g. `2026.5.13-2`, `2026.5.13-3`). Note: there is no `-1`; the bare date IS the first release.
 - All 5 workspace packages (`ai`, `agent`, `coding-agent`, `tui`, `web-ui`) are version-locked.
 - Root `package.json` is `"private": true` and has NO `version` field.
 
 ### Version computation
 
 `scripts/calver.mjs` computes the next version by:
-1. Taking today's UTC date as `YYYY.MM.DD`.
+1. Taking today's UTC date as `YYYY.M.D`.
 2. Querying npm registry for existing versions of each workspace package.
 3. Querying `git tag --list "v<today>*"`.
 4. Returning `today` if no match, else `today-(maxN+1)`.
 
 ### Git tag and npm publish
 
-- Git tag format: `v<version>` (e.g. `v2026.05.13`, `v2026.05.13-2`).
+- Git tag format: `v<version>` (e.g. `v2026.5.13`, `v2026.5.13-2`).
 - `.github/workflows/build-binaries.yml` already triggers on `v*` — CalVer tags match.
 - `npm publish` uses `--tag latest` explicitly because the `-N` suffix looks like a prerelease tag to npm and would otherwise NOT be picked up by `@latest`.
 
@@ -155,17 +155,7 @@ Every fork-modified subdirectory MUST have a `changes.md` documenting what chang
 | `sync: record upstream pin <short-sha>` | `.github/upstream.json` pointer update |
 | `sync: WIP merge of upstream <short-sha> (conflicts)` | Branch commit before PR (conflict path) |
 
-### Known limitation: `verify:pms` pnpm step
-
-`npm run verify:pms` runs `pnpm install` in an isolated snapshot (lockfile-free) against the working tree. Until the current CalVer workspace version (e.g. `2026.05.13`) is **published to the npm registry**, pnpm fails with `ERR_PNPM_NO_MATCHING_VERSION` for the inter-workspace deps (`@earendil-works/pi-*@^<version>`).
-
-Root cause: pnpm hits the npm registry first for caret ranges. The `workspace:` protocol does not help — pnpm's strict SemVer 2.0.0 parser rejects `2026.05.13` because `05` is a leading-zero numeric component (§ 2). `workspace:^`, `workspace:*`, and even `workspace:<exact-version>` all fail with `ERR_PNPM_NO_MATCHING_VERSION_INSIDE_WORKSPACE`. npm 11 itself does NOT support the `workspace:` protocol in install resolution (`EUNSUPPORTEDPROTOCOL` from `npm-package-arg`).
-
-**Workaround during the pre-first-publish window:**
-- Local commits: `SENPI_SKIP_PM_VERIFY=1 git commit ...` (already supported by the husky pre-commit hook).
-- CI: keep `verify:pms` skipped (or `continue-on-error: true` for the pnpm matrix entry) until after the first CalVer release.
-
-After the first CalVer release is published to npm via `npm run release`, pnpm fetches `^<version>` directly from the registry and the issue resolves itself. No code fix is needed at that point.
+Unpadded CalVer components are SemVer-compatible, so npm, bun, and pnpm resolve inter-workspace `^<version>` ranges consistently during `npm run verify:pms`.
 
 ## ANTI-PATTERNS (THIS FORK)
 

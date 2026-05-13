@@ -2,15 +2,15 @@
 /**
  * CalVer (Calendar Versioning) computation for the senpi monorepo.
  *
- * Version format: `YYYY.MM.DD` for the first release of the day, then
- * `YYYY.MM.DD-N` (N >= 1) for each subsequent same-day re-release.
+ * Version format: `YYYY.M.D` for the first release of the day, then
+ * `YYYY.M.D-N` (N >= 2) for each subsequent same-day re-release.
  *
  * Same-day re-release contract:
- * - The very first publish on a given UTC date uses the bare `YYYY.MM.DD`.
+ * - The very first publish on a given UTC date uses the bare `YYYY.M.D`.
  * - If that exact version already exists (published to npm OR tagged in git
- *   as `vYYYY.MM.DD`), the next release becomes `YYYY.MM.DD-1`.
+ *   as `vYYYY.M.D`), the next release becomes `YYYY.M.D-2`.
  * - Subsequent same-day releases increment the suffix: `-2`, `-3`, ...
- *   The suffix is `max(existing N values) + 1`, where same-day `YYYY.MM.DD`
+ *   The suffix is `max(existing N values) + 1`, where same-day `YYYY.M.D`
  *   (no suffix) is treated as N = 1 for the purposes of "next" computation.
  *
  * Tolerance:
@@ -21,7 +21,7 @@
  * Programmatic use:
  *   import { computeNextVersion } from "./calver.mjs";
  *   const v = computeNextVersion();             // uses today + default pkg list
- *   const v2 = computeNextVersion({ date: "2026.05.13", packages: ["foo"] });
+ *   const v2 = computeNextVersion({ date: "2026.5.13", packages: ["foo"] });
  *
  * CLI:
  *   node scripts/calver.mjs            -> next version (default)
@@ -43,13 +43,13 @@ const DEFAULT_PACKAGES = [
 const REGISTRY_TIMEOUT_MS = 30000;
 
 /**
- * Compute today's CalVer date stamp in `YYYY.MM.DD`.
+ * Compute today's CalVer date stamp in `YYYY.M.D`.
  *
  * @param {Date} [now] Defaults to `new Date()`. Pass for tests.
- * @returns {string} e.g. `"2026.05.13"`.
+ * @returns {string} e.g. `"2026.5.13"`.
  */
 function computeToday(now = new Date()) {
-	return now.toISOString().slice(0, 10).replace(/-/g, ".");
+	return `${now.getUTCFullYear()}.${now.getUTCMonth() + 1}.${now.getUTCDate()}`;
 }
 
 /**
@@ -88,7 +88,7 @@ function fetchRegistryVersions(pkg) {
  * Fetch git tags matching `v<today>*` and strip the leading `"v"`.
  * Returns an empty array on any failure (not a git repo, git missing, etc.).
  *
- * @param {string} today `YYYY.MM.DD` prefix.
+ * @param {string} today `YYYY.M.D` prefix.
  * @returns {string[]}
  */
 function fetchGitTagVersions(today) {
@@ -115,8 +115,8 @@ function fetchGitTagVersions(today) {
  *
  * @param {object} [opts]
  * @param {string[]} [opts.packages] Override default package list.
- * @param {string} [opts.date]       Override today (`YYYY.MM.DD`). For tests.
- * @returns {string} Next version, e.g. `"2026.05.13"` or `"2026.05.13-2"`.
+ * @param {string} [opts.date]       Override today (`YYYY.M.D`). For tests.
+ * @returns {string} Next version, e.g. `"2026.5.13"` or `"2026.5.13-2"`.
  */
 export function computeNextVersion(opts = {}) {
 	const packages = Array.isArray(opts.packages) && opts.packages.length > 0 ? opts.packages : DEFAULT_PACKAGES;
@@ -196,8 +196,8 @@ function printHelp() {
 		"  --help    Show this help and exit.",
 		"",
 		"Version format:",
-		"  YYYY.MM.DD            first release of the day",
-		"  YYYY.MM.DD-N (N>=1)   subsequent same-day re-releases",
+		"  YYYY.M.D            first release of the day",
+		"  YYYY.M.D-N (N>=2)   subsequent same-day re-releases",
 		"",
 		"Registry / git failures are tolerated and emit stderr warnings;",
 		"a completely offline run still returns a valid CalVer string.",

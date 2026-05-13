@@ -4,7 +4,7 @@
  *
  * Usage:
  *   node scripts/release.mjs               # compute next version via calver.mjs, run release
- *   node scripts/release.mjs --version <v> # explicit CalVer override (YYYY.MM.DD or YYYY.MM.DD-N)
+ *   node scripts/release.mjs --version <v> # explicit CalVer override (YYYY.M.D or YYYY.M.D-N)
  *   node scripts/release.mjs --dry-run     # preview every command and file write; modify nothing
  *   node scripts/release.mjs --help        # print usage
  *
@@ -29,7 +29,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { computeNextVersion } from "./calver.mjs";
 
-const VERSION_RE = /^\d{4}\.\d{2}\.\d{2}(-\d+)?$/;
+const VERSION_RE = /^\d{4}\.\d{1,2}\.\d{1,2}(-\d+)?$/;
 
 const WORKSPACE_PACKAGES = [
 	"packages/ai/package.json",
@@ -51,12 +51,12 @@ function printUsage() {
 	const text = [
 		"Usage: node scripts/release.mjs [options]",
 		"",
-		"Releases the senpi monorepo using CalVer (YYYY.MM.DD or YYYY.MM.DD-N).",
+		"Releases the senpi monorepo using CalVer (YYYY.M.D or YYYY.M.D-N).",
 		"",
 		"Options:",
 		"  --version <v>   Explicit CalVer version. Must match",
-		"                  /^\\d{4}\\.\\d{2}\\.\\d{2}(-\\d+)?$/ — for example 2026.05.13",
-		"                  or 2026.05.13-2.",
+		"                  /^\\d{4}\\.\\d{1,2}\\.\\d{1,2}(-\\d+)?$/ — for example 2026.5.13",
+		"                  or 2026.5.13-2.",
 		"  --dry-run       Preview every shell command and file write; modify nothing.",
 		"                  Read-only git/npm reads (status, branch, tag --list,",
 		"                  npm view) still execute so the plan is accurate.",
@@ -150,7 +150,7 @@ function resolveVersion(opts) {
 		if (!VERSION_RE.test(opts.version)) {
 			process.stderr.write(
 				`[release] error: invalid --version "${opts.version}" ` +
-					"(expected YYYY.MM.DD or YYYY.MM.DD-N)\n",
+					"(expected YYYY.M.D or YYYY.M.D-N)\n",
 			);
 			process.exit(1);
 		}
