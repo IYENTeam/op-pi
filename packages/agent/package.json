@@ -1,5 +1,6 @@
 {
 	"name": "@earendil-works/pi-agent-core",
+	"private": true,
 	"version": "2026.05.13",
 	"description": "General-purpose agent with transport abstraction, state management, and attachment support",
 	"type": "module",

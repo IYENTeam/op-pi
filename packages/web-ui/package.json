@@ -1,5 +1,6 @@
 {
 	"name": "@earendil-works/pi-web-ui",
+	"private": true,
 	"version": "2026.05.13",
 	"description": "Reusable web UI components for AI chat interfaces powered by @earendil-works/pi-ai",
 	"type": "module",
