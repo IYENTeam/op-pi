@@ -1,13 +1,13 @@
 import type { AgentMessage } from "@earendil-works/pi-agent-core";
 import type { AssistantMessage, ToolResultMessage, Usage } from "@earendil-works/pi-ai";
 import { Container, Text, type TUI } from "@earendil-works/pi-tui";
-import stripAnsi from "strip-ansi";
 import { beforeAll, describe, expect, test, vi } from "vitest";
 import type { AgentSessionEvent } from "../../../src/core/agent-session.js";
 import type { SessionContext } from "../../../src/core/session-manager.js";
 import type { ToolExecutionComponent } from "../../../src/modes/interactive/components/tool-execution.js";
 import { InteractiveMode } from "../../../src/modes/interactive/interactive-mode.js";
 import { initTheme } from "../../../src/modes/interactive/theme/theme.js";
+import { stripAnsi } from "../../../src/utils/ansi.js";
 
 const TOOL_CALL_ID = "tool-4167";
 const TOOL_NAME = "slow_tool";
@@ -31,7 +31,7 @@ type RenderSessionContextThis = {
 	pendingTools: Map<string, ToolExecutionComponent>;
 	chatContainer: Container;
 	footer: { invalidate(): void };
-	ui: TUI;
+	ui: Pick<TUI, "requestRender">;
 	settingsManager: {
 		getShowImages(): boolean;
 		getImageWidthCells(): number;
@@ -59,7 +59,7 @@ function createFakeInteractiveModeThis(): RenderSessionContextThis {
 		pendingTools: new Map<string, ToolExecutionComponent>(),
 		chatContainer,
 		footer: { invalidate: vi.fn() },
-		ui: { requestRender: vi.fn() } as unknown as TUI,
+		ui: { requestRender: vi.fn() },
 		settingsManager: {
 			getShowImages: () => false,
 			getImageWidthCells: () => 60,
@@ -126,10 +126,8 @@ describe("InteractiveMode.renderSessionContext", () => {
 
 	test("keeps unresolved rendered tool calls registered for live completion events", async () => {
 		const fakeThis = createFakeInteractiveModeThis();
-		const renderSessionContext = (
-			InteractiveMode.prototype as unknown as { renderSessionContext: RenderSessionContext }
-		).renderSessionContext;
-		const handleEvent = (InteractiveMode.prototype as unknown as { handleEvent: HandleEvent }).handleEvent;
+		const renderSessionContext: RenderSessionContext = Reflect.get(InteractiveMode.prototype, "renderSessionContext");
+		const handleEvent: HandleEvent = Reflect.get(InteractiveMode.prototype, "handleEvent");
 
 		renderSessionContext.call(fakeThis, createSessionContext([createAssistantToolCallMessage()]));
 
@@ -149,9 +147,7 @@ describe("InteractiveMode.renderSessionContext", () => {
 
 	test("does not keep completed historical tool calls registered as pending", () => {
 		const fakeThis = createFakeInteractiveModeThis();
-		const renderSessionContext = (
-			InteractiveMode.prototype as unknown as { renderSessionContext: RenderSessionContext }
-		).renderSessionContext;
+		const renderSessionContext: RenderSessionContext = Reflect.get(InteractiveMode.prototype, "renderSessionContext");
 
 		renderSessionContext.call(
 			fakeThis,

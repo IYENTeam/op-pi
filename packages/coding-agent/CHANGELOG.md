@@ -48,6 +48,8 @@
 - Fixed model catalog narrowing so `--models` / `enabledModels` constrain startup and selectors separately from Ctrl+P `favoriteModels`, preserve exact model IDs ending in `-fast`, and filter `/favorite-models` by canonical `provider/model` IDs without writing resolver warnings into the active TUI.
 - Fixed clean-profile startup spending seconds importing generated default global extension shims through jiti by loading unchanged generated shims from known factories while preserving custom-edited shim behavior.
 - Fixed OpenAI Responses request validation failures by using the `web_search_preview` native tool type and stripping leaked Anthropic native `web_search_*` / `web_fetch_*` tool descriptors from OpenAI payloads.
+- Fixed tool output expansion while extension confirmation dialogs are focused ([#4429](https://github.com/earendil-works/pi/issues/4429)).
+- Fixed auto-retry for Anthropic streams that end before `message_stop` ([#4433](https://github.com/earendil-works/pi/issues/4433)).
 - Fixed theme sharing across package scopes so extensions do not crash with `Theme not initialized` ([#4333](https://github.com/earendil-works/pi/issues/4333)).
 - Fixed keybinding hints to show Option instead of Alt on macOS ([#4289](https://github.com/earendil-works/pi/issues/4289)).
 - Fixed the interactive update notification to render the changelog as an OSC 8 hyperlink when the terminal supports hyperlinks ([#4280](https://github.com/earendil-works/pi/issues/4280)).

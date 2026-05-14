@@ -2,12 +2,12 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import type { EditorTheme, MarkdownTheme, SelectListTheme } from "@earendil-works/pi-tui";
 import chalk from "chalk";
-import { highlight, supportsLanguage } from "cli-highlight";
 import { type Static, Type } from "typebox";
 import { Compile } from "typebox/compile";
 import { getCustomThemesDir, getThemesDir } from "../../../config.js";
 import type { SourceInfo } from "../../../core/source-info.js";
 import { closeWatcher, watchWithErrorHandler } from "../../../utils/fs-watch.js";
+import { highlight, supportsLanguage } from "../../../utils/syntax-highlight.js";
 
 // ============================================================================
 // Types & Schema
@@ -668,7 +668,7 @@ export const theme: Theme = new Proxy({} as Theme, {
 	get(_target, prop) {
 		const t = (globalThis as Record<symbol, Theme>)[THEME_KEY];
 		if (!t) throw new Error("Theme not initialized. Call initTheme() first.");
-		return (t as unknown as Record<string | symbol, unknown>)[prop];
+		return Reflect.get(t, prop);
 	},
 });
 

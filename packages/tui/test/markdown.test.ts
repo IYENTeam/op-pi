@@ -12,7 +12,7 @@ import { VirtualTerminal } from "./virtual-terminal.js";
 const chalk = new Chalk({ level: 3 });
 
 function getCellItalic(terminal: VirtualTerminal, row: number, col: number): number {
-	const xterm = (terminal as unknown as { xterm: XtermTerminalType }).xterm;
+	const xterm: XtermTerminalType = Reflect.get(terminal, "xterm");
 	const buffer = xterm.buffer.active;
 	const line = buffer.getLine(buffer.viewportY + row);
 	assert.ok(line, `Missing buffer line at row ${row}`);
@@ -22,7 +22,7 @@ function getCellItalic(terminal: VirtualTerminal, row: number, col: number): num
 }
 
 function getCellUnderline(terminal: VirtualTerminal, row: number, col: number): number {
-	const xterm = (terminal as unknown as { xterm: XtermTerminalType }).xterm;
+	const xterm: XtermTerminalType = Reflect.get(terminal, "xterm");
 	const buffer = xterm.buffer.active;
 	const line = buffer.getLine(buffer.viewportY + row);
 	assert.ok(line, `Missing buffer line at row ${row}`);
@@ -122,6 +122,14 @@ describe("Markdown component", () => {
 			assert.ok(plainLines.some((line) => line.includes("1. Ordered item")));
 			assert.ok(plainLines.some((line) => line.includes("    - Unordered nested")));
 			assert.ok(plainLines.some((line) => line.includes("2. Second ordered")));
+		});
+
+		it("should render task list markers", () => {
+			const markdown = new Markdown("- [ ] beep\n- [x] boop", 0, 0, defaultMarkdownTheme);
+
+			const lines = markdown.render(80).map((line) => stripAnsi(line).trimEnd());
+
+			assert.deepStrictEqual(lines, ["- [ ] beep", "- [x] boop"]);
 		});
 
 		it("should maintain numbering when code blocks are not indented (LLM output)", () => {
