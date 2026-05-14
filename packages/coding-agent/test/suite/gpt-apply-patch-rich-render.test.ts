@@ -1,6 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import stripAnsi from "strip-ansi";
 import { afterEach, describe, expect, it } from "vitest";
 import {
 	createApplyPatchTool,
@@ -11,6 +10,7 @@ import {
 } from "../../src/core/extensions/builtin/gpt-apply-patch/index.js";
 import type { ToolRenderContext } from "../../src/core/extensions/types.js";
 import { initTheme, theme } from "../../src/modes/interactive/theme/theme.js";
+import { stripAnsi } from "../../src/utils/ansi.js";
 import type { Harness } from "./harness.js";
 import { createHarness } from "./harness.js";
 

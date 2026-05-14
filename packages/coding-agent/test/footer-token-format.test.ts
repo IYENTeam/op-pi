@@ -1,5 +1,5 @@
-import stripAnsi from "strip-ansi";
 import { describe, expect, it, vi } from "vitest";
+import { stripAnsi } from "../src/utils/ansi.js";
 
 vi.mock("@earendil-works/pi-tui", async () => import("@earendil-works/pi-tui"));
 vi.mock("../src/modes/interactive/theme/theme.js", () => ({

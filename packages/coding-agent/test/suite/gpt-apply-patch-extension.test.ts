@@ -1,6 +1,5 @@
 import { readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import stripAnsi from "strip-ansi";
 import { afterEach, describe, expect, it } from "vitest";
 import { convertResponsesTools } from "../../../ai/src/providers/openai-responses-shared.js";
 import gptApplyPatchExtension, {
@@ -13,6 +12,7 @@ import gptApplyPatchExtension, {
 import { createBuiltinParserRegistry } from "../../src/core/extensions/builtin/permission-system/parsers.js";
 import type { ToolDefinition, ToolRenderContext } from "../../src/core/extensions/types.js";
 import { initTheme, theme } from "../../src/modes/interactive/theme/theme.js";
+import { stripAnsi } from "../../src/utils/ansi.js";
 import type { Harness } from "./harness.js";
 import { createHarness } from "./harness.js";
 
