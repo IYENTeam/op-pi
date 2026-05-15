@@ -1,5 +1,28 @@
 # Changes
 
+## 2026-05-15 - Tool abort loop termination
+
+### What changed and why
+
+- Stopped the core agent loop immediately after a tool batch finishes under an aborted signal.
+- This prevents a tool-level abort result from continuing into `prepareNextTurn`, steering queue polling, follow-up queue
+  polling, or another provider request.
+- This closes the remaining abort path not covered by terminal assistant stream event normalization.
+
+### Files modified
+
+- `packages/agent/src/agent-loop.ts`
+- `packages/agent/test/agent-loop.test.ts`
+
+### Why the extension system could not handle this
+
+- The decision to poll queued steering after tool execution happens inside the core loop before extensions can safely
+  restore UI/editor queue state.
+
+### Expected merge conflict zones on next upstream sync
+
+- `packages/agent/src/agent-loop.ts` after `turn_end` emission in `runLoop()`.
+
 ## 2026-05-15 - Upstream harness refactor sync preservation
 
 ### What changed and why

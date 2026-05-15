@@ -793,6 +793,93 @@ describe("agentLoop with AgentMessage", () => {
 		expect(sawInterruptInContext).toBe(true);
 	});
 
+	it("should stop before polling steering when a tool aborts the run", async () => {
+		const toolSchema = Type.Object({ value: Type.String() });
+		const controller = new AbortController();
+		const queuedUserMessage: AgentMessage = createUserMessage("queued after abort");
+		const tool: AgentTool<typeof toolSchema, { value: string }> = {
+			name: "wait",
+			label: "Wait",
+			description: "Wait for abort",
+			parameters: toolSchema,
+			async execute(_toolCallId, _params, signal) {
+				if (!signal?.aborted) {
+					await new Promise<void>((resolve) => {
+						signal?.addEventListener("abort", () => resolve(), { once: true });
+					});
+				}
+				throw new Error("Operation aborted");
+			},
+		};
+
+		const context: AgentContext = {
+			systemPrompt: "",
+			messages: [],
+			tools: [tool],
+		};
+
+		let steeringPolls = 0;
+		let queuedDelivered = false;
+		const config: AgentLoopConfig = {
+			model: createModel(),
+			convertToLlm: identityConverter,
+			getSteeringMessages: async () => {
+				steeringPolls++;
+				if (!controller.signal.aborted || queuedDelivered) {
+					return [];
+				}
+				queuedDelivered = true;
+				return [queuedUserMessage];
+			},
+		};
+
+		let llmCalls = 0;
+		const events: AgentEvent[] = [];
+		const stream = agentLoop([createUserMessage("start")], context, config, controller.signal, () => {
+			llmCalls++;
+			const mockStream = new MockAssistantStream();
+			queueMicrotask(() => {
+				if (llmCalls === 1) {
+					mockStream.push({
+						type: "done",
+						reason: "toolUse",
+						message: createAssistantMessage(
+							[{ type: "toolCall", id: "tool-1", name: "wait", arguments: { value: "abort" } }],
+							"toolUse",
+						),
+					});
+				} else {
+					mockStream.push({
+						type: "done",
+						reason: "stop",
+						message: createAssistantMessage([{ type: "text", text: "processed queued" }]),
+					});
+				}
+			});
+			return mockStream;
+		});
+
+		for await (const event of stream) {
+			events.push(event);
+			if (event.type === "tool_execution_start") {
+				controller.abort();
+			}
+		}
+
+		const messages = await stream.result();
+		const userTexts = messages.flatMap((message) => {
+			if (message.role !== "user") return [];
+			if (typeof message.content === "string") return [message.content];
+			return message.content.flatMap((part) => (part.type === "text" ? [part.text] : []));
+		});
+
+		expect(llmCalls).toBe(1);
+		expect(steeringPolls).toBe(1);
+		expect(userTexts).toEqual(["start"]);
+		expect(events.filter((event) => event.type === "turn_start")).toHaveLength(1);
+		expect(events.filter((event) => event.type === "agent_end")).toHaveLength(1);
+	});
+
 	it("should force sequential execution when a tool has executionMode=sequential even with default parallel config", async () => {
 		const toolSchema = Type.Object({ value: Type.String() });
 		let firstResolved = false;

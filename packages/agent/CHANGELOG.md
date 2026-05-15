@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Fixed tool-level aborts to stop the agent loop before polling queued steering/follow-up messages or starting another provider request.
+
 ## [2026.5.15-2] - 2026-05-15
 
 ### Fixed
