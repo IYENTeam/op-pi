@@ -174,6 +174,7 @@ type CompactionQueuedMessage = {
 };
 
 const DEAD_TERMINAL_ERROR_CODES = new Set(["EIO", "EPIPE", "ENOTCONN"]);
+const DEFAULT_WORKING_STATUS_REFRESH_INTERVAL_MS = 600;
 
 function isDeadTerminalError(error: unknown): boolean {
 	if (!error || typeof error !== "object" || !("code" in error)) {
@@ -181,6 +182,25 @@ function isDeadTerminalError(error: unknown): boolean {
 	}
 	const code = (error as NodeJS.ErrnoException).code;
 	return code !== undefined && DEAD_TERMINAL_ERROR_CODES.has(code);
+}
+
+export function formatWorkingElapsedSeconds(elapsedSeconds: number): string {
+	const totalSeconds = Math.max(0, Math.floor(elapsedSeconds));
+	const seconds = totalSeconds % 60;
+	const totalMinutes = Math.floor(totalSeconds / 60);
+	if (totalSeconds < 60) {
+		return `${totalSeconds}s`;
+	}
+	if (totalSeconds < 3600) {
+		return `${totalMinutes}m ${seconds.toString().padStart(2, "0")}s`;
+	}
+	const hours = Math.floor(totalMinutes / 60);
+	const minutes = totalMinutes % 60;
+	return `${hours}h ${minutes.toString().padStart(2, "0")}m ${seconds.toString().padStart(2, "0")}s`;
+}
+
+export function formatWorkingStatusMessage(message: string, elapsedSeconds: number, interruptKey: string): string {
+	return `${message} (${formatWorkingElapsedSeconds(elapsedSeconds)} • ${interruptKey} to interrupt)`;
 }
 
 const ANTHROPIC_SUBSCRIPTION_AUTH_WARNING =
@@ -258,7 +278,9 @@ export class InteractiveMode {
 	private workingMessage: string | undefined = undefined;
 	private workingVisible = true;
 	private workingIndicatorOptions: LoaderIndicatorOptions | undefined = undefined;
-	private readonly defaultWorkingMessage = "Working...";
+	private workingStartedAt: number | undefined = undefined;
+	private workingElapsedIntervalId: NodeJS.Timeout | undefined = undefined;
+	private readonly defaultWorkingMessage = "Working";
 	private readonly defaultHiddenThinkingLabel = "Thinking...";
 	private hiddenThinkingLabel = this.defaultHiddenThinkingLabel;
 
@@ -1478,11 +1500,7 @@ export class InteractiveMode {
 			commandContextActions: {
 				waitForIdle: () => this.session.agent.waitForIdle(),
 				newSession: async (options) => {
-					if (this.loadingAnimation) {
-						this.loadingAnimation.stop();
-						this.loadingAnimation = undefined;
-					}
-					this.statusContainer.clear();
+					this.stopWorkingLoader();
 					try {
 						const result = await this.runtimeHost.newSession(options);
 						if (!result.cancelled) {
@@ -1676,17 +1694,62 @@ export class InteractiveMode {
 		return this.workingMessage ?? this.defaultWorkingMessage;
 	}
 
+	private getWorkingElapsedSeconds(): number {
+		if (this.workingStartedAt === undefined) {
+			return 0;
+		}
+		return Math.max(0, Math.floor((Date.now() - this.workingStartedAt) / 1000));
+	}
+
+	private getWorkingStatusMessage(): string {
+		return formatWorkingStatusMessage(
+			this.getWorkingLoaderMessage(),
+			this.getWorkingElapsedSeconds(),
+			keyText("app.interrupt"),
+		);
+	}
+
+	private refreshWorkingLoaderMessage(): void {
+		this.loadingAnimation?.setMessage(this.getWorkingStatusMessage());
+	}
+
+	private startWorkingElapsedTimer(): void {
+		this.stopWorkingElapsedTimer();
+		this.workingStartedAt = Date.now();
+		this.workingElapsedIntervalId = setInterval(() => {
+			this.refreshWorkingLoaderMessage();
+		}, DEFAULT_WORKING_STATUS_REFRESH_INTERVAL_MS);
+	}
+
+	private stopWorkingElapsedTimer(): void {
+		if (this.workingElapsedIntervalId) {
+			clearInterval(this.workingElapsedIntervalId);
+			this.workingElapsedIntervalId = undefined;
+		}
+	}
+
+	private getWorkingIndicatorOptions(): LoaderIndicatorOptions {
+		return (
+			this.workingIndicatorOptions ?? {
+				frames: [theme.fg("accent", "•"), theme.fg("muted", "◦")],
+				intervalMs: DEFAULT_WORKING_STATUS_REFRESH_INTERVAL_MS,
+			}
+		);
+	}
+
 	private createWorkingLoader(): Loader {
 		return new Loader(
 			this.ui,
 			(spinner) => theme.fg("accent", spinner),
 			(text) => theme.fg("muted", text),
-			this.getWorkingLoaderMessage(),
-			this.workingIndicatorOptions,
+			this.getWorkingStatusMessage(),
+			this.getWorkingIndicatorOptions(),
 		);
 	}
 
 	private stopWorkingLoader(): void {
+		this.stopWorkingElapsedTimer();
+		this.workingStartedAt = undefined;
 		if (this.loadingAnimation) {
 			this.loadingAnimation.stop();
 			this.loadingAnimation = undefined;
@@ -1703,6 +1766,7 @@ export class InteractiveMode {
 		}
 		if (this.session.isStreaming && !this.loadingAnimation) {
 			this.statusContainer.clear();
+			this.startWorkingElapsedTimer();
 			this.loadingAnimation = this.createWorkingLoader();
 			this.statusContainer.addChild(this.loadingAnimation);
 		}
@@ -1711,7 +1775,7 @@ export class InteractiveMode {
 
 	private setWorkingIndicator(options?: LoaderIndicatorOptions): void {
 		this.workingIndicatorOptions = options;
-		this.loadingAnimation?.setIndicator(options);
+		this.loadingAnimation?.setIndicator(this.getWorkingIndicatorOptions());
 		this.ui.requestRender();
 	}
 
@@ -1810,9 +1874,7 @@ export class InteractiveMode {
 		this.workingMessage = undefined;
 		this.workingVisible = true;
 		this.setWorkingIndicator();
-		if (this.loadingAnimation) {
-			this.loadingAnimation.setMessage(`${this.defaultWorkingMessage} (${keyText("app.interrupt")} to interrupt)`);
-		}
+		this.refreshWorkingLoaderMessage();
 		this.setHiddenThinkingLabel();
 	}
 
@@ -1960,9 +2022,7 @@ export class InteractiveMode {
 			setStatus: (key, text) => this.setExtensionStatus(key, text),
 			setWorkingMessage: (message) => {
 				this.workingMessage = message;
-				if (this.loadingAnimation) {
-					this.loadingAnimation.setMessage(message ?? this.defaultWorkingMessage);
-				}
+				this.refreshWorkingLoaderMessage();
 			},
 			setWorkingVisible: (visible) => this.setWorkingVisible(visible),
 			setWorkingIndicator: (options) => this.setWorkingIndicator(options),
@@ -2679,6 +2739,7 @@ export class InteractiveMode {
 				}
 				this.stopWorkingLoader();
 				if (this.workingVisible) {
+					this.startWorkingElapsedTimer();
 					this.loadingAnimation = this.createWorkingLoader();
 					this.statusContainer.addChild(this.loadingAnimation);
 				}
@@ -2851,11 +2912,7 @@ export class InteractiveMode {
 				if (this.settingsManager.getShowTerminalProgress()) {
 					this.ui.terminal.setProgress(false);
 				}
-				if (this.loadingAnimation) {
-					this.loadingAnimation.stop();
-					this.loadingAnimation = undefined;
-					this.statusContainer.clear();
-				}
+				this.stopWorkingLoader();
 				if (this.streamingComponent) {
 					this.chatContainer.removeChild(this.streamingComponent);
 					this.streamingComponent = undefined;
@@ -4442,11 +4499,7 @@ export class InteractiveMode {
 		sessionPath: string,
 		options?: Parameters<ExtensionCommandContext["switchSession"]>[1],
 	): Promise<{ cancelled: boolean }> {
-		if (this.loadingAnimation) {
-			this.loadingAnimation.stop();
-			this.loadingAnimation = undefined;
-		}
-		this.statusContainer.clear();
+		this.stopWorkingLoader();
 		try {
 			const result = await this.runtimeHost.switchSession(sessionPath, {
 				withSession: options?.withSession,
@@ -5029,11 +5082,7 @@ export class InteractiveMode {
 		}
 
 		try {
-			if (this.loadingAnimation) {
-				this.loadingAnimation.stop();
-				this.loadingAnimation = undefined;
-			}
-			this.statusContainer.clear();
+			this.stopWorkingLoader();
 			const result = await this.runtimeHost.importFromJsonl(inputPath);
 			if (result.cancelled) {
 				this.showStatus("Import cancelled");
@@ -5382,11 +5431,7 @@ export class InteractiveMode {
 	}
 
 	private async handleClearCommand(): Promise<void> {
-		if (this.loadingAnimation) {
-			this.loadingAnimation.stop();
-			this.loadingAnimation = undefined;
-		}
-		this.statusContainer.clear();
+		this.stopWorkingLoader();
 		try {
 			const result = await this.runtimeHost.newSession();
 			if (result.cancelled) {
@@ -5554,11 +5599,7 @@ export class InteractiveMode {
 			return;
 		}
 
-		if (this.loadingAnimation) {
-			this.loadingAnimation.stop();
-			this.loadingAnimation = undefined;
-		}
-		this.statusContainer.clear();
+		this.stopWorkingLoader();
 
 		try {
 			await this.session.compact(customInstructions);
@@ -5572,10 +5613,7 @@ export class InteractiveMode {
 		if (this.settingsManager.getShowTerminalProgress()) {
 			this.ui.terminal.setProgress(false);
 		}
-		if (this.loadingAnimation) {
-			this.loadingAnimation.stop();
-			this.loadingAnimation = undefined;
-		}
+		this.stopWorkingLoader();
 		this.clearExtensionTerminalInputListeners();
 		this.footer.dispose();
 		this.footerDataProvider.dispose();

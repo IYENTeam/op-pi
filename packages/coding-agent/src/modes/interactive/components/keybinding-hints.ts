@@ -9,8 +9,12 @@ export interface KeyTextFormatOptions {
 	capitalize?: boolean;
 }
 
+const KEY_DISPLAY_ALIASES = new Map<string, string>([["escape", "esc"]]);
+
 function formatKeyPart(part: string, options: KeyTextFormatOptions): string {
-	const displayPart = process.platform === "darwin" && part.toLowerCase() === "alt" ? "option" : part;
+	const lowerPart = part.toLowerCase();
+	const displayPart =
+		KEY_DISPLAY_ALIASES.get(lowerPart) ?? (process.platform === "darwin" && lowerPart === "alt" ? "option" : part);
 	return options.capitalize ? displayPart.charAt(0).toUpperCase() + displayPart.slice(1) : displayPart;
 }
 
