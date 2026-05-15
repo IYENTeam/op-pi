@@ -127,6 +127,14 @@ In-tree, tightly coupled to senpi internals. Loaded in this exact registration o
 
 Agent-profile tool filtering is no longer an owned builtin. Install `pi-agent-system` from `../pi-extensions/pi-agent-system` (or GitHub `code-yeongyu/pi-agent-system`) when named sub-agent profiles are wanted.
 
+### Standalone extension repositories
+
+These are maintained as public `code-yeongyu/pi-*` repositories and can be installed through `settings.json` `packages` or `senpi install git:github.com/code-yeongyu/<repo>`.
+
+| Extension | Repository | What it does |
+|-----------|------------|--------------|
+| `pi-comment-checker` | [`code-yeongyu/pi-comment-checker`](https://github.com/code-yeongyu/pi-comment-checker) | Runs `@code-yeongyu/comment-checker` after `write`, `edit`, `multiedit`, and `apply_patch`, including OMO-compatible `apply_patch` metadata and raw Codex patch fallback; shows warnings in an above-editor widget |
+
 ### Global default extensions
 
 Not loaded as builtins; written once into `~/.senpi/agent/extensions/` on first run so you can edit or remove them locally.
