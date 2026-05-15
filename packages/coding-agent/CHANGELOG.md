@@ -4,6 +4,8 @@
 
 ### Added
 
+- Added plugsuits-inspired deterministic context reduction module `builtin/compaction/context-reduction.ts` exporting `collapseConsecutiveToolResults`, `microCompactAssistantText`, `clearOldToolResults`, `reduceContextMessages`, `shouldApplyContextReduction`, and `BUILTIN_CONTEXT_REDUCTION_OPTIONS`. The builtin compaction `context` hook now runs the full reduction pipeline — collapse consecutive read/grep/shell tool result payloads into a single-line label, shrink older long assistant text answers, and clear older clearable tool result content — above the 50% context-window usage threshold (skipped on OpenAI Responses provider-native compaction paths) with conservative defaults that protect more of the recent tail than the upstream plugsuits values.
+
 ### Fixed
 
 - Fixed Anthropic 400 `tools.N: Input tag 'web_search_preview'` when an `openai-responses` request is translated to `anthropic-messages` by an upstream proxy by stripping OpenAI native `web_search_preview` / `web_search_preview_*` tool entries from non-OpenAI-Responses provider payloads.

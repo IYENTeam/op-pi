@@ -7,6 +7,11 @@ import type { ContextUsage, ExtensionAPI, ExtensionContext, SessionBeforeCompact
 import * as checkpointState from "./checkpoint-state.js";
 import * as breaker from "./circuit-breaker.js";
 import {
+	BUILTIN_CONTEXT_REDUCTION_OPTIONS,
+	reduceContextMessages,
+	shouldApplyContextReduction,
+} from "./context-reduction.js";
+import {
 	createDegradationMonitorState,
 	handleMessageEnd,
 	handleTurnEnd,
@@ -380,8 +385,16 @@ export default function compactionExtension(pi: ExtensionAPI): void {
 	});
 
 	pi.on("context", (event, ctx) => {
-		const contextWindow = ctx.getContextUsage()?.contextWindow ?? ctx.model?.contextWindow ?? DEFAULT_CONTEXT_WINDOW;
-		const emergency = hardLimitEmergencyPrune(event.messages, contextWindow);
+		const usage = ctx.getContextUsage();
+		const contextWindow = usage?.contextWindow ?? ctx.model?.contextWindow ?? DEFAULT_CONTEXT_WINDOW;
+		const sourceMessages = shouldApplyContextReduction({
+			usageTokens: usage?.tokens ?? null,
+			contextWindow,
+			isProviderNativeCompactionPath: isOpenAiResponsesModel(ctx.model),
+		})
+			? reduceContextMessages(event.messages, BUILTIN_CONTEXT_REDUCTION_OPTIONS).messages
+			: event.messages;
+		const emergency = hardLimitEmergencyPrune(sourceMessages, contextWindow);
 		return { messages: repairOrphanedToolResults(convertToLlm(emergency.messages)) };
 	});
 
