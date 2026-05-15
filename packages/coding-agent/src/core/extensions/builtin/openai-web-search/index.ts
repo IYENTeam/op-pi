@@ -62,6 +62,29 @@ type SanitizeToolsOptions = {
 	stripFunctionWebSearch: boolean;
 };
 
+function stripNativeOpenAiWebSearch(payload: unknown): unknown {
+	if (!isRecord(payload)) {
+		return payload;
+	}
+
+	const tools = payload.tools;
+	if (!Array.isArray(tools)) {
+		return payload;
+	}
+
+	let changed = false;
+	const sanitized: unknown[] = [];
+	for (const tool of tools) {
+		if (isRecord(tool) && isNativeOpenAiWebSearchType(tool.type)) {
+			changed = true;
+			continue;
+		}
+		sanitized.push(tool);
+	}
+
+	return changed ? { ...payload, tools: sanitized } : payload;
+}
+
 function sanitizeTools(tools: unknown[], options: SanitizeToolsOptions): SanitizedTools {
 	const sanitized: ToolDefinition[] = [];
 	let changed = false;
@@ -94,7 +117,13 @@ function includeWebSearchSources(payload: Record<string, unknown>): string[] {
 
 export function addOpenAiWebSearchToPayload(api: Api | undefined, payload: unknown): unknown {
 	if (!isOpenAiResponsesApi(api)) {
-		return payload;
+		// Defense in depth. `web_search_preview` is an OpenAI Responses-only tool
+		// type, but proxies that translate openai-responses → anthropic-messages
+		// (e.g., ccapi/quotio for Claude models) can forward it verbatim, which
+		// Anthropic rejects with `tools.N: Input tag 'web_search_preview'...`.
+		// Strip the OpenAI-native variants for any non-openai-responses payload
+		// so they never leak to Anthropic or Chat Completions backends.
+		return stripNativeOpenAiWebSearch(payload);
 	}
 
 	if (!isRecord(payload)) {

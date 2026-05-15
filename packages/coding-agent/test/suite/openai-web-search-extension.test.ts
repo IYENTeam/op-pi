@@ -38,6 +38,68 @@ describe("openai-web-search builtin extension", () => {
 		expect(result).toBe(payload);
 	});
 
+	it("strips OpenAI native web_search_preview when api is anthropic-messages", () => {
+		const payload = {
+			tools: [{ name: "other_tool" }, { type: "web_search_preview" }],
+		};
+
+		const result = addOpenAiWebSearchToPayload("anthropic-messages", payload) as {
+			tools: Array<Record<string, unknown>>;
+		};
+
+		expect(result.tools).toEqual([{ name: "other_tool" }]);
+	});
+
+	it("strips versioned OpenAI web_search_preview variants when api is anthropic-messages", () => {
+		const payload = {
+			tools: [{ type: "web_search_preview_2025_03_11" }, { name: "keeper" }],
+		};
+
+		const result = addOpenAiWebSearchToPayload("anthropic-messages", payload) as {
+			tools: Array<Record<string, unknown>>;
+		};
+
+		expect(result.tools).toEqual([{ name: "keeper" }]);
+	});
+
+	it("strips OpenAI native web_search_preview when api is openai-completions", () => {
+		const payload = {
+			tools: [{ type: "web_search_preview" }, { name: "keeper" }],
+		};
+
+		const result = addOpenAiWebSearchToPayload("openai-completions", payload) as {
+			tools: Array<Record<string, unknown>>;
+		};
+
+		expect(result.tools).toEqual([{ name: "keeper" }]);
+	});
+
+	it("strips OpenAI native web_search_preview even when the extension is disabled", () => {
+		process.env[ENABLE_ENV] = "off";
+		const payload = {
+			tools: [{ type: "web_search_preview" }, { name: "keeper" }],
+		};
+
+		const result = addOpenAiWebSearchToPayload("anthropic-messages", payload) as {
+			tools: Array<Record<string, unknown>>;
+		};
+
+		expect(result.tools).toEqual([{ name: "keeper" }]);
+	});
+
+	it("leaves Anthropic native web_search_* tools untouched on anthropic-messages payloads", () => {
+		const payload = {
+			tools: [
+				{ type: "web_search_20250305", name: "web_search", max_uses: 5 },
+				{ type: "web_fetch_20260309", name: "web_fetch", max_uses: 5 },
+			],
+		};
+
+		const result = addOpenAiWebSearchToPayload("anthropic-messages", payload);
+
+		expect(result).toBe(payload);
+	});
+
 	it("injects native web_search when on openai-responses and none exists", () => {
 		const payload = {
 			tools: [{ name: "other_tool" }],

@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- Fixed Anthropic 400 `tools.N: Input tag 'web_search_preview'` when an `openai-responses` request is translated to `anthropic-messages` by an upstream proxy by stripping OpenAI native `web_search_preview` / `web_search_preview_*` tool entries from non-OpenAI-Responses provider payloads.
+
 ## [2026.5.15-2] - 2026-05-15
 
 ### Added

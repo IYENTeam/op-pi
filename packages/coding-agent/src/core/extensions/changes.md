@@ -1,5 +1,24 @@
 # Core Extensions Changes
 
+## 2026-05-15 - OpenAI native web_search_preview strip for non-OpenAI-Responses payloads
+
+### What changed
+
+- `builtin/openai-web-search/index.ts`: When `ctx.model.api` is not an OpenAI Responses variant, the extension now also scans `payload.tools` for OpenAI native `web_search_preview` / `web_search_preview_*` entries and strips them before the request leaves senpi. The OpenAI Responses path (inject + Anthropic-tool sanitize) is unchanged.
+- `test/suite/openai-web-search-extension.test.ts`: Added regression coverage for stripping `web_search_preview`, the versioned `web_search_preview_2025_03_11` variant, the `openai-completions` case, the disabled-via-env case, and a no-op assertion guaranteeing Anthropic-native `web_search_*` / `web_fetch_*` entries are left intact on anthropic-messages payloads.
+
+### Why
+
+- Anthropic rejects requests whose `tools[]` contains `type: "web_search_preview"` with `tools.N: Input tag 'web_search_preview' found using 'type' does not match any of the expected tags`. The leak shows up for users whose `openai` provider is wired to a proxy that translates `openai-responses` → `anthropic-messages` (e.g., ccapi / quotio when routing claude-* models) and forwards `web_search_preview` verbatim. Defense-in-depth stripping ensures senpi never lets the OpenAI-only tool reach Anthropic-format backends regardless of how it ended up in the payload.
+
+### Why extension system couldn't handle this alone
+
+- The fix is entirely inside the existing `openai-web-search` builtin extension via `before_provider_request`. No core or pi-ai change required.
+
+### Expected merge conflict zones
+
+- LOW: `builtin/openai-web-search/index.ts` early-return branch in `addOpenAiWebSearchToPayload` if upstream restructures the non-OpenAI-Responses fall-through path.
+
 ## 2026-05-15 - OpenAI Chat Completions Tool Pair Guard
 
 ### What changed
