@@ -322,6 +322,40 @@ Extensions can observe hooks and return summaries during a core-driven compactio
 
 If upstream adds new `ExtensionContext` methods or changes `AgentSession` message mutation logic, preserve the monotonic revision counter and the `applyCompaction()` compare-and-apply semantics. The revision guard must remain in-memory and advance on every context-affecting mutation. Do not let upstream's `ExtensionContext` additions shadow the new methods.
 
+## 2026-05-15 - Compaction Feedback Context API
+
+### What changed
+
+- `types.ts`: Added optional `ExtensionContext.beginCompaction()` and `ExtensionContext.endCompaction()` methods.
+- `runner.ts`: Wired the new optional context actions through `bindCore()` and `createContext()`.
+- `agent-session.ts`: Supplies the context actions with the same abort controller and canonical compaction events used by core compaction routes.
+
+### Why
+
+- Builtin speculative compaction can generate or await a summary before it calls `applyCompaction()`.
+- That wait must still surface as a normal compaction to TUI/RPC consumers so loaders, cancellation, and input queueing work while the summary is in flight.
+
+### Why extension system couldn't handle this alone
+
+UI notifications alone cannot update `AgentSession.isCompacting`, participate in `abortCompaction()`, or emit the canonical compaction event pair.
+
+### Files modified
+
+- `types.ts`
+- `runner.ts`
+- `agent-session.ts`
+- `builtin/compaction/index.ts`
+- `modes/interactive/interactive-mode.ts`
+
+### Expected merge conflict zones on next upstream sync
+
+- HIGH: `types.ts` and `runner.ts` around `ExtensionContext`/`ExtensionContextActions` definitions and context construction.
+- HIGH: `agent-session.ts` around compaction abort-controller ownership and `applyCompaction()` event emission.
+
+### Migration notes
+
+Keep `beginCompaction()`/`endCompaction()` optional for third-party context mocks, but preserve runner support so builtin extensions receive the real core-backed implementation.
+
 ## 2026-04-27 - Seam 1: Compaction Event Metadata
 
 ### What changed

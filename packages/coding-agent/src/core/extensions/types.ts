@@ -305,6 +305,16 @@ export interface ApplyCompactionOptions {
 
 export type ApplyCompactionResult = { applied: true; reason: "ok" } | { applied: false; reason: "stale" | "rejected" };
 
+export interface BeginCompactionOptions {
+	reason: CompactionReason;
+}
+
+export interface EndCompactionOptions {
+	reason: CompactionReason;
+	aborted?: boolean;
+	errorMessage?: string;
+}
+
 /**
  * Context passed to extension event handlers.
  */
@@ -339,6 +349,10 @@ export interface ExtensionContext {
 	getCompactionSettings(): CompactionPreparation["settings"];
 	/** Trigger compaction without awaiting completion. */
 	compact(options?: CompactOptions): void;
+	/** Start user-visible compaction feedback before an extension has a precomputed summary to apply. */
+	beginCompaction?(options: BeginCompactionOptions): AbortSignal | undefined;
+	/** End user-visible compaction feedback when no compaction entry was applied. */
+	endCompaction?(options: EndCompactionOptions): void;
 	/** Get the current monotonic revision for context-affecting message mutations. */
 	getMessageRevision(): number;
 	/** Apply a precomputed compaction result if the optional expected revision is still current. */
@@ -1566,6 +1580,8 @@ export interface ExtensionContextActions {
 	getContextUsage: () => ContextUsage | undefined;
 	getCompactionSettings: () => CompactionPreparation["settings"];
 	compact: (options?: CompactOptions) => void;
+	beginCompaction?: (options: BeginCompactionOptions) => AbortSignal | undefined;
+	endCompaction?: (options: EndCompactionOptions) => void;
 	getMessageRevision: () => number;
 	applyCompaction: (precomputed: CompactionResult, options: ApplyCompactionOptions) => Promise<ApplyCompactionResult>;
 	getSystemPrompt: () => string;

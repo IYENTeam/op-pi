@@ -1,5 +1,23 @@
 # changes
 
+## compaction feedback labels (2026-05-15)
+
+### What changed
+
+- `interactive-mode.ts`: `compaction_start` now renders clearer loader text for extension and pre-prompt compaction instead of labeling every non-manual route as auto-compaction.
+
+### Why
+
+- The fork's builtin compaction extension can run a blocking summary before the next turn. Once that route emits canonical compaction events, the TUI should say it is compacting context rather than implying an automatic threshold compaction.
+
+### Why extension system couldn't handle this
+
+- The loader label is produced by the built-in `InteractiveMode` handler for core session events.
+
+### Expected merge conflict zones
+
+- LOW: `interactive-mode.ts` around the `compaction_start` event handler.
+
 ## compact provider-native web search rendering (2026-05-14)
 
 ### What changed

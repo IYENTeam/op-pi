@@ -215,6 +215,8 @@ function createExtensionContext(overrides: Partial<ExtensionContext>): Extension
 		compact: vi.fn(),
 		getMessageRevision: () => 0,
 		applyCompaction: async () => ({ applied: false, reason: "rejected" }),
+		beginCompaction: () => undefined,
+		endCompaction: vi.fn(),
 		getSystemPrompt: () => "",
 		...overrides,
 	};
@@ -757,6 +759,62 @@ describe("builtin compaction extension threshold regressions", () => {
 
 		// then
 		expect(order).toEqual(["auth-start", "apply-called", "hook-returned"]);
+	});
+
+	it("starts compaction feedback before blocking extension summary generation", async () => {
+		// given
+		const handler = captureBeforeAgentStartHandler();
+		const order: string[] = [];
+		const controller = new AbortController();
+		const model: Model<"anthropic-messages"> = {
+			id: "claude-sonnet-4-5",
+			name: "Claude Sonnet 4.5",
+			api: "anthropic-messages",
+			provider: "anthropic",
+			baseUrl: "https://api.anthropic.com",
+			reasoning: false,
+			input: ["text"],
+			cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+			contextWindow: 200_000,
+			maxTokens: 8192,
+		};
+		const firstUser = createMessageEntry(createUserMessage("first request"));
+		const firstAssistant = createMessageEntry(createAssistantMessage("first answer", createMockUsage(4000, 500)));
+		const secondUser = createMessageEntry(createUserMessage("second request"));
+		const secondAssistant = createMessageEntry(createAssistantMessage("second answer", createMockUsage(5000, 500)));
+		const ctx = createExtensionContext({
+			model,
+			sessionManager: Object.assign(Object.create(null), {
+				getEntries: () => [firstUser, firstAssistant, secondUser, secondAssistant],
+				getBranch: () => [firstUser, firstAssistant, secondUser, secondAssistant],
+			}) as ExtensionContext["sessionManager"],
+			modelRegistry: Object.assign(Object.create(null), {
+				getApiKeyAndHeaders: async () => {
+					order.push("auth-start");
+					return { ok: true, apiKey: "test-key" };
+				},
+			}) as ExtensionContext["modelRegistry"],
+			beginCompaction: (options) => {
+				order.push(`begin-${options.reason}`);
+				return controller.signal;
+			},
+			applyCompaction: async () => {
+				order.push("apply-called");
+				return { applied: true, reason: "ok" };
+			},
+			endCompaction: () => {
+				order.push("end-called");
+			},
+			getContextUsage: () => ({ tokens: 190_000, contextWindow: 200_000, percent: 0.95 }),
+			getCompactionSettings: () => ({ ...DEFAULT_COMPACTION_SETTINGS, keepRecentTokens: 1 }),
+		});
+
+		// when
+		await handler({ type: "before_agent_start", systemPrompt: "system" }, ctx);
+		order.push("hook-returned");
+
+		// then
+		expect(order).toEqual(["begin-extension", "auth-start", "apply-called", "hook-returned"]);
 	});
 });
 

@@ -1,6 +1,7 @@
 import { fauxAssistantMessage } from "@earendil-works/pi-ai";
 import { afterEach, describe, expect, it } from "vitest";
 import type { CompactionResult } from "../../src/core/compaction/index.js";
+import type { ExtensionAPI } from "../../src/core/extensions/index.js";
 import { createHarness, type Harness } from "./harness.js";
 
 function createPrecomputedCompaction(harness: Harness, summary: string): CompactionResult {
@@ -89,5 +90,49 @@ describe("AgentSession applyCompaction", () => {
 		// then
 		expect(afterPromptRevision).toBeGreaterThan(initialRevision);
 		expect(afterCompactionRevision).toBeGreaterThan(afterPromptRevision);
+	});
+
+	it("emits one compaction start while an extension prepares and applies a summary", async () => {
+		// given
+		const extension = (pi: ExtensionAPI): void => {
+			pi.on("before_agent_start", async (_event, ctx) => {
+				const entries = ctx.sessionManager.getEntries();
+				const firstEntry = entries[0];
+				if (!firstEntry || entries.some((entry) => entry.type === "compaction")) {
+					return undefined;
+				}
+
+				ctx.beginCompaction?.({ reason: "extension" });
+				await ctx.applyCompaction(
+					{
+						summary: "extension feedback summary",
+						firstKeptEntryId: firstEntry.id,
+						tokensBefore: 42,
+					},
+					{ reason: "extension", expectedRevision: ctx.getMessageRevision() },
+				);
+				return undefined;
+			});
+		};
+		const harness = await createHarness({ extensionFactories: [extension] });
+		harnesses.push(harness);
+		harness.setResponses([fauxAssistantMessage("one"), fauxAssistantMessage("two")]);
+		await harness.session.prompt("one");
+		harness.events.length = 0;
+
+		// when
+		await harness.session.prompt("two");
+
+		// then
+		const compactionEvents = harness.events.filter(
+			(event) => event.type === "compaction_start" || event.type === "compaction_end",
+		);
+		expect(compactionEvents).toHaveLength(2);
+		expect(compactionEvents[0]).toEqual({ type: "compaction_start", reason: "extension" });
+		expect(compactionEvents[1]).toMatchObject({
+			type: "compaction_end",
+			reason: "extension",
+			aborted: false,
+		});
 	});
 });

@@ -1813,8 +1813,11 @@ export class AgentSession {
 			return { applied: false, reason: "stale" };
 		}
 
-		this._compactionAbortController = new AbortController();
-		this._emit({ type: "compaction_start", reason: options.reason });
+		const ownsController = this._compactionAbortController === undefined;
+		if (ownsController) {
+			this._compactionAbortController = new AbortController();
+			this._emit({ type: "compaction_start", reason: options.reason });
+		}
 
 		try {
 			const execution = await this._executeCompaction({
@@ -1841,6 +1844,33 @@ export class AgentSession {
 		} finally {
 			this._compactionAbortController = undefined;
 		}
+	}
+
+	private _beginExtensionCompactionFeedback(reason: CompactionReason): AbortSignal {
+		if (!this._compactionAbortController) {
+			this._compactionAbortController = new AbortController();
+			this._emit({ type: "compaction_start", reason });
+		}
+		return this._compactionAbortController.signal;
+	}
+
+	private _endExtensionCompactionFeedback(options: {
+		reason: CompactionReason;
+		aborted?: boolean;
+		errorMessage?: string;
+	}): void {
+		const controller = this._compactionAbortController;
+		if (!controller) return;
+		const aborted = options.aborted ?? controller.signal.aborted;
+		this._emit({
+			type: "compaction_end",
+			reason: options.reason,
+			result: undefined,
+			aborted,
+			willRetry: false,
+			errorMessage: aborted ? undefined : options.errorMessage,
+		});
+		this._compactionAbortController = undefined;
 	}
 
 	private async _executeCompaction(request: CompactionExecutionRequest): Promise<CompactionExecutionResult> {
@@ -2478,6 +2508,8 @@ export class AgentSession {
 						}
 					})();
 				},
+				beginCompaction: (options) => this._beginExtensionCompactionFeedback(options.reason),
+				endCompaction: (options) => this._endExtensionCompactionFeedback(options),
 				getMessageRevision: () => this.getMessageRevision(),
 				applyCompaction: (precomputed, options) => this.applyCompaction(precomputed, options),
 				getSystemPrompt: () => this.systemPrompt,

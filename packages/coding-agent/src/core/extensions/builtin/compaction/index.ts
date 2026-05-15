@@ -56,6 +56,31 @@ function recentCheckpoint(ctx: ExtensionContext): checkpointState.AgentCheckpoin
 	return Date.now() - checkpoint.timestamp <= 60_000 ? checkpoint : null;
 }
 
+function shouldEndFeedback(result: SpeculativeCompactionResult): boolean {
+	return !result.applied && result.reason !== "rejected";
+}
+
+function endCompactionFeedback(
+	ctx: ExtensionContext,
+	signal: AbortSignal | undefined,
+	result: SpeculativeCompactionResult,
+): void {
+	if (shouldEndFeedback(result)) {
+		ctx.endCompaction?.({ reason: "extension", aborted: signal?.aborted });
+	}
+}
+
+function linkAbortSignal(source: AbortSignal | undefined, target: AbortController): () => void {
+	if (!source) return () => {};
+	if (source.aborted) {
+		target.abort();
+		return () => {};
+	}
+	const abort = () => target.abort();
+	source.addEventListener("abort", abort, { once: true });
+	return () => source.removeEventListener("abort", abort);
+}
+
 export default function compactionExtension(pi: ExtensionAPI): void {
 	let state: CompactionExtensionState = createInitialState();
 	const degradationState = createDegradationMonitorState();
@@ -92,27 +117,54 @@ export default function compactionExtension(pi: ExtensionAPI): void {
 		ctx: ExtensionContext,
 		customInstructions: string,
 	): Promise<SpeculativeCompactionResult> {
-		const pendingJob = speculativeJob;
-		if (pendingJob) {
-			const compaction = await pendingJob.promise;
-			const result = await applyGeneratedCompaction(
-				ctx,
-				pendingJob.snapshot,
-				() => speculativeGeneration,
-				compaction,
-			);
-			if (result.applied || result.reason === "stale") {
+		let feedbackSignal = ctx.beginCompaction?.({ reason: "extension" });
+		try {
+			const pendingJob = speculativeJob;
+			if (pendingJob) {
+				const unlinkAbort = linkAbortSignal(feedbackSignal, pendingJob.controller);
+				let compaction: CompactionResult | undefined;
+				try {
+					compaction = await pendingJob.promise;
+				} finally {
+					unlinkAbort();
+				}
+				const result = await applyGeneratedCompaction(
+					ctx,
+					pendingJob.snapshot,
+					() => speculativeGeneration,
+					compaction,
+				);
+				if (result.applied || result.reason === "stale") {
+					speculativeJob = undefined;
+					endCompactionFeedback(ctx, feedbackSignal, result);
+					return result;
+				}
+				if (result.reason === "rejected") {
+					feedbackSignal = ctx.beginCompaction?.({ reason: "extension" });
+				}
 				speculativeJob = undefined;
+			}
+
+			const generation = ++speculativeGeneration;
+			const snapshot = createSpeculativeCompactionSnapshot(ctx, { generation, customInstructions });
+			if (!snapshot) {
+				const result = { applied: false, reason: "unavailable" } as const;
+				endCompactionFeedback(ctx, feedbackSignal, result);
 				return result;
 			}
-			speculativeJob = undefined;
+			const compaction = await runExtensionCompaction(ctx, snapshot, feedbackSignal);
+			const result = await applyGeneratedCompaction(ctx, snapshot, () => speculativeGeneration, compaction);
+			endCompactionFeedback(ctx, feedbackSignal, result);
+			return result;
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			ctx.endCompaction?.({
+				reason: "extension",
+				aborted: feedbackSignal?.aborted,
+				errorMessage: `Compaction failed: ${message}`,
+			});
+			throw error;
 		}
-
-		const generation = ++speculativeGeneration;
-		const snapshot = createSpeculativeCompactionSnapshot(ctx, { generation, customInstructions });
-		if (!snapshot) return { applied: false, reason: "unavailable" };
-		const compaction = await runExtensionCompaction(ctx, snapshot);
-		return await applyGeneratedCompaction(ctx, snapshot, () => speculativeGeneration, compaction);
 	}
 
 	pi.on("session_before_compact", async (event, ctx) => {

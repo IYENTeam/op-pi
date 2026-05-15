@@ -247,6 +247,8 @@ export class ExtensionRunner {
 		keepRecentTokens: 20000,
 	});
 	private compactFn: (options?: CompactOptions) => void = () => {};
+	private beginCompactionFn: ExtensionContextActions["beginCompaction"] = undefined;
+	private endCompactionFn: ExtensionContextActions["endCompaction"] = undefined;
 	private getMessageRevisionFn: () => number = () => 0;
 	private applyCompactionFn: ExtensionContextActions["applyCompaction"] = async () => ({
 		applied: false,
@@ -313,6 +315,8 @@ export class ExtensionRunner {
 		this.getContextUsageFn = contextActions.getContextUsage;
 		this.getCompactionSettingsFn = contextActions.getCompactionSettings;
 		this.compactFn = contextActions.compact;
+		this.beginCompactionFn = contextActions.beginCompaction;
+		this.endCompactionFn = contextActions.endCompaction;
 		this.getMessageRevisionFn = contextActions.getMessageRevision;
 		this.applyCompactionFn = contextActions.applyCompaction;
 		this.getSystemPromptFn = contextActions.getSystemPrompt;
@@ -653,6 +657,14 @@ export class ExtensionRunner {
 			compact: (options) => {
 				runner.assertActive();
 				runner.compactFn(options);
+			},
+			beginCompaction: (options) => {
+				runner.assertActive();
+				return runner.beginCompactionFn?.(options);
+			},
+			endCompaction: (options) => {
+				runner.assertActive();
+				runner.endCompactionFn?.(options);
 			},
 			getMessageRevision: () => {
 				runner.assertActive();
