@@ -438,6 +438,84 @@ describe("TUI viewport remap for above-viewport growth", () => {
 		tui.stop();
 	});
 
+	it("does not clear or full-redraw when collapse shrinks above viewport", async () => {
+		const terminal = new LoggingVirtualTerminal(72, 6);
+		const tui = new TUI(terminal);
+		const component = new ExpandableTranscriptComponent();
+		tui.addChild(component);
+
+		// given
+		component.setExpanded(true);
+		tui.start();
+		await terminal.waitForRender();
+		terminal.clearWrites();
+
+		const initialFullRedraws = tui.fullRedraws;
+
+		// when
+		component.setExpanded(false);
+		tui.requestRender();
+		await terminal.waitForRender();
+
+		// then
+		const writes = terminal.getWrites();
+		assert.strictEqual(tui.fullRedraws, initialFullRedraws, "Collapse should stay on differential renderer");
+		assert.ok(!writes.includes("\x1b[2J"), "Collapse should not clear the viewport");
+		assert.ok(!writes.includes("\x1b[3J"), "Collapse should not clear scrollback");
+		assert.strictEqual(
+			countOccurrences(writes, "\x1b[?2026h"),
+			countOccurrences(writes, "\x1b[?2026l"),
+			"Collapse should keep DECSET 2026 begin/end balanced",
+		);
+		assert.deepStrictEqual(terminal.getViewport(), [
+			"tail row 0",
+			"tail row 1",
+			"tail row 2",
+			"tail row 3",
+			"tail row 4",
+			"tail row 5",
+		]);
+
+		tui.stop();
+	});
+
+	it("keeps viewport stable across Ctrl+O-equivalent repeated expand/collapse toggles", async () => {
+		const terminal = new LoggingVirtualTerminal(72, 6);
+		const tui = new TUI(terminal);
+		const component = new ExpandableTranscriptComponent();
+		tui.addChild(component);
+		const expectedViewport = ["tail row 0", "tail row 1", "tail row 2", "tail row 3", "tail row 4", "tail row 5"];
+
+		// given
+		component.setExpanded(false);
+		tui.start();
+		await terminal.waitForRender();
+		terminal.clearWrites();
+
+		const initialFullRedraws = tui.fullRedraws;
+
+		// when
+		for (const expanded of [true, false, true, false, true, false]) {
+			component.setExpanded(expanded);
+			tui.requestRender();
+			await terminal.waitForRender();
+			assert.deepStrictEqual(terminal.getViewport(), expectedViewport);
+		}
+
+		// then
+		const writes = terminal.getWrites();
+		assert.strictEqual(tui.fullRedraws, initialFullRedraws, "Ctrl+O toggles should stay on differential renderer");
+		assert.ok(!writes.includes("\x1b[2J"), "Ctrl+O toggles should not clear the viewport");
+		assert.ok(!writes.includes("\x1b[3J"), "Ctrl+O toggles should not clear scrollback");
+		assert.strictEqual(
+			countOccurrences(writes, "\x1b[?2026h"),
+			countOccurrences(writes, "\x1b[?2026l"),
+			"Ctrl+O toggles should keep DECSET 2026 begin/end balanced",
+		);
+
+		tui.stop();
+	});
+
 	it("does not repaint stable tail rows on every expanded streaming append", async () => {
 		const terminal = new LoggingVirtualTerminal(72, 6);
 		const tui = new TUI(terminal);
@@ -841,7 +919,7 @@ describe("TUI differential rendering", () => {
 		tui.requestRender();
 		await terminal.waitForRender();
 
-		assert.ok(tui.fullRedraws > redrawsBeforeSwitch, "Branch switch should trigger a full redraw");
+		assert.strictEqual(tui.fullRedraws, redrawsBeforeSwitch, "Branch switch should stay on the differential path");
 
 		const viewport = terminal.getViewport();
 		for (let i = 0; i < 10; i++) {

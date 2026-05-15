@@ -1239,9 +1239,7 @@ export class TUI extends Container {
 		// often mutate transcript content above the viewport without changing visible rows.
 		if (firstChanged < prevViewportTop) {
 			if (newLines.length < this.previousLines.length) {
-				logRedraw(`shrink changed above viewport (${newLines.length} < ${this.previousLines.length})`);
-				fullRender(true);
-				return;
+				viewportTop = Math.max(0, newLines.length - height);
 			}
 
 			if (newLines.length > this.previousLines.length) {
@@ -1250,7 +1248,7 @@ export class TUI extends Container {
 				viewportTop = Math.min(maxViewportTop, prevViewportTop + lineCountDelta);
 			}
 
-			// Transcript growth above the viewport can remap logical rows while keeping the
+			// Transcript growth/shrink above the viewport can remap logical rows while keeping the
 			// same physical viewport. Avoid fullRender(true) replay by repainting only the
 			// current visible viewport rows in place.
 			if (viewportTop !== prevViewportTop) {

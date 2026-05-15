@@ -1,5 +1,21 @@
 # TUI delta rendering fork changes
 
+## 2026-05-15: in-place repaint for above-viewport collapse
+
+### What changed
+
+- In `packages/tui/src/tui.ts` `TUI.doRender()`, content shrinkage that starts above the current viewport now remaps the viewport to the new bottom and uses the existing in-place viewport repaint path instead of forcing `fullRender(true)`.
+- In `packages/tui/test/tui-render.test.ts`, regressions now cover a direct above-viewport collapse and repeated Ctrl+O-equivalent expand/collapse toggles.
+
+### Why
+
+- Ctrl+O toggles every expandable chat item. When expanded tool output collapses above the visible rows, the old shrink branch cleared the screen and scrollback (`ESC[2J`/`ESC[3J]`), which produced a visible TUI flash even when the final visible tail rows were unchanged.
+
+### Expected merge conflict zones
+
+- MEDIUM: `TUI.doRender()` around the `firstChanged < prevViewportTop` remap branch, because this fork already carries upstream-divergent differential repaint logic there.
+- LOW: `packages/tui/test/tui-render.test.ts` under `TUI viewport remap for above-viewport growth`.
+
 ## 2026-05-11: insert-scroll fast path for expanded streaming output
 
 ### What changed
