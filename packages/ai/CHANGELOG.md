@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- Fixed Anthropic-compatible thinking-off requests to avoid unsupported disabled-thinking markers on Xiaomi MiMo and to omit stale Opus 4.6 thinking blocks from normal follow-up replay.
+
 ## [2026.5.15-2] - 2026-05-15
 
 ### Added

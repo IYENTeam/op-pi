@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getModel } from "../src/models.js";
 import { streamSimple } from "../src/stream.js";
-import type { Context, Model, SimpleStreamOptions } from "../src/types.js";
+import type { AssistantMessage, Context, Model, SimpleStreamOptions } from "../src/types.js";
 
 interface AnthropicThinkingPayload {
 	thinking?: { type: string; budget_tokens?: number; display?: string };
@@ -137,6 +137,131 @@ describe("Anthropic thinking disable payload", () => {
 
 		expect(payload.thinking).toEqual({ type: "adaptive", display: "summarized" });
 		expect(payload.output_config).toEqual({ effort: "xhigh" });
+	});
+
+	it("omits previous assistant thinking blocks from normal Opus 4.6 follow-ups when thinking is off", async () => {
+		let capturedPayload: { messages?: Array<{ role: string; content: unknown }> } | undefined;
+		const model = {
+			...getModel("anthropic", "claude-opus-4-6"),
+			baseUrl: "http://127.0.0.1:9",
+		};
+		const previousAssistant: AssistantMessage = {
+			role: "assistant",
+			api: "anthropic-messages",
+			provider: "anthropic",
+			model: "claude-opus-4-6",
+			content: [
+				{
+					type: "thinking",
+					thinking: "prior signed thinking",
+					thinkingSignature: "opaque-signature",
+				},
+				{ type: "text", text: "previous answer" },
+			],
+			usage: {
+				input: 0,
+				output: 0,
+				cacheRead: 0,
+				cacheWrite: 0,
+				totalTokens: 0,
+				cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+			},
+			stopReason: "stop",
+			timestamp: Date.now(),
+		};
+
+		const s = streamSimple(
+			model,
+			{
+				messages: [
+					{ role: "user", content: "first turn", timestamp: Date.now() },
+					previousAssistant,
+					{ role: "user", content: "follow-up", timestamp: Date.now() },
+				],
+			},
+			{
+				apiKey: "fake-key",
+				onPayload: (payload) => {
+					capturedPayload = payload as { messages?: Array<{ role: string; content: unknown }> };
+					return payload;
+				},
+			},
+		);
+
+		await s.result();
+
+		const assistantMessage = capturedPayload?.messages?.find((message) => message.role === "assistant");
+		expect(assistantMessage?.content).toEqual([{ type: "text", text: "previous answer" }]);
+	});
+
+	it("preserves previous assistant thinking blocks for tool result follow-ups when thinking is off", async () => {
+		let capturedPayload: { messages?: Array<{ role: string; content: unknown }> } | undefined;
+		const model = {
+			...getModel("anthropic", "claude-opus-4-6"),
+			baseUrl: "http://127.0.0.1:9",
+		};
+		const previousAssistant: AssistantMessage = {
+			role: "assistant",
+			api: "anthropic-messages",
+			provider: "anthropic",
+			model: "claude-opus-4-6",
+			content: [
+				{
+					type: "thinking",
+					thinking: "tool-use thinking",
+					thinkingSignature: "tool-signature",
+				},
+				{
+					type: "toolCall",
+					id: "toolu_123",
+					name: "read",
+					arguments: { path: "README.md" },
+				},
+			],
+			usage: {
+				input: 0,
+				output: 0,
+				cacheRead: 0,
+				cacheWrite: 0,
+				totalTokens: 0,
+				cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+			},
+			stopReason: "toolUse",
+			timestamp: Date.now(),
+		};
+
+		const s = streamSimple(
+			model,
+			{
+				messages: [
+					{ role: "user", content: "read a file", timestamp: Date.now() },
+					previousAssistant,
+					{
+						role: "toolResult",
+						toolCallId: "toolu_123",
+						toolName: "read",
+						content: [{ type: "text", text: "file contents" }],
+						isError: false,
+						timestamp: Date.now(),
+					},
+				],
+			},
+			{
+				apiKey: "fake-key",
+				onPayload: (payload) => {
+					capturedPayload = payload as { messages?: Array<{ role: string; content: unknown }> };
+					return payload;
+				},
+			},
+		);
+
+		await s.result();
+
+		const assistantMessage = capturedPayload?.messages?.find((message) => message.role === "assistant");
+		expect(assistantMessage?.content).toEqual([
+			{ type: "thinking", thinking: "tool-use thinking", signature: "tool-signature" },
+			{ type: "tool_use", id: "toolu_123", name: "read", input: { path: "README.md" } },
+		]);
 	});
 });
 

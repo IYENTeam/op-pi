@@ -481,6 +481,13 @@ export interface AnthropicMessagesCompat {
 	 * Default: true.
 	 */
 	supportsCacheControlOnTools?: boolean;
+	/**
+	 * Whether the provider accepts `thinking: { type: "disabled" }` when
+	 * extended thinking is off. Some Anthropic-compatible providers support
+	 * thinking but reject Anthropic's explicit disabled marker.
+	 * Default: true.
+	 */
+	supportsDisabledThinking?: boolean;
 }
 
 /**
