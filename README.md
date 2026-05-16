@@ -21,6 +21,67 @@ senpi was born from two influences:
 
 Core source modifications are minimised and tracked in [`changes.md`](#fork-strategy) files alongside every modified subdirectory so upstream rebases stay clean.
 
+## Coming from OMO? Recommended extension setup
+
+If you're migrating from [OMO (oh-my-openagent)](https://github.com/code-yeongyu/oh-my-openagent), here is the practical map from "what I used in OMO" to "what to install in senpi". A lot of OMO's signature work is **already wired into senpi as a builtin** (nothing to install); the rest lives in the sibling `../pi-extensions/*` packages and is one `senpi install` away.
+
+> senpi is intentionally lighter than OMO — single CLI binary, not an opencode plugin. Some OMO concepts (Discipline Agents, Team Mode, Skills, Hashline, Ralph Loop, `/init-deep`) have **no 1:1 senpi counterpart** and are flagged at the bottom of this section. If you need those, keep using OMO.
+
+### Already builtin in senpi — nothing to install
+
+| OMO feature | senpi builtin |
+|---|---|
+| 🚪 **IntentGate** | [Dynamic system prompt](packages/coding-agent/src/core/dynamic-prompt/AGENTS.md) — every prompt opens with a forced intent gate before tool use. |
+| ✅ **Todo Enforcer** | [`todowrite`](packages/coding-agent/src/core/extensions/builtin/todotools/) + continuation loop that re-engages idle agents. |
+| **Per-model tuning** ("Model Setup") | [`prompt-preset`](packages/coding-agent/src/core/extensions/builtin/prompt-preset/) — GPT-5.x / Claude Opus 4.{5,6,7} / Kimi K2.6 presets. |
+| **Session recovery / context management** | [`compaction`](packages/coding-agent/src/core/extensions/builtin/compaction/) — adaptive thresholds, restoration tracker, emergency compaction, tool-result truncation. |
+| **Apply-patch on GPT models** | [`gpt-apply-patch`](packages/coding-agent/src/core/extensions/builtin/gpt-apply-patch/) — Codex-style freeform `apply_patch` with Lark grammar. |
+| **Native web search** (Anthropic + OpenAI) | `anthropic-web-search`, `openai-web-search` builtins. |
+| **Bash timeout discipline** | [`bash-timeout`](packages/coding-agent/src/core/extensions/builtin/bash-timeout/) — default + max-timeout enforcement, policy in system prompt. |
+| **Compaction-safe tool pairing** | [`tool-pair-guard`](packages/coding-agent/src/core/extensions/builtin/tool-pair-guard/) — strips orphan `tool_result` blocks. |
+| **Permission system** (opencode-style allow/deny) | [`permission-system`](packages/coding-agent/src/core/extensions/builtin/permission-system/) — rules, JSONL storage, TUI prompts, parser-aware patterns. |
+
+### Install these `../pi-extensions/*` for the OMO-shaped senpi
+
+```bash
+senpi install ../pi-extensions/pi-lsp-client            # 🛠️  LSP: rename / goto / refs / diagnostics + /lsp inspector
+senpi install ../pi-extensions/pi-ast-grep              # 🛠️  AST-Grep across 25 languages (auto-downloads sg)
+senpi install ../pi-extensions/pi-comment-checker       # 💬  Comment Checker — the standalone pi port of OMO's hook
+senpi install ../pi-extensions/pi-rules                 #     Context injection: .claude/rules, .cursor/rules, .github/instructions, AGENTS.md, CLAUDE.md
+senpi install ../pi-extensions/pi-nested-agents-md      # 🔍  Auto-injects nearby AGENTS.md (the runtime half of /init-deep)
+senpi install ../pi-extensions/pi-websearch             # 📚  Provider-backed web search (fills the Exa-style slot)
+senpi install ../pi-extensions/pi-webfetch              #     web_fetch tool (markdown / text / HTML, bounded time + size)
+senpi install ../pi-extensions/pi-goal                  #     Persistent goal tracking + continuation prompts (closest thing to Sisyphus discipline)
+senpi install ../pi-extensions/pi-sandbox               #     OS-level sandbox: native / Docker / justbash / QEMU + SSH transport
+
+# Optional — only if you used the matching OMO surface:
+senpi install ../pi-extensions/pi-cua-integration                 # 🖥️  Computer-use bindings (desktop / browser)
+senpi install ../pi-extensions/pi-anthropic-computer-use          #     Claude-native computer use
+senpi install ../pi-extensions/pi-anthropic-code-execution        #     Claude-native code execution sandbox
+senpi install ../pi-extensions/pi-google-code-execution           #     Google-native code execution
+senpi install ../pi-extensions/pi-openai-code-interpreter         #     OpenAI Code Interpreter
+senpi install ../pi-extensions/pi-anthropic-text-editor           #     Claude-native text editor tool
+senpi install ../pi-extensions/pi-anthropic-tool-search           #     Claude-native tool search
+senpi install ../pi-extensions/pi-anthropic-web-fetch             #     Claude-native web fetch
+senpi install ../pi-extensions/pi-google-google-search            #     Google Search grounding
+senpi install ../pi-extensions/pi-google-url-context              #     Google URL grounding
+senpi install ../pi-extensions/pi-openai-api-parallel-tool-calls  #     OpenAI parallel_tool_calls payload support
+```
+
+Each package is also installable by git URL, e.g. `senpi install git:github.com/code-yeongyu/pi-comment-checker`. See [Senpi Packages](packages/coding-agent/README.md#pi-packages) for the full install / update / remove flow.
+
+### No direct senpi counterpart
+
+These are part of OMO's opencode harness shape and are intentionally **not** in senpi:
+
+- **Discipline Agents** (Sisyphus / Hephaestus / Oracle / Librarian / Explore / Multimodal Looker) and the **`ultrawork` / `ulw`** one-word orchestration entrypoint.
+- **Team Mode** — lead + up to 8 parallel members, tmux visualization, `team_*` tool family, `hyperplan` / `security-research` skills riding on top.
+- **Hashline / hash-anchored edit tool** — senpi stays with pi's standard `edit` / `multiedit` / `apply_patch`. `pi-comment-checker` covers the post-edit validation slot OMO uses Hashline for, just without `LINE#ID` content-hash identifiers.
+- **Skill system** and **skill-embedded MCPs** — skills as a first-class concept (`SKILL.md`, scoped per-skill MCP servers) do not exist in senpi.
+- **Prometheus interview-mode planner** and the **Ralph Loop / `/ulw-loop`** self-referential loop.
+- **`/init-deep`** — there is no in-tree generator. Generate the hierarchical `AGENTS.md` tree manually (or with a normal agent prompt), then install `pi-nested-agents-md` so the agent actually reads them.
+- **Built-in `doctor` command**, **Claude Code hook/command/skill/plugin compatibility layer**, and the **agent category router** (`visual-engineering` / `deep` / `quick` / `ultrabrain`).
+
 ## Want more? Try the pi-extensions ecosystem
 
 senpi ships a fixed set of builtin extensions and stops there. The sibling [`../pi-extensions`](../pi-extensions) checkout contains the full extension ecosystem: some packages are vendored into senpi as builtins, while the rest can be installed on top when you want extra capabilities like LSP, AST-grep, sandboxing, goal tracking, web search/fetch, or rule loading.
