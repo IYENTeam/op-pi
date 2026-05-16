@@ -6,6 +6,7 @@ import { type Static, Type } from "typebox";
 import { keyHint } from "../../modes/interactive/components/keybinding-hints.js";
 import { getLanguageFromPath, highlightCode } from "../../modes/interactive/theme/theme.js";
 import type { ToolDefinition, ToolRenderResultOptions } from "../extensions/types.js";
+import { renderToolDiff } from "./diff-render.js";
 import { withFileMutationQueue } from "./file-mutation-queue.js";
 import { resolveToCwd } from "./path-utils.js";
 import { invalidArgText, normalizeDisplayText, replaceTabs, shortenPath, str } from "./render-utils.js";
@@ -56,6 +57,10 @@ class WriteCallRenderComponent extends Text {
 }
 
 const WRITE_PARTIAL_FULL_HIGHLIGHT_LINES = 50;
+
+type WriteCallRenderOptions = ToolRenderResultOptions & {
+	argsComplete: boolean;
+};
 
 function highlightSingleLine(line: string, lang: string): string {
 	const highlighted = highlightCode(line, lang);
@@ -128,9 +133,20 @@ function trimTrailingEmptyLines(lines: string[]): string[] {
 	return lines.slice(0, end);
 }
 
+function generateAddedContentDiff(content: string, visibleLineCount: number): string {
+	const visibleLines = trimTrailingEmptyLines(content.split("\n"));
+	const lineNumWidth = String(Math.max(1, visibleLines.length)).length;
+	const output: string[] = [];
+	for (let index = 0; index < Math.min(visibleLineCount, visibleLines.length); index++) {
+		output.push(`+${String(index + 1).padStart(lineNumWidth, " ")} ${visibleLines[index] ?? ""}`);
+	}
+	if (visibleLines.length > visibleLineCount) output.push(` ${"".padStart(lineNumWidth, " ")} ...`);
+	return output.join("\n");
+}
+
 function formatWriteCall(
 	args: { path?: string; file_path?: string; content?: string } | undefined,
-	options: ToolRenderResultOptions,
+	options: WriteCallRenderOptions,
 	theme: typeof import("../../modes/interactive/theme/theme.js").theme,
 	cache: WriteHighlightCache | undefined,
 ): string {
@@ -144,15 +160,23 @@ function formatWriteCall(
 		text += `\n\n${theme.fg("error", "[invalid content arg - expected string]")}`;
 	} else if (fileContent) {
 		const lang = rawPath ? getLanguageFromPath(rawPath) : undefined;
-		const renderedLines = lang
-			? (cache?.highlightedLines ?? highlightCode(replaceTabs(normalizeDisplayText(fileContent)), lang))
-			: normalizeDisplayText(fileContent).split("\n");
-		const lines = trimTrailingEmptyLines(renderedLines);
+		const normalizedContent = replaceTabs(normalizeDisplayText(fileContent));
+		const lines = trimTrailingEmptyLines(normalizedContent.split("\n"));
 		const totalLines = lines.length;
 		const maxLines = options.expanded ? lines.length : 10;
-		const displayLines = lines.slice(0, maxLines);
 		const remaining = lines.length - maxLines;
-		text += `\n\n${displayLines.map((line) => (lang ? line : theme.fg("toolOutput", replaceTabs(line)))).join("\n")}`;
+		if (options.argsComplete) {
+			text += `\n\n${renderToolDiff(generateAddedContentDiff(normalizedContent, maxLines), {
+				filePath: rawPath ?? undefined,
+				theme,
+			})}`;
+		} else {
+			const renderedLines = lang ? (cache?.highlightedLines ?? highlightCode(normalizedContent, lang)) : lines;
+			text += `\n\n${renderedLines
+				.slice(0, maxLines)
+				.map((line) => (lang ? line : theme.fg("toolOutput", line)))
+				.join("\n")}`;
+		}
 		if (remaining > 0) {
 			text += `${theme.fg("muted", `\n... (${remaining} more lines, ${totalLines} total,`)} ${keyHint("app.tools.expand", "to expand")})`;
 		}
@@ -255,7 +279,7 @@ export function createWriteToolDefinition(
 			component.setText(
 				formatWriteCall(
 					renderArgs,
-					{ expanded: context.expanded, isPartial: context.isPartial },
+					{ argsComplete: context.argsComplete, expanded: context.expanded, isPartial: context.isPartial },
 					theme,
 					component.cache,
 				),

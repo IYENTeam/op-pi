@@ -5,6 +5,7 @@ import { beforeAll, describe, expect, test, vi } from "vitest";
 import { getReadmePath } from "../src/config.js";
 import type { ToolDefinition } from "../src/core/extensions/types.js";
 import { type BashOperations, createBashToolDefinition } from "../src/core/tools/bash.js";
+import { renderToolDiff } from "../src/core/tools/diff-render.js";
 import { createReadTool, createReadToolDefinition } from "../src/core/tools/read.js";
 import { createWriteToolDefinition } from "../src/core/tools/write.js";
 import { ToolExecutionComponent } from "../src/modes/interactive/components/tool-execution.js";
@@ -29,6 +30,13 @@ function createFakeTui(): TUI {
 		requestRender: () => {},
 	} as TUI;
 }
+
+const markerTheme = {
+	fg: (name: string, text: string) => `<fg:${name}>${text}</fg:${name}>`,
+	bg: (name: string, text: string) => `<bg:${name}>${text}</bg:${name}>`,
+	bold: (text: string) => `<bold>${text}</bold>`,
+	inverse: (text: string) => `<inverse>${text}</inverse>`,
+};
 
 describe("ToolExecutionComponent parity", () => {
 	beforeAll(() => {
@@ -361,6 +369,38 @@ describe("ToolExecutionComponent parity", () => {
 		const rendered = stripAnsi(component.render(120).join("\n"));
 		expect(rendered).toContain("one");
 		expect(rendered).toContain("two");
+		expect(rendered).not.toContain("two\n\n");
+	});
+
+	test("renders shared tool diffs with apply_patch-style highlighted rows", () => {
+		const rendered = renderToolDiff("-1 alpha old\n+1 alpha new\n 2 same", {
+			filePath: "src/foo.ts",
+			theme: markerTheme,
+		});
+
+		expect(rendered).toContain("<bg:toolErrorBg><fg:toolDiffRemoved>-</fg:toolDiffRemoved><fg:muted>1</fg:muted>");
+		expect(rendered).toContain("<fg:toolDiffRemoved>alpha <inverse>old</inverse></fg:toolDiffRemoved>");
+		expect(rendered).toContain("<bg:toolSuccessBg><fg:toolDiffAdded>+</fg:toolDiffAdded><fg:muted>1</fg:muted>");
+		expect(rendered).toContain("<fg:toolDiffAdded>alpha <inverse>new</inverse></fg:toolDiffAdded>");
+		expect(rendered).toContain("<fg:toolDiffContext> </fg:toolDiffContext><fg:muted>2</fg:muted> same");
+	});
+
+	test("renders write previews as diff rows when arguments are complete", () => {
+		const component = new ToolExecutionComponent(
+			"write",
+			"tool-write-diff",
+			{ path: "notes.txt", content: "one\ntwo\n" },
+			{},
+			createWriteToolDefinition(process.cwd()),
+			createFakeTui(),
+			process.cwd(),
+		);
+
+		component.setArgsComplete();
+
+		const rendered = stripAnsi(component.render(120).join("\n"));
+		expect(rendered).toContain("+1 one");
+		expect(rendered).toContain("+2 two");
 		expect(rendered).not.toContain("two\n\n");
 	});
 

@@ -3,8 +3,8 @@ import { Box, Container, Spacer, Text } from "@earendil-works/pi-tui";
 import { constants } from "fs";
 import { access as fsAccess, readFile as fsReadFile, writeFile as fsWriteFile } from "fs/promises";
 import { type Static, Type } from "typebox";
-import { renderDiff } from "../../modes/interactive/components/diff.js";
 import type { ToolDefinition } from "../extensions/types.js";
+import { renderToolDiff } from "./diff-render.js";
 import {
 	applyEditsToNormalizedContent,
 	computeEditsDiff,
@@ -222,7 +222,7 @@ function formatEditResult(
 
 	const resultDiff = result.details?.diff;
 	if (resultDiff && resultDiff !== previewDiff) {
-		return renderDiff(resultDiff, { filePath: rawPath ?? undefined });
+		return renderToolDiff(resultDiff, { filePath: rawPath ?? undefined, theme });
 	}
 
 	return undefined;
@@ -259,7 +259,12 @@ function buildEditCallComponent(
 	}
 
 	const body =
-		"error" in component.preview ? theme.fg("error", component.preview.error) : renderDiff(component.preview.diff);
+		"error" in component.preview
+			? theme.fg("error", component.preview.error)
+			: renderToolDiff(component.preview.diff, {
+					filePath: str(args?.file_path ?? args?.path) ?? undefined,
+					theme,
+				});
 	component.addChild(new Spacer(1));
 	component.addChild(new Text(body, 0, 0));
 	return component;
