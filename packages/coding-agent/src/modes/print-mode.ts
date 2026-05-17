@@ -3,7 +3,7 @@
  *
  * Used for:
  * - `pi -p "prompt"` - text output
- * - `senpi --mode json "prompt"` - JSON event stream
+ * - `op-pi --mode json "prompt"` - JSON event stream
  */
 
 import type { AssistantMessage, ImageContent } from "@earendil-works/pi-ai";

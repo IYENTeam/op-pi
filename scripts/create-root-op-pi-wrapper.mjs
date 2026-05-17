@@ -10,7 +10,7 @@ const defaultRoot = dirname(__dirname);
 export function shouldWriteGlobalShim(root = defaultRoot, environment = process.env) {
 	if (environment.CI) return false;
 	if (!existsSync(join(root, ".git"))) return false;
-	return environment.SENPI_WRITE_GLOBAL_SHIM === "1";
+	return environment.OP_PI_WRITE_GLOBAL_SHIM === "1";
 }
 
 function linkedWrapperScript() {
@@ -36,9 +36,9 @@ function run(command, args, options = {}) {
 	}
 }
 
-const cliPath = join(root, "packages/coding-agent/dist/senpi");
+const cliPath = join(root, "packages/coding-agent/dist/op-pi");
 if (!existsSync(cliPath)) {
-	console.error("senpi build output is missing. Run npm run build from the repo root.");
+	console.error("op-pi build output is missing. Run npm run build from the repo root.");
 	process.exit(1);
 }
 
@@ -46,16 +46,16 @@ run(process.execPath, [cliPath, ...process.argv.slice(2)], { cwd: process.cwd(),
 `;
 }
 
-export function createRootSenpiWrapper({
+export function createRootOpPiWrapper({
 	root = defaultRoot,
 	globalPrefix,
 	writeGlobalShim = shouldWriteGlobalShim(root),
 } = {}) {
 	const distDir = join(root, "dist");
-	const wrapperPath = join(distDir, "senpi");
+	const wrapperPath = join(distDir, "op-pi");
 
 	mkdirSync(distDir, { recursive: true });
-	rmSync(join(distDir, ".senpi-build-head"), { force: true });
+	rmSync(join(distDir, ".op-pi-build-head"), { force: true });
 	writeFileSync(wrapperPath, linkedWrapperScript(), "utf8");
 	chmodSync(wrapperPath, 0o755);
 
@@ -65,7 +65,7 @@ export function createRootSenpiWrapper({
 
 	const resolvedGlobalPrefix = globalPrefix ?? execFileSync("npm", ["prefix", "-g"], { encoding: "utf8" }).trim();
 	const globalBinDir = join(resolvedGlobalPrefix, "bin");
-	const globalShimPath = join(globalBinDir, "senpi");
+	const globalShimPath = join(globalBinDir, "op-pi");
 
 	mkdirSync(globalBinDir, { recursive: true });
 	if (existsSync(globalShimPath)) {
@@ -84,5 +84,5 @@ exec "${wrapperPath}" "$@"
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-	createRootSenpiWrapper();
+	createRootOpPiWrapper();
 }

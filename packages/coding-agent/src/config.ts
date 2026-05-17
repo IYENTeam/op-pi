@@ -269,7 +269,7 @@ export function getSelfUpdateUnavailableInstruction(
 ): string {
 	const method = detectInstallMethod();
 	if (method === "bun-binary") {
-		return `Download from: https://github.com/code-yeongyu/senpi/releases/latest`;
+		return `Download from: https://github.com/code-yeongyu/op-pi/releases/latest`;
 	}
 	const command = getSelfUpdateCommandForMethod(method, packageName, updatePackageName, npmCommand);
 	if (command) {
@@ -423,9 +423,10 @@ export const APP_TITLE: string = piConfigName ? APP_NAME : "π";
 export const CONFIG_DIR_NAME: string = pkg.piConfig?.configDir || ".pi";
 export const VERSION: string = pkg.version || "0.0.0";
 
-// e.g., PI_CODING_AGENT_DIR or TAU_CODING_AGENT_DIR
-export const ENV_AGENT_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_DIR`;
-export const ENV_SESSION_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_SESSION_DIR`;
+// e.g., PI_CODING_AGENT_DIR, TAU_CODING_AGENT_DIR, or OP_PI_CODING_AGENT_DIR
+const ENV_APP_NAME = APP_NAME.toUpperCase().replace(/[^A-Z0-9]/g, "_");
+export const ENV_AGENT_DIR = `${ENV_APP_NAME}_CODING_AGENT_DIR`;
+export const ENV_SESSION_DIR = `${ENV_APP_NAME}_CODING_AGENT_SESSION_DIR`;
 
 export function expandTildePath(path: string): string {
 	if (path === "~") return homedir();
@@ -442,10 +443,10 @@ export function getShareViewerUrl(gistId: string): string {
 }
 
 // =============================================================================
-// User Config Paths (~/.senpi/agent/*)
+// User Config Paths (~/.op-pi/agent/*)
 // =============================================================================
 
-/** Get the agent config directory (e.g., ~/.senpi/agent/) */
+/** Get the agent config directory (e.g., ~/.op-pi/agent/) */
 export function getAgentDir(): string {
 	const envDir = process.env[ENV_AGENT_DIR];
 	if (envDir) {

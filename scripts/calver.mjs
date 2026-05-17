@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * CalVer (Calendar Versioning) computation for the senpi monorepo.
+ * CalVer (Calendar Versioning) computation for the op-pi monorepo.
  *
  * Version format: `YYYY.M.D` for the first release of the day, then
  * `YYYY.M.D-N` (N >= 2) for each subsequent same-day re-release.
@@ -33,7 +33,7 @@
 import { execFileSync } from "node:child_process";
 
 const DEFAULT_PACKAGES = [
-	"@code-yeongyu/senpi",
+	"@code-yeongyu/op-pi",
 	"@earendil-works/pi-ai",
 	"@earendil-works/pi-agent-core",
 	"@earendil-works/pi-tui",
@@ -55,7 +55,7 @@ function computeToday(now = new Date()) {
 /**
  * Fetch published versions for a single npm package, tolerating any failure.
  *
- * @param {string} pkg npm package name (e.g. `"@code-yeongyu/senpi"`).
+ * @param {string} pkg npm package name (e.g. `"@code-yeongyu/op-pi"`).
  * @returns {string[]} Array of versions, or `[]` on any failure.
  */
 function fetchRegistryVersions(pkg) {
@@ -188,7 +188,7 @@ function printHelp() {
 	const text = [
 		"Usage: node scripts/calver.mjs [--print | --json | --help]",
 		"",
-		"Computes the next CalVer version for the senpi monorepo.",
+		"Computes the next CalVer version for the op-pi monorepo.",
 		"",
 		"Options:",
 		"  --print   Print next version to stdout (default).",

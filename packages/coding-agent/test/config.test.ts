@@ -177,17 +177,17 @@ describe("detectInstallMethod", () => {
 	test("self-updates renamed packages from the current install prefix", () => {
 		const { prefix } = createNpmPrefixInstall();
 
-		const command = getSelfUpdateCommand("@code-yeongyu/senpi", undefined, "@new-scope/pi");
+		const command = getSelfUpdateCommand("@code-yeongyu/op-pi", undefined, "@new-scope/pi");
 
 		expect(command).toEqual({
 			command: "npm",
 			args: ["--prefix", prefix, "install", "-g", "@new-scope/pi"],
-			display: `npm --prefix ${prefix} uninstall -g @code-yeongyu/senpi && npm --prefix ${prefix} install -g @new-scope/pi`,
+			display: `npm --prefix ${prefix} uninstall -g @code-yeongyu/op-pi && npm --prefix ${prefix} install -g @new-scope/pi`,
 			steps: [
 				{
 					command: "npm",
-					args: ["--prefix", prefix, "uninstall", "-g", "@code-yeongyu/senpi"],
-					display: `npm --prefix ${prefix} uninstall -g @code-yeongyu/senpi`,
+					args: ["--prefix", prefix, "uninstall", "-g", "@code-yeongyu/op-pi"],
+					display: `npm --prefix ${prefix} uninstall -g @code-yeongyu/op-pi`,
 				},
 				{
 					command: "npm",
@@ -253,18 +253,18 @@ describe("detectInstallMethod", () => {
 	test("self-updates renamed pnpm global installs by removing the old package first", () => {
 		createPnpmGlobalInstall();
 
-		const command = getSelfUpdateCommand("@code-yeongyu/senpi", undefined, "@new-scope/pi");
+		const command = getSelfUpdateCommand("@code-yeongyu/op-pi", undefined, "@new-scope/pi");
 
 		expect(detectInstallMethod()).toBe("pnpm");
 		expect(command).toEqual({
 			command: "pnpm",
 			args: ["install", "-g", "@new-scope/pi"],
-			display: "pnpm remove -g @code-yeongyu/senpi && pnpm install -g @new-scope/pi",
+			display: "pnpm remove -g @code-yeongyu/op-pi && pnpm install -g @new-scope/pi",
 			steps: [
 				{
 					command: "pnpm",
-					args: ["remove", "-g", "@code-yeongyu/senpi"],
-					display: "pnpm remove -g @code-yeongyu/senpi",
+					args: ["remove", "-g", "@code-yeongyu/op-pi"],
+					display: "pnpm remove -g @code-yeongyu/op-pi",
 				},
 				{
 					command: "pnpm",
@@ -278,18 +278,18 @@ describe("detectInstallMethod", () => {
 	test("self-updates renamed yarn global installs by removing the old package first", () => {
 		createYarnGlobalInstall();
 
-		const command = getSelfUpdateCommand("@code-yeongyu/senpi", undefined, "@new-scope/pi");
+		const command = getSelfUpdateCommand("@code-yeongyu/op-pi", undefined, "@new-scope/pi");
 
 		expect(detectInstallMethod()).toBe("yarn");
 		expect(command).toEqual({
 			command: "yarn",
 			args: ["global", "add", "@new-scope/pi"],
-			display: "yarn global remove @code-yeongyu/senpi && yarn global add @new-scope/pi",
+			display: "yarn global remove @code-yeongyu/op-pi && yarn global add @new-scope/pi",
 			steps: [
 				{
 					command: "yarn",
-					args: ["global", "remove", "@code-yeongyu/senpi"],
-					display: "yarn global remove @code-yeongyu/senpi",
+					args: ["global", "remove", "@code-yeongyu/op-pi"],
+					display: "yarn global remove @code-yeongyu/op-pi",
 				},
 				{
 					command: "yarn",
@@ -303,18 +303,18 @@ describe("detectInstallMethod", () => {
 	test("self-updates renamed bun global installs by removing the old package first", () => {
 		createBunGlobalInstall();
 
-		const command = getSelfUpdateCommand("@code-yeongyu/senpi", undefined, "@new-scope/pi");
+		const command = getSelfUpdateCommand("@code-yeongyu/op-pi", undefined, "@new-scope/pi");
 
 		expect(detectInstallMethod()).toBe("bun");
 		expect(command).toEqual({
 			command: "bun",
 			args: ["install", "-g", "@new-scope/pi"],
-			display: "bun uninstall -g @code-yeongyu/senpi && bun install -g @new-scope/pi",
+			display: "bun uninstall -g @code-yeongyu/op-pi && bun install -g @new-scope/pi",
 			steps: [
 				{
 					command: "bun",
-					args: ["uninstall", "-g", "@code-yeongyu/senpi"],
-					display: "bun uninstall -g @code-yeongyu/senpi",
+					args: ["uninstall", "-g", "@code-yeongyu/op-pi"],
+					display: "bun uninstall -g @code-yeongyu/op-pi",
 				},
 				{
 					command: "bun",

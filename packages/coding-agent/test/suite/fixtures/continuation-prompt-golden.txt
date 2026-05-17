@@ -1,4 +1,4 @@
-[SYSTEM DIRECTIVE: SENPI - TODO CONTINUATION]
+[SYSTEM DIRECTIVE: OP-PI - TODO CONTINUATION]
 
 Incomplete tasks remain in your todo list. Continue working on the next pending task.
 

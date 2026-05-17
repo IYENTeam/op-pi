@@ -1,6 +1,6 @@
 import { isIncompleteTodo, sanitizeTodoText, type TodoItem } from "../state.js";
 
-export const CONTINUATION_DIRECTIVE = `[SYSTEM DIRECTIVE: SENPI - TODO CONTINUATION]
+export const CONTINUATION_DIRECTIVE = `[SYSTEM DIRECTIVE: OP-PI - TODO CONTINUATION]
 
 Incomplete tasks remain in your todo list. Continue working on the next pending task.
 

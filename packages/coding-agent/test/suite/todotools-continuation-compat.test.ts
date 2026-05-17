@@ -296,7 +296,7 @@ describe("todotools continuation compatibility", () => {
 			{ content: "Queued task", status: "pending", priority: "medium" },
 		];
 
-		expect(TODO_STATE_ENTRY_TYPE).toBe("senpi.todo-state");
+		expect(TODO_STATE_ENTRY_TYPE).toBe("op-pi.todo-state");
 		expect(getTodoWidgetLines(todos)).toEqual(["Todo", "[•] Active task", "[✓] Done task", "[ ] Queued task"]);
 		expect(getTodoResultLines(todos)).toEqual(["2 todos", "[•] Active task", "[✓] Done task", "[ ] Queued task"]);
 	});

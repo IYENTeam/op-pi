@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { ENV_AGENT_DIR } from "../src/config.js";
 import { runMigrations } from "../src/migrations.js";
 
-describe("senpi migration", () => {
+describe("op-pi migration", () => {
 	const tempDirs: string[] = [];
 
 	afterEach(() => {
@@ -14,9 +14,9 @@ describe("senpi migration", () => {
 		}
 	});
 
-	it("moves legacy .pi directories into the .senpi layout when the new paths do not exist", () => {
+	it("moves legacy .pi directories into the .op-pi layout when the new paths do not exist", () => {
 		// given
-		const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "senpi-migration-test-"));
+		const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "op-pi-migration-test-"));
 		tempDirs.push(rootDir);
 		const fakeHome = path.join(rootDir, "home");
 		const cwd = path.join(rootDir, "project");
@@ -30,7 +30,7 @@ describe("senpi migration", () => {
 		fs.writeFileSync(path.join(oldMomDir, "auth.json"), "{}\n", "utf-8");
 		fs.writeFileSync(path.join(oldProjectDir, "settings.json"), "{}\n", "utf-8");
 
-		const newAgentDir = path.join(fakeHome, ".senpi", "agent");
+		const newAgentDir = path.join(fakeHome, ".op-pi", "agent");
 		const previousAgentDir = process.env[ENV_AGENT_DIR];
 		const previousHome = process.env.HOME;
 		process.env[ENV_AGENT_DIR] = newAgentDir;
@@ -56,8 +56,8 @@ describe("senpi migration", () => {
 		expect(fs.existsSync(path.join(fakeHome, ".pi", "agent"))).toBe(false);
 		expect(fs.existsSync(path.join(fakeHome, ".pi", "mom"))).toBe(false);
 		expect(fs.existsSync(path.join(cwd, ".pi"))).toBe(false);
-		expect(fs.existsSync(path.join(fakeHome, ".senpi", "agent", "settings.json"))).toBe(true);
-		expect(fs.existsSync(path.join(fakeHome, ".senpi", "mom", "auth.json"))).toBe(true);
-		expect(fs.existsSync(path.join(cwd, ".senpi", "settings.json"))).toBe(true);
+		expect(fs.existsSync(path.join(fakeHome, ".op-pi", "agent", "settings.json"))).toBe(true);
+		expect(fs.existsSync(path.join(fakeHome, ".op-pi", "mom", "auth.json"))).toBe(true);
+		expect(fs.existsSync(path.join(cwd, ".op-pi", "settings.json"))).toBe(true);
 	});
 });

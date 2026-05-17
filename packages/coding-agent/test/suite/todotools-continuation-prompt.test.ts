@@ -20,11 +20,11 @@ const canonicalTodos: TodoItem[] = [
 
 describe("todotools continuation prompt builder", () => {
 	it("exports the directive header and all required instruction substrings", () => {
-		expect(CONTINUATION_DIRECTIVE).toContain("[SYSTEM DIRECTIVE: SENPI - TODO CONTINUATION]");
+		expect(CONTINUATION_DIRECTIVE).toContain("[SYSTEM DIRECTIVE: OP-PI - TODO CONTINUATION]");
 
 		const prompt = buildContinuationPrompt(canonicalTodos);
 
-		expect(prompt).toContain("[SYSTEM DIRECTIVE: SENPI - TODO CONTINUATION]");
+		expect(prompt).toContain("[SYSTEM DIRECTIVE: OP-PI - TODO CONTINUATION]");
 		expect(prompt).toContain("Incomplete tasks remain in your todo list. Continue working on the next pending task.");
 		expect(prompt).toContain("Continue the first actionable remaining task now.");
 		expect(prompt).toContain("Proceed without asking for permission");

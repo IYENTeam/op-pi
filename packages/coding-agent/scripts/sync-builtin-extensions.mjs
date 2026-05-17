@@ -7,7 +7,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const packageDir = resolve(scriptDir, "..");
 const workspaceRoot = resolve(packageDir, "..", "..");
 const defaultSourceRoot = resolve(workspaceRoot, "..", "pi-extensions");
-const sourceRoot = resolve(process.env.SENPI_BUILTIN_EXTENSIONS_SOURCE ?? defaultSourceRoot);
+const sourceRoot = resolve(process.env.OP_PI_BUILTIN_EXTENSIONS_SOURCE ?? defaultSourceRoot);
 const builtinRoot = join(packageDir, "src", "core", "extensions", "builtin");
 
 const FILES = [
@@ -21,16 +21,16 @@ const FILES = [
 			),
 	},
 	{ source: "pi-bash-timeout/src/timeout.ts", target: "bash-timeout/timeout.ts" },
-	// pi-apply-patch has diverged: senpi maintains a refactored multi-file version under
+	// pi-apply-patch has diverged: op-pi maintains a refactored multi-file version under
 	// gpt-apply-patch/ (apply.ts, constants.ts, errors.ts, extension.ts, parser.ts, tool.ts, ...)
 	// while pi-apply-patch upstream is still a single src/index.ts monolith. Re-enabling the old
-	// monolithic sync would overwrite senpi's barrel index.ts and lose the refactor. Port
+	// monolithic sync would overwrite op-pi's barrel index.ts and lose the refactor. Port
 	// behavior changes manually until the upstream package is restructured to match.
 	//
-	// pi-todotools has also diverged: senpi customizes SENPI_SYSTEM_PREFIX to "[system:senpi]"
-	// (pi-todotools uses "[system:senpi]") and `reportContinuationError` is wired into the
-	// unified `senpi:conversation` event surface. Regular file-copy sync overwrites those
-	// customizations and breaks `test/suite/senpi-conversation.test.ts`,
+	// pi-todotools has also diverged: op-pi customizes OP_PI_SYSTEM_PREFIX to "[system:op-pi]"
+	// (pi-todotools uses "[system:op-pi]") and `reportContinuationError` is wired into the
+	// unified `op-pi:conversation` event surface. Regular file-copy sync overwrites those
+	// customizations and breaks `test/suite/op-pi-conversation.test.ts`,
 	// `test/suite/todotools-continuation-runtime-unit.test.ts`, and
 	// `test/suite/todotools-continuation-chain-cap.test.ts`. Port improvements manually.
 ];

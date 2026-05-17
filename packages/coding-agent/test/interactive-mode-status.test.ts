@@ -898,13 +898,13 @@ describe("InteractiveMode.showLoadedResources", () => {
 				{ path: "<builtin:todowrite>" },
 				{ path: "<builtin:redraws>" },
 				{
-					path: `${home}/.senpi/agent/extensions/diff.js`,
+					path: `${home}/.op-pi/agent/extensions/diff.js`,
 					sourceInfo: {
-						path: `${home}/.senpi/agent/extensions/diff.js`,
+						path: `${home}/.op-pi/agent/extensions/diff.js`,
 						source: "local",
 						scope: "user",
 						origin: "top-level",
-						baseDir: `${home}/.senpi/agent/extensions`,
+						baseDir: `${home}/.op-pi/agent/extensions`,
 					},
 				},
 			],
@@ -917,7 +917,7 @@ describe("InteractiveMode.showLoadedResources", () => {
 		expect(output).toContain("redraws");
 		expect(output).toContain("todo");
 		expect(output).toContain("user");
-		expect(output).toContain("~/.senpi/agent/extensions/diff.js");
+		expect(output).toContain("~/.op-pi/agent/extensions/diff.js");
 		expect(output).not.toContain("todowrite");
 	});
 });

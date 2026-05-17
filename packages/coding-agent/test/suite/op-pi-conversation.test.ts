@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import {
 	emitBuiltinSystemMessageFailure,
-	SENPI_CONVERSATION_EVENT,
-	SENPI_SYSTEM_PREFIX,
+	OP_PI_CONVERSATION_EVENT,
+	OP_PI_SYSTEM_PREFIX,
 	sendBuiltinCustomMessage,
 	sendBuiltinUserMessage,
 } from "../../src/core/extensions/builtin/system-messages.js";
-import { SENPI_SYSTEM_PREFIX as TODO_SYSTEM_PREFIX } from "../../src/core/extensions/builtin/todotools/system-messages.js";
+import { OP_PI_SYSTEM_PREFIX as TODO_SYSTEM_PREFIX } from "../../src/core/extensions/builtin/todotools/system-messages.js";
 
 function createMockPi() {
 	return {
@@ -18,10 +18,10 @@ function createMockPi() {
 	};
 }
 
-describe("senpi conversation helpers", () => {
-	it("uses the senpi marker for injected system prefixes", () => {
-		expect(SENPI_SYSTEM_PREFIX).toBe("[system:senpi]");
-		expect(TODO_SYSTEM_PREFIX).toBe("[system:senpi]");
+describe("op-pi conversation helpers", () => {
+	it("uses the op-pi marker for injected system prefixes", () => {
+		expect(OP_PI_SYSTEM_PREFIX).toBe("[system:op-pi]");
+		expect(TODO_SYSTEM_PREFIX).toBe("[system:op-pi]");
 	});
 
 	it("emits a unified injected event and prefixes builtin user messages", () => {
@@ -31,9 +31,9 @@ describe("senpi conversation helpers", () => {
 			sessionId: "session-1",
 		});
 
-		expect(pi.sendUserMessage).toHaveBeenCalledWith(`${SENPI_SYSTEM_PREFIX}\nContinue the task`);
+		expect(pi.sendUserMessage).toHaveBeenCalledWith(`${OP_PI_SYSTEM_PREFIX}\nContinue the task`);
 		expect(pi.events.emit).toHaveBeenCalledWith(
-			SENPI_CONVERSATION_EVENT,
+			OP_PI_CONVERSATION_EVENT,
 			expect.objectContaining({
 				version: 1,
 				source: "builtin",
@@ -42,9 +42,9 @@ describe("senpi conversation helpers", () => {
 				sessionId: "session-1",
 				conversation: expect.objectContaining({
 					kind: "user_message",
-					prefix: SENPI_SYSTEM_PREFIX,
+					prefix: OP_PI_SYSTEM_PREFIX,
 				}),
-				text: `${SENPI_SYSTEM_PREFIX}\nContinue the task`,
+				text: `${OP_PI_SYSTEM_PREFIX}\nContinue the task`,
 			}),
 		);
 	});
@@ -56,7 +56,7 @@ describe("senpi conversation helpers", () => {
 			pi as never,
 			"todotools.continuation",
 			{
-				customType: "senpi.test",
+				customType: "op-pi.test",
 				display: true,
 				content: [{ type: "text", text: "<system-reminder>\nDone\n</system-reminder>" }],
 			},
@@ -65,18 +65,18 @@ describe("senpi conversation helpers", () => {
 
 		expect(pi.sendMessage).toHaveBeenCalledWith(
 			expect.objectContaining({
-				customType: "senpi.test",
+				customType: "op-pi.test",
 				content: [
 					expect.objectContaining({
 						type: "text",
-						text: `${SENPI_SYSTEM_PREFIX}\n<system-reminder>\nDone\n</system-reminder>`,
+						text: `${OP_PI_SYSTEM_PREFIX}\n<system-reminder>\nDone\n</system-reminder>`,
 					}),
 				],
 			}),
 			{ triggerTurn: true, deliverAs: "followUp" },
 		);
 		expect(pi.events.emit).toHaveBeenCalledWith(
-			SENPI_CONVERSATION_EVENT,
+			OP_PI_CONVERSATION_EVENT,
 			expect.objectContaining({
 				version: 1,
 				source: "builtin",
@@ -85,8 +85,8 @@ describe("senpi conversation helpers", () => {
 				sessionId: "session-2",
 				conversation: expect.objectContaining({
 					kind: "custom_message",
-					customType: "senpi.test",
-					prefix: SENPI_SYSTEM_PREFIX,
+					customType: "op-pi.test",
+					prefix: OP_PI_SYSTEM_PREFIX,
 					triggerTurn: true,
 					deliverAs: "followUp",
 				}),
@@ -94,7 +94,7 @@ describe("senpi conversation helpers", () => {
 		);
 	});
 
-	it("emits a unified failed event for senpi conversation injection failures", () => {
+	it("emits a unified failed event for op-pi conversation injection failures", () => {
 		const pi = createMockPi();
 
 		emitBuiltinSystemMessageFailure(pi as never, {
@@ -106,7 +106,7 @@ describe("senpi conversation helpers", () => {
 		});
 
 		expect(pi.events.emit).toHaveBeenCalledWith(
-			SENPI_CONVERSATION_EVENT,
+			OP_PI_CONVERSATION_EVENT,
 			expect.objectContaining({
 				version: 1,
 				source: "builtin",
@@ -115,9 +115,9 @@ describe("senpi conversation helpers", () => {
 				sessionId: "session-3",
 				conversation: expect.objectContaining({
 					kind: "user_message",
-					prefix: SENPI_SYSTEM_PREFIX,
+					prefix: OP_PI_SYSTEM_PREFIX,
 				}),
-				text: `${SENPI_SYSTEM_PREFIX}\nContinue after failure`,
+				text: `${OP_PI_SYSTEM_PREFIX}\nContinue after failure`,
 				errorMessage: "dispatch failed",
 			}),
 		);

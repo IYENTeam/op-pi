@@ -16,7 +16,7 @@ export type TodoStateEntry = {
 
 type BranchEntry = { type: string; customType?: string; data?: unknown; message?: unknown };
 
-export const TODO_STATE_ENTRY_TYPE = "senpi.todo-state";
+export const TODO_STATE_ENTRY_TYPE = "op-pi.todo-state";
 
 export function isTerminalTodoStatus(status: string): boolean {
 	return status === "completed" || status === "cancelled";

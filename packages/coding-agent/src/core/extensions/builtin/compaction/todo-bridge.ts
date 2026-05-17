@@ -2,7 +2,7 @@ import type { CustomEntry, SessionEntry } from "../../../session-manager.js";
 import type { ExtensionAPI, ExtensionContext } from "../../types.js";
 
 const TODO_SNAPSHOT_CUSTOM_TYPE = "compaction.todo-snapshot";
-const TODO_SNAPSHOT_SCHEMA = "senpi.compaction.todo-snapshot.v1";
+const TODO_SNAPSHOT_SCHEMA = "op-pi.compaction.todo-snapshot.v1";
 
 export interface TodoEntry {
 	id: string;

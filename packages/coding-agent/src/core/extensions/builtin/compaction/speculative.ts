@@ -28,7 +28,7 @@ const DEFAULT_CONTEXT_WINDOW = 200_000;
 const COMPACTION_BUDGET_RATIO = 0.6;
 const EMERGENCY_CONTEXT_TARGET_RATIO = 0.95;
 const MAX_SUMMARY_TOKENS = 8192;
-const SUMMARY_SCHEMA = "senpi.compaction.summary.v1";
+const SUMMARY_SCHEMA = "op-pi.compaction.summary.v1";
 type CompactionProgressCallback = (delta: string) => void;
 
 export interface SpeculativeCompactionContext {

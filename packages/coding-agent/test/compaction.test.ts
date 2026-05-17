@@ -538,7 +538,7 @@ describe("prepareCompaction with previous compaction", () => {
 });
 
 describe("prepareCompaction guards against empty summarization", () => {
-	it("returns undefined for a tiny senpi-style hello session whose entire history fits in keepRecentTokens", () => {
+	it("returns undefined for a tiny op-pi-style hello session whose entire history fits in keepRecentTokens", () => {
 		// given
 		const modelChange = createModelChangeEntry("apitopia", "kimi-k2p6-turbo");
 		const thinkingChange = createThinkingLevelEntry("minimal");

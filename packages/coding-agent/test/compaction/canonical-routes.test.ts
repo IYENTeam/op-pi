@@ -115,7 +115,7 @@ describe("builtin compaction canonical routes", () => {
 			{
 				type: "before_agent_start",
 				prompt: "incoming prompt ".repeat(1_500),
-				systemPrompt: "You are senpi.",
+				systemPrompt: "You are op-pi.",
 				systemPromptOptions: { cwd: process.cwd() },
 			},
 			{
@@ -136,7 +136,7 @@ describe("builtin compaction canonical routes", () => {
 					reserveTokens: 2_000,
 				}),
 				getMessageRevision: () => 1,
-				getSystemPrompt: () => "You are senpi.",
+				getSystemPrompt: () => "You are op-pi.",
 				beginCompaction: () => new AbortController().signal,
 				endCompaction: () => {},
 				applyCompaction: async (compaction: CompactionResult) => {
@@ -150,7 +150,7 @@ describe("builtin compaction canonical routes", () => {
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 		expect(appliedCompactions).toHaveLength(1);
 		expect(appliedCompactions[0]?.details).toMatchObject({
-			schema: "senpi.compaction.openai-remote.v1",
+			schema: "op-pi.compaction.openai-remote.v1",
 			mode: "openai-remote",
 			transport: "compact-endpoint",
 		});

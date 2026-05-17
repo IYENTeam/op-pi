@@ -2,7 +2,7 @@ import type { ThinkingLevel } from "@earendil-works/pi-agent-core";
 import type { ExtensionAPI, ExtensionContext } from "../../types.js";
 
 const CHECKPOINT_CUSTOM_TYPE = "compaction.agent-checkpoint";
-const CHECKPOINT_SCHEMA = "senpi.compaction.agent-checkpoint.v1";
+const CHECKPOINT_SCHEMA = "op-pi.compaction.agent-checkpoint.v1";
 const RESTORATION_DIRECTIVE = "[restore checkpointed session agent configuration after compaction]";
 
 export interface AgentCheckpoint {

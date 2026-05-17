@@ -2,8 +2,8 @@ import { describe, expect, test, vi } from "vitest";
 import { printHelp } from "../src/cli/args.js";
 import { APP_NAME, CONFIG_DIR_NAME, ENV_AGENT_DIR } from "../src/config.js";
 
-describe("senpi branding", () => {
-	test("uses senpi as the runtime app identity", () => {
+describe("op-pi branding", () => {
+	test("uses op-pi as the runtime app identity", () => {
 		// given
 
 		// when
@@ -15,13 +15,13 @@ describe("senpi branding", () => {
 
 		// then
 		expect(branding).toEqual({
-			appName: "senpi",
-			configDirName: ".senpi",
-			envAgentDir: "SENPI_CODING_AGENT_DIR",
+			appName: "op-pi",
+			configDirName: ".op-pi",
+			envAgentDir: "OP_PI_CODING_AGENT_DIR",
 		});
 	});
 
-	test("prints senpi in the top-level help output", () => {
+	test("prints op-pi in the top-level help output", () => {
 		// given
 		const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
@@ -31,10 +31,10 @@ describe("senpi branding", () => {
 			const output = logSpy.mock.calls.map(([message]) => String(message)).join("\n");
 
 			// then
-			expect(output).toContain("senpi - AI coding assistant");
-			expect(output).toContain("senpi [options] [@files...] [messages...]");
-			expect(output).toContain("senpi install <source> [-l]");
-			expect(output).toContain("~/.senpi/agent");
+			expect(output).toContain("op-pi - AI coding assistant");
+			expect(output).toContain("op-pi [options] [@files...] [messages...]");
+			expect(output).toContain("op-pi install <source> [-l]");
+			expect(output).toContain("~/.op-pi/agent");
 		} finally {
 			logSpy.mockRestore();
 		}

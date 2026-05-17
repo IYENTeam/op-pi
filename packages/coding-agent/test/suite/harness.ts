@@ -3,7 +3,7 @@
  *
  * Usage: continuation integration tests can call
  * `harness.getInjectedUserMessages()` to inspect follow-up user messages that
- * contain the SENPI continuation directive without modifying production code.
+ * contain the OP_PI continuation directive without modifying production code.
  */
 
 import { existsSync, mkdirSync, rmSync } from "node:fs";
@@ -29,7 +29,7 @@ import {
 } from "../utilities.js";
 
 type MessageTextPart = { type: "text"; text: string };
-const CONTINUATION_DIRECTIVE_HEADER = "[SYSTEM DIRECTIVE: SENPI - TODO CONTINUATION]";
+const CONTINUATION_DIRECTIVE_HEADER = "[SYSTEM DIRECTIVE: OP-PI - TODO CONTINUATION]";
 
 export function getMessageText(message: unknown): string {
 	if (!message || typeof message !== "object" || !("content" in message)) {

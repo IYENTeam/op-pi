@@ -786,7 +786,7 @@ export interface ModelSelectEvent {
 }
 
 export interface ModelSelectEventResult {
-	/** Replace the active system prompt after the model switch. `null` resets to the base senpi prompt. */
+	/** Replace the active system prompt after the model switch. `null` resets to the base op-pi prompt. */
 	systemPrompt?: string | null;
 	/** Human-readable name for the prompt that became active. */
 	systemPromptName?: string;

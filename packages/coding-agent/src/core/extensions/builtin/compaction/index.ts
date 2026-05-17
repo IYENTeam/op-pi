@@ -19,9 +19,9 @@ import {
 	resetOnSessionCompact,
 } from "./degradation-monitor.js";
 import {
+	OP_PI_COMPACTION_EVENT,
 	rewriteOpenAiPayloadWithRemoteCompaction,
 	runOpenAiRemoteCompaction,
-	SENPI_COMPACTION_EVENT,
 } from "./openai-remote.js";
 import * as cap from "./per-turn-cap.js";
 import * as policy from "./policy.js";
@@ -204,7 +204,7 @@ export default function compactionExtension(pi: ExtensionAPI): void {
 					const remoteCompaction = await runOpenAiRemoteCompaction(
 						ctx,
 						createBlockingRemoteCompactionEvent(ctx, remoteSnapshot, customInstructions, remoteSignal),
-						(data) => pi.events.emit(SENPI_COMPACTION_EVENT, data),
+						(data) => pi.events.emit(OP_PI_COMPACTION_EVENT, data),
 					);
 					if (remoteCompaction) {
 						if (speculativeGeneration !== remoteGeneration - 1) {
@@ -288,7 +288,7 @@ export default function compactionExtension(pi: ExtensionAPI): void {
 		const model = ctx.model;
 		if (!model) return undefined;
 		const remoteCompaction = await runOpenAiRemoteCompaction(ctx, event, (data) =>
-			pi.events.emit(SENPI_COMPACTION_EVENT, data),
+			pi.events.emit(OP_PI_COMPACTION_EVENT, data),
 		);
 		if (remoteCompaction) {
 			return { compaction: remoteCompaction };
@@ -402,7 +402,7 @@ export default function compactionExtension(pi: ExtensionAPI): void {
 		return rewriteOpenAiPayloadWithRemoteCompaction(
 			event.payload,
 			{ model: ctx.model, branchEntries: ctx.sessionManager.getBranch() },
-			(data) => pi.events.emit(SENPI_COMPACTION_EVENT, data),
+			(data) => pi.events.emit(OP_PI_COMPACTION_EVENT, data),
 		);
 	});
 

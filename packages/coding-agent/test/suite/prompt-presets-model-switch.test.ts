@@ -71,11 +71,11 @@ describe("prompt preset model switching", () => {
 		const promptChange = await harness.session.setModel(getRequiredModel(harness, "claude-sonnet-4-5"));
 
 		// then
-		expect(promptChange?.systemPromptName).toBe("fallback (senpi-current)");
+		expect(promptChange?.systemPromptName).toBe("fallback (op-pi-current)");
 		expect(harness.session.systemPrompt).toContain("## Available Tools");
 		expect(harness.session.systemPrompt).not.toContain("Maintain coherent state");
 		expect(harness.eventsOfType("system_prompt_change").map((event) => event.systemPromptName)).toEqual([
-			"fallback (senpi-current)",
+			"fallback (op-pi-current)",
 		]);
 	});
 

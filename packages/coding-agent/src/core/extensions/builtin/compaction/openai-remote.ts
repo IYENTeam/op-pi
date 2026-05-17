@@ -14,8 +14,8 @@ import type { CompactionResult } from "../../../compaction/index.js";
 import type { SessionEntry } from "../../../session-manager.js";
 import type { ServiceTier, SessionBeforeCompactEvent } from "../../types.js";
 
-export const OPENAI_REMOTE_COMPACTION_SCHEMA = "senpi.compaction.openai-remote.v1";
-export const SENPI_COMPACTION_EVENT = "senpi:compaction";
+export const OPENAI_REMOTE_COMPACTION_SCHEMA = "op-pi.compaction.openai-remote.v1";
+export const OP_PI_COMPACTION_EVENT = "op-pi:compaction";
 
 type OpenAiInputText = { type: "input_text"; text: string };
 type OpenAiInputImage = { type: "input_image"; detail: "auto"; image_url: string };

@@ -2,7 +2,7 @@
  * Deterministic, no-LLM context reductions applied before compaction summarization.
  *
  * Ported from plugsuits' `context-collapse` and `micro-compact` patterns and
- * adapted to the senpi `AgentMessage` shape. Three independent transforms:
+ * adapted to the op-pi `AgentMessage` shape. Three independent transforms:
  *
  *  1. {@link collapseConsecutiveToolResults} — runs of same-kind read/grep/shell
  *     tool result payloads are replaced with a single one-line label so the

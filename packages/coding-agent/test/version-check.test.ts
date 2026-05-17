@@ -41,16 +41,16 @@ describe("version checks", () => {
 		await expect(checkForNewPiVersion("1.2.2")).resolves.toBe("1.2.3");
 	});
 
-	it("uses the senpi npm package metadata with a senpi user agent", async () => {
+	it("uses the op-pi npm package metadata with a op-pi user agent", async () => {
 		const fetchMock = vi.fn(async () => Response.json({ version: "1.2.4" }));
 		vi.stubGlobal("fetch", fetchMock);
 
 		await expect(getLatestPiVersion("1.2.3")).resolves.toBe("1.2.4");
 		expect(fetchMock).toHaveBeenCalledWith(
-			"https://registry.npmjs.org/%40code-yeongyu%2Fsenpi/latest",
+			"https://registry.npmjs.org/%40code-yeongyu%2Fop-pi/latest",
 			expect.objectContaining({
 				headers: expect.objectContaining({
-					"User-Agent": expect.stringMatching(/^senpi\/1\.2\.3 /),
+					"User-Agent": expect.stringMatching(/^op-pi\/1\.2\.3 /),
 					accept: "application/json",
 				}),
 			}),

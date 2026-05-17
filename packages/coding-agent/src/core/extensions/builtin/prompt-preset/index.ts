@@ -35,9 +35,9 @@ function getSettings(ctx: ExtensionContext): ReturnType<typeof loadPromptPresetS
 function getPresetName(ctx: ExtensionContext, event?: Pick<ModelSelectEvent, "model">): string {
 	const model = event?.model ?? ctx.model;
 	if (!model) {
-		return "fallback (senpi-current)";
+		return "fallback (op-pi-current)";
 	}
-	return resolvePresetName(model, getSettings(ctx)) ?? "fallback (senpi-current)";
+	return resolvePresetName(model, getSettings(ctx)) ?? "fallback (op-pi-current)";
 }
 
 function refreshHeader(ctx: ExtensionContext, event?: Pick<ModelSelectEvent, "model">): void {
@@ -72,7 +72,7 @@ export default function promptPresetExtension(pi: ExtensionAPI): void {
 		const preset = resolvePreset(event.model, getSettings(ctx), eventOptionsToBuilderInput(event, ctx));
 		return {
 			systemPrompt: preset?.prompt ?? null,
-			systemPromptName: preset?.name ?? "fallback (senpi-current)",
+			systemPromptName: preset?.name ?? "fallback (op-pi-current)",
 		};
 	});
 }

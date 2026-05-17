@@ -57,7 +57,7 @@ function log(message) {
 function usage() {
 	return `Usage: node scripts/sync-upstream.mjs [--dry-run] [--no-push] [--no-pr] [--verbose] [--help]
 
-Synchronize senpi with ${UPSTREAM_REMOTE}/main using fork-aware auto-resolution.
+Synchronize op-pi with ${UPSTREAM_REMOTE}/main using fork-aware auto-resolution.
 
 Flags:
 	--dry-run   Preview only; no repository mutations are kept

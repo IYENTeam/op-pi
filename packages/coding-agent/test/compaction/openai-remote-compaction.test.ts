@@ -115,14 +115,14 @@ describe("OpenAI remote compaction", () => {
 	it("builds a compact request only when every context message is OpenAI Responses-compatible", () => {
 		const request = createOpenAiRemoteCompactionRequest({
 			model: OPENAI_MODEL,
-			systemPrompt: "You are senpi.",
+			systemPrompt: "You are op-pi.",
 			branchEntries: openAiBranch(),
 			tokensBefore: 1234,
 			serviceTier: "priority" as const,
 		});
 
 		expect(request?.body.model).toBe("gpt-5.4");
-		expect(request?.body.instructions).toBe("You are senpi.");
+		expect(request?.body.instructions).toBe("You are op-pi.");
 		expect(request?.body.service_tier).toBe("priority");
 		expect(request?.body.input).toEqual([
 			{ role: "user", content: [{ type: "input_text", text: "Please inspect the build." }] },
@@ -149,7 +149,7 @@ describe("OpenAI remote compaction", () => {
 	it("builds a Codex-style Responses WebSocket compaction payload", () => {
 		const request = createOpenAiRemoteCompactionRequest({
 			model: OPENAI_MODEL,
-			systemPrompt: "You are senpi.",
+			systemPrompt: "You are op-pi.",
 			branchEntries: openAiBranch(),
 			tokensBefore: 1234,
 			promptCacheKey: "session-1",
@@ -208,7 +208,7 @@ describe("OpenAI remote compaction", () => {
 				getApiKeyAndHeaders: async () => ({ ok: true as const, apiKey: "test-key" }),
 			},
 			sessionManager: { getSessionId: () => "session-1" },
-			getSystemPrompt: () => "You are senpi.",
+			getSystemPrompt: () => "You are op-pi.",
 		};
 
 		const result = await runOpenAiRemoteCompaction(
@@ -299,7 +299,7 @@ describe("OpenAI remote compaction", () => {
 		expect(
 			createOpenAiRemoteCompactionRequest({
 				model: OPENAI_MODEL,
-				systemPrompt: "You are senpi.",
+				systemPrompt: "You are op-pi.",
 				branchEntries: branch,
 				tokensBefore: 1234,
 			}),
@@ -375,7 +375,7 @@ describe("OpenAI remote compaction", () => {
 			requestInput:
 				createOpenAiRemoteCompactionRequest({
 					model: OPENAI_MODEL,
-					systemPrompt: "You are senpi.",
+					systemPrompt: "You are op-pi.",
 					branchEntries: openAiBranch(),
 					tokensBefore: 1234,
 				})?.body.input ?? [],

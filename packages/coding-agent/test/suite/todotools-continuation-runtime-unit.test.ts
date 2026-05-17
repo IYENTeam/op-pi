@@ -1,6 +1,6 @@
 import { fauxAssistantMessage } from "@earendil-works/pi-ai";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { SENPI_CONVERSATION_EVENT, SENPI_SYSTEM_PREFIX } from "../../src/core/extensions/builtin/system-messages.js";
+import { OP_PI_CONVERSATION_EVENT, OP_PI_SYSTEM_PREFIX } from "../../src/core/extensions/builtin/system-messages.js";
 import { buildContinuationPrompt } from "../../src/core/extensions/builtin/todotools/continuation/prompt.js";
 import { installContinuation } from "../../src/core/extensions/builtin/todotools/continuation/runtime.js";
 import type { TodoItem } from "../../src/core/extensions/builtin/todotools/state.js";
@@ -200,12 +200,12 @@ describe("todotools continuation runtime", () => {
 		expect(mockPi.sendUserMessage).toHaveBeenCalledTimes(1);
 		expect(mockPi.sendUserMessage).toHaveBeenNthCalledWith(
 			1,
-			`${SENPI_SYSTEM_PREFIX}\n${buildContinuationPrompt(pendingTodos)}`,
+			`${OP_PI_SYSTEM_PREFIX}\n${buildContinuationPrompt(pendingTodos)}`,
 		);
 		expect(mockPi.sendUserMessage.mock.calls[0]).toHaveLength(1);
 		expect(typeof mockPi.sendUserMessage.mock.calls[0]?.[0]).toBe("string");
 		expect(mockPi.events.emit).toHaveBeenCalledWith(
-			SENPI_CONVERSATION_EVENT,
+			OP_PI_CONVERSATION_EVENT,
 			expect.objectContaining({
 				version: 1,
 				source: "builtin",
@@ -214,9 +214,9 @@ describe("todotools continuation runtime", () => {
 				sessionId: "session-1",
 				conversation: expect.objectContaining({
 					kind: "user_message",
-					prefix: SENPI_SYSTEM_PREFIX,
+					prefix: OP_PI_SYSTEM_PREFIX,
 				}),
-				text: `${SENPI_SYSTEM_PREFIX}\n${buildContinuationPrompt(pendingTodos)}`,
+				text: `${OP_PI_SYSTEM_PREFIX}\n${buildContinuationPrompt(pendingTodos)}`,
 			}),
 		);
 	});
@@ -428,7 +428,7 @@ describe("todotools continuation runtime", () => {
 			}),
 		);
 		expect(mockPi.events.emit).toHaveBeenCalledWith(
-			SENPI_CONVERSATION_EVENT,
+			OP_PI_CONVERSATION_EVENT,
 			expect.objectContaining({
 				version: 1,
 				source: "builtin",
@@ -437,7 +437,7 @@ describe("todotools continuation runtime", () => {
 				sessionId: "session-3",
 				conversation: expect.objectContaining({
 					kind: "user_message",
-					prefix: SENPI_SYSTEM_PREFIX,
+					prefix: OP_PI_SYSTEM_PREFIX,
 				}),
 				errorMessage: "follow-up failed",
 			}),

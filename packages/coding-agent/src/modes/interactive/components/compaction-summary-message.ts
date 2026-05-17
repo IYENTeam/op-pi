@@ -9,7 +9,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function formatCompactionDetails(details: unknown): string | undefined {
 	if (!isRecord(details)) return undefined;
-	if (details.schema !== "senpi.compaction.openai-remote.v1") return undefined;
+	if (details.schema !== "op-pi.compaction.openai-remote.v1") return undefined;
 	const retained = typeof details.retainedInputItemCount === "number" ? details.retainedInputItemCount : undefined;
 	const requested = typeof details.requestInputItemCount === "number" ? details.requestInputItemCount : undefined;
 	const retainedText = retained === undefined ? "native replay active" : `${retained.toLocaleString()} retained items`;

@@ -26,12 +26,12 @@ describe("default global extension fast path", () => {
 	beforeEach(() => {
 		tempDir = join(
 			tmpdir(),
-			`senpi-default-extension-fast-path-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+			`op-pi-default-extension-fast-path-${Date.now()}-${Math.random().toString(36).slice(2)}`,
 		);
 		agentDir = join(tempDir, "agent");
 		cwd = join(tempDir, "project");
-		previousAgentDir = process.env.SENPI_CODING_AGENT_DIR;
-		process.env.SENPI_CODING_AGENT_DIR = agentDir;
+		previousAgentDir = process.env.OP_PI_CODING_AGENT_DIR;
+		process.env.OP_PI_CODING_AGENT_DIR = agentDir;
 		mkdirSync(cwd, { recursive: true });
 		mkdirSync(join(agentDir, "extensions"), { recursive: true });
 		jitiMock.createJiti.mockReturnValue({ import: jitiMock.importExtension });
@@ -40,9 +40,9 @@ describe("default global extension fast path", () => {
 	afterEach(() => {
 		vi.clearAllMocks();
 		if (previousAgentDir === undefined) {
-			delete process.env.SENPI_CODING_AGENT_DIR;
+			delete process.env.OP_PI_CODING_AGENT_DIR;
 		} else {
-			process.env.SENPI_CODING_AGENT_DIR = previousAgentDir;
+			process.env.OP_PI_CODING_AGENT_DIR = previousAgentDir;
 		}
 		if (existsSync(tempDir)) {
 			rmSync(tempDir, { recursive: true, force: true });

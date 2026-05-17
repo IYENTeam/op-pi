@@ -2,21 +2,21 @@ import type { ImageContent, TextContent } from "@earendil-works/pi-ai";
 import type { CustomMessage } from "../../messages.js";
 import type { ExtensionAPI } from "../types.js";
 
-export const SENPI_SYSTEM_PREFIX = "[system:senpi]";
-export const SENPI_CONVERSATION_EVENT = "senpi:conversation";
+export const OP_PI_SYSTEM_PREFIX = "[system:op-pi]";
+export const OP_PI_CONVERSATION_EVENT = "op-pi:conversation";
 
 export type BuiltinSystemMessageRoute = "todotools.continuation";
-export type SenpiConversationAction = "injected" | "failed";
+export type OpPiConversationAction = "injected" | "failed";
 
-export interface SenpiConversationEvent {
+export interface OpPiConversationEvent {
 	version: 1;
 	source: "builtin";
-	action: SenpiConversationAction;
+	action: OpPiConversationAction;
 	route: BuiltinSystemMessageRoute;
 	sessionId?: string;
 	timestamp: number;
 	conversation: {
-		prefix: typeof SENPI_SYSTEM_PREFIX;
+		prefix: typeof OP_PI_SYSTEM_PREFIX;
 		kind: "custom_message" | "user_message";
 		customType?: string;
 		deliverAs?: "steer" | "followUp";
@@ -38,7 +38,7 @@ type BuiltinCustomMessageOptions = {
 };
 
 function prefixText(text: string): string {
-	return text.startsWith(SENPI_SYSTEM_PREFIX) ? text : `${SENPI_SYSTEM_PREFIX}\n${text}`;
+	return text.startsWith(OP_PI_SYSTEM_PREFIX) ? text : `${OP_PI_SYSTEM_PREFIX}\n${text}`;
 }
 
 function prefixContent(content: string | (TextContent | ImageContent)[]): string | (TextContent | ImageContent)[] {
@@ -48,7 +48,7 @@ function prefixContent(content: string | (TextContent | ImageContent)[]): string
 
 	const firstTextIndex = content.findIndex((part) => part.type === "text");
 	if (firstTextIndex === -1) {
-		return [{ type: "text", text: SENPI_SYSTEM_PREFIX }, ...content];
+		return [{ type: "text", text: OP_PI_SYSTEM_PREFIX }, ...content];
 	}
 
 	return content.map((part, index) => {
@@ -74,12 +74,12 @@ function extractText(content: string | (TextContent | ImageContent)[]): string {
 		.join("\n");
 }
 
-function emitSenpiConversationEvent(pi: ExtensionAPI, event: SenpiConversationEvent): void {
-	pi.events.emit(SENPI_CONVERSATION_EVENT, event);
+function emitOpPiConversationEvent(pi: ExtensionAPI, event: OpPiConversationEvent): void {
+	pi.events.emit(OP_PI_CONVERSATION_EVENT, event);
 }
 
 function createBaseEvent(args: {
-	action: SenpiConversationAction;
+	action: OpPiConversationAction;
 	route: BuiltinSystemMessageRoute;
 	sessionId?: string;
 	kind: "custom_message" | "user_message";
@@ -88,7 +88,7 @@ function createBaseEvent(args: {
 	triggerTurn?: boolean;
 	text: string;
 	errorMessage?: string;
-}): SenpiConversationEvent {
+}): OpPiConversationEvent {
 	return {
 		version: 1,
 		source: "builtin",
@@ -97,7 +97,7 @@ function createBaseEvent(args: {
 		sessionId: args.sessionId,
 		timestamp: Date.now(),
 		conversation: {
-			prefix: SENPI_SYSTEM_PREFIX,
+			prefix: OP_PI_SYSTEM_PREFIX,
 			kind: args.kind,
 			customType: args.customType,
 			deliverAs: args.deliverAs,
@@ -128,7 +128,7 @@ export function sendBuiltinUserMessage(
 ): void {
 	const prefixedContent = prefixContent(content);
 
-	emitSenpiConversationEvent(
+	emitOpPiConversationEvent(
 		pi,
 		createBaseEvent({
 			action: "injected",
@@ -157,7 +157,7 @@ export function sendBuiltinCustomMessage<TDetails>(
 	const prefixedContent = prefixContent(message.content);
 	const deliverAs = options?.deliverAs === "nextTurn" ? undefined : options?.deliverAs;
 
-	emitSenpiConversationEvent(
+	emitOpPiConversationEvent(
 		pi,
 		createBaseEvent({
 			action: "injected",
@@ -202,7 +202,7 @@ export function emitBuiltinSystemMessageFailure(
 ): void {
 	const prefixedContent = prefixContent(args.content);
 
-	emitSenpiConversationEvent(
+	emitOpPiConversationEvent(
 		pi,
 		createBaseEvent({
 			action: "failed",

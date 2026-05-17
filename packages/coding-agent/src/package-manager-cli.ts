@@ -64,7 +64,7 @@ function printPackageCommandHelp(command: PackageCommand): void {
 Install a package and add it to settings.
 
 Options:
--l, --local    Install project-locally (.senpi/settings.json)
+-l, --local    Install project-locally (.op-pi/settings.json)
 
 Examples:
   ${APP_NAME} install npm:@foo/bar
@@ -84,7 +84,7 @@ Remove a package and its source from settings.
 Alias: ${APP_NAME} uninstall <source> [-l]
 
 Options:
--l, --local    Remove from project settings (.senpi/settings.json)
+-l, --local    Remove from project settings (.op-pi/settings.json)
 
 Examples:
   ${APP_NAME} remove npm:@foo/bar

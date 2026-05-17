@@ -74,7 +74,7 @@ export const ANTHROPIC_BASH_SECTION = `
 The native bash tool is available in this session. The model has direct
 shell access via the bash_20250124 tool. The session is stateless — each
 command runs independently. The 'restart' parameter is accepted but has
-no effect (no persistent shell session). Standard senpi safety
+no effect (no persistent shell session). Standard op-pi safety
 guardrails still apply.
 `;
 
