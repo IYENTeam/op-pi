@@ -10,11 +10,11 @@
  * which can be cheaper/faster than the main conversation model.
  *
  * Usage:
- *   senpi --extension examples/extensions/custom-compaction.ts
+ *   op-pi --extension examples/extensions/custom-compaction.ts
  */
 
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
-import { convertToLlm, serializeConversation } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
+import { convertToLlm, serializeConversation } from "@code-yeongyu/op-pi";
 import { complete } from "@earendil-works/pi-ai";
 
 export default function (pi: ExtensionAPI) {

@@ -10,10 +10,10 @@
  * via `tool_call` input mutation without replacing the tool.
  *
  * Config files (merged, project takes precedence):
- * - ~/.senpi/agent/extensions/sandbox.json (global)
- * - <cwd>/.senpi/sandbox.json (project-local)
+ * - ~/.op-pi/agent/extensions/sandbox.json (global)
+ * - <cwd>/.op-pi/sandbox.json (project-local)
  *
- * Example .senpi/sandbox.json:
+ * Example .op-pi/sandbox.json:
  * ```json
  * {
  *   "enabled": true,
@@ -30,13 +30,13 @@
  * ```
  *
  * Usage:
- * - `senpi -e ./sandbox` - sandbox enabled with default/config settings
- * - `senpi -e ./sandbox --no-sandbox` - disable sandboxing
+ * - `op-pi -e ./sandbox` - sandbox enabled with default/config settings
+ * - `op-pi -e ./sandbox --no-sandbox` - disable sandboxing
  * - `/sandbox` - show current sandbox configuration
  *
  * Setup:
- * 1. Copy sandbox/ directory to ~/.senpi/agent/extensions/
- * 2. Run `npm install` in ~/.senpi/agent/extensions/sandbox/
+ * 1. Copy sandbox/ directory to ~/.op-pi/agent/extensions/
+ * 2. Run `npm install` in ~/.op-pi/agent/extensions/sandbox/
  *
  * Linux also requires: bubblewrap, socat, ripgrep
  */
@@ -45,8 +45,8 @@ import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { SandboxManager, type SandboxRuntimeConfig } from "@anthropic-ai/sandbox-runtime";
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
-import { type BashOperations, createBashTool, getAgentDir } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
+import { type BashOperations, createBashTool, getAgentDir } from "@code-yeongyu/op-pi";
 
 interface SandboxConfig extends SandboxRuntimeConfig {
 	enabled?: boolean;

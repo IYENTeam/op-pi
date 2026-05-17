@@ -4,11 +4,11 @@
  * Adjusts command, cwd, and env before execution.
  *
  * Usage:
- *   senpi -e ./bash-spawn-hook.ts
+ *   op-pi -e ./bash-spawn-hook.ts
  */
 
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
-import { createBashTool } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
+import { createBashTool } from "@code-yeongyu/op-pi";
 
 export default function (pi: ExtensionAPI) {
 	const cwd = process.cwd();

@@ -4,7 +4,7 @@
  * Override settings using SettingsManager.
  */
 
-import { createAgentSession, SessionManager, SettingsManager } from "@code-yeongyu/senpi";
+import { createAgentSession, SessionManager, SettingsManager } from "@code-yeongyu/op-pi";
 
 const cwd = process.cwd();
 

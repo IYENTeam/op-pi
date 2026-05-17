@@ -1,6 +1,6 @@
-# Contributing to senpi
+# Contributing to op-pi
 
-senpi is an opinionated fork of [badlogic/pi-mono](https://github.com/badlogic/pi-mono). This guide covers the fork-specific contribution rules. For the upstream contribution culture, see pi-mono's [CONTRIBUTING.md](https://github.com/badlogic/pi-mono/blob/main/CONTRIBUTING.md).
+op-pi is an opinionated fork of [badlogic/pi-mono](https://github.com/badlogic/pi-mono). This guide covers the fork-specific contribution rules. For the upstream contribution culture, see pi-mono's [CONTRIBUTING.md](https://github.com/badlogic/pi-mono/blob/main/CONTRIBUTING.md).
 
 ## The One Rule
 
@@ -8,11 +8,11 @@ senpi is an opinionated fork of [badlogic/pi-mono](https://github.com/badlogic/p
 
 Using AI to write code is fine. Submitting AI-generated slop without understanding it is not.
 
-If you use an agent, run it from the senpi repo root directory so it picks up `AGENTS.md` automatically. Your agent must follow the rules and guidelines in that file and in the nearest subdirectory `AGENTS.md`.
+If you use an agent, run it from the op-pi repo root directory so it picks up `AGENTS.md` automatically. Your agent must follow the rules and guidelines in that file and in the nearest subdirectory `AGENTS.md`.
 
 ## Fork Strategy (READ BEFORE EDITING `src/`)
 
-senpi periodically rebases on `upstream/main` (i.e. `badlogic/pi-mono`). To keep rebases clean:
+op-pi periodically rebases on `upstream/main` (i.e. `badlogic/pi-mono`). To keep rebases clean:
 
 1. **Extension-first** — every new feature lands as a builtin extension under `packages/coding-agent/src/core/extensions/builtin/`, or as a user extension under `packages/coding-agent/examples/extensions/`. Touch `core/` only when no extension hook can do the job.
 2. **`changes.md` contract** — any modification to an upstream-tracked file MUST add a section to the nearest `changes.md` documenting *what changed, why, why an extension couldn't handle it, and expected merge-conflict zones*. See the existing files for templates.
@@ -34,7 +34,7 @@ If you are adding a new provider to `packages/ai`, see [`packages/ai/src/provide
 
 ## Releasing
 
-senpi uses **CalVer** (Calendar Versioning), distinct from upstream `badlogic/pi-mono`'s semver line.
+op-pi uses **CalVer** (Calendar Versioning), distinct from upstream `badlogic/pi-mono`'s semver line.
 
 ### Cutting a release
 
@@ -90,7 +90,7 @@ If you open an issue:
 
 ## Philosophy
 
-senpi's core stays minimal. Most "this could be a feature" requests should be implemented as extensions ([`packages/coding-agent/src/core/extensions/builtin/`](packages/coding-agent/src/core/extensions/builtin/AGENTS.md) for in-tree, [`packages/coding-agent/examples/extensions/`](packages/coding-agent/examples/extensions/) for external).
+op-pi's core stays minimal. Most "this could be a feature" requests should be implemented as extensions ([`packages/coding-agent/src/core/extensions/builtin/`](packages/coding-agent/src/core/extensions/builtin/AGENTS.md) for in-tree, [`packages/coding-agent/examples/extensions/`](packages/coding-agent/examples/extensions/) for external).
 
 If your change must modify upstream-tracked source:
 
@@ -103,11 +103,11 @@ PRs that bloat the core or skip `changes.md` will be asked to convert to an exte
 
 - TAB indent (Biome `indentWidth: 3`). 120-column line width.
 - Match the style of the surrounding file. The codebase is largely consistent — Biome plus the existing patterns are the source of truth.
-- Use the path aliases defined in root `tsconfig.json` (`@earendil-works/pi-*`, `@code-yeongyu/senpi*`).
+- Use the path aliases defined in root `tsconfig.json` (`@earendil-works/pi-*`, `@code-yeongyu/op-pi*`).
 
 ## Trademark and Brand References
 
-Use third-party marks only to identify integrations, compatibility, providers, and required setup. Do not make senpi look endorsed by another project or vendor.
+Use third-party marks only to identify integrations, compatibility, providers, and required setup. Do not make op-pi look endorsed by another project or vendor.
 
 - Anthropic and Claude: use referentially for Anthropic APIs, Claude models, and Anthropic-specific extensions. Follow Anthropic's legal terms: <https://www.anthropic.com/legal>.
 - OpenAI, ChatGPT, GPT, and GPT-4/GPT-5 model names: use referentially for OpenAI APIs and model compatibility. Follow OpenAI brand guidance: <https://openai.com/brand/>.
@@ -118,5 +118,5 @@ Prefer product-neutral wording in user-facing copy unless a specific provider or
 
 ## Communication
 
-- Issue and PR discussion happens on GitHub: <https://github.com/code-yeongyu/senpi>.
+- Issue and PR discussion happens on GitHub: <https://github.com/code-yeongyu/op-pi>.
 - Upstream pi-mono discussions: <https://discord.com/invite/3cU7Bz4UPx>.

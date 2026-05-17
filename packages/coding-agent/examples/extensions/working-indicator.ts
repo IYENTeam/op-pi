@@ -2,10 +2,10 @@
  * Working Indicator Extension
  *
  * Demonstrates `ctx.ui.setWorkingIndicator()` for customizing the inline
- * working indicator shown while senpi is streaming a response.
+ * working indicator shown while op-pi is streaming a response.
  *
  * Usage:
- *   senpi --extension examples/extensions/working-indicator.ts
+ *   op-pi --extension examples/extensions/working-indicator.ts
  *
  * Commands:
  *   /working-indicator           Show current mode
@@ -16,7 +16,7 @@
  *   /working-indicator reset     Restore pi's default spinner
  */
 
-import type { ExtensionAPI, ExtensionContext, WorkingIndicatorOptions } from "@code-yeongyu/senpi";
+import type { ExtensionAPI, ExtensionContext, WorkingIndicatorOptions } from "@code-yeongyu/op-pi";
 
 type WorkingIndicatorMode = "dot" | "none" | "pulse" | "spinner" | "default";
 

@@ -14,7 +14,7 @@ builtin/todotools/
 │                         and the continuation module together.
 ├── prompt.ts             TASK_MANAGEMENT_SECTION constant (append to system
 │                         prompt in before_agent_start).
-├── state.ts              TodoItem type, TODO_STATE_ENTRY_TYPE = "senpi.todo-state",
+├── state.ts              TodoItem type, TODO_STATE_ENTRY_TYPE = "op-pi.todo-state",
 │                         sanitizeTodoText, getTodoMarker, getTodoWidgetLines,
 │                         getTodoResultLines, getLatestTodosFromBranchEntries,
 │                         and any shared helpers.
@@ -48,7 +48,7 @@ builtin/todotools/
 
 1. User prompt arrives → session starts → extension's `session_start` handler restores `currentTodos` from the session branch via `getLatestTodosFromBranchEntries`.
 2. Extension's `before_agent_start` handler returns `{ systemPrompt: ${original}\n${TASK_MANAGEMENT_SECTION} }`.
-3. Agent loop runs. Assistant calls `todowrite` → tool's `execute` updates `currentTodos` and appends a `senpi.todo-state` custom entry to the session.
+3. Agent loop runs. Assistant calls `todowrite` → tool's `execute` updates `currentTodos` and appends a `op-pi.todo-state` custom entry to the session.
 4. Widget sidebar is synced via `ctx.ui.setWidget("todo-sidebar", getTodoWidgetLines(currentTodos))` on every state change.
 5. Branch navigation / tree events re-run `session_tree` handler to rebuild `currentTodos` from the newly-active branch.
 
@@ -109,7 +109,7 @@ Rules:
 ## Injection prompt format
 
 ```
-[SYSTEM DIRECTIVE: SENPI - TODO CONTINUATION]
+[SYSTEM DIRECTIVE: OP-PI - TODO CONTINUATION]
 
 Incomplete tasks remain in your todo list. Continue working on the next pending task.
 
@@ -130,7 +130,7 @@ The builder takes a `TodoItem[]`, counts completed items plus remaining non-term
 ## Invariants
 
 - Extension id `"todowrite"` is preserved.
-- `TODO_STATE_ENTRY_TYPE === "senpi.todo-state"` is preserved.
+- `TODO_STATE_ENTRY_TYPE === "op-pi.todo-state"` is preserved.
 - `getTodoWidgetLines`, `getTodoResultLines`, `getLatestTodosFromBranchEntries`, `TODO_STATE_ENTRY_TYPE` are exported from a stable path inside `todotools/` (either via `index.ts` re-exports or directly from `state.ts`).
 - `TASK_MANAGEMENT_SECTION` is byte-equivalent to the pre-refactor constant.
 - Continuation registers only on `agent_end` (NEVER on `turn_end`, which would cause infinite recursion inside the tool-calling loop).

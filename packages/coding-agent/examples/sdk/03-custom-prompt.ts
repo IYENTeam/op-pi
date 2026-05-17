@@ -4,7 +4,7 @@
  * Shows how to replace or modify the default system prompt.
  */
 
-import { createAgentSession, DefaultResourceLoader, getAgentDir, SessionManager } from "@code-yeongyu/senpi";
+import { createAgentSession, DefaultResourceLoader, getAgentDir, SessionManager } from "@code-yeongyu/op-pi";
 
 const cwd = process.cwd();
 const agentDir = getAgentDir();

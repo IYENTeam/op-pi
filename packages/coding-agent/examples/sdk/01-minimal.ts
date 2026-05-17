@@ -2,10 +2,10 @@
  * Minimal SDK Usage
  *
  * Uses all defaults: discovers skills, extensions, tools, context files
- * from cwd and ~/.senpi/agent. Model chosen from settings or first available.
+ * from cwd and ~/.op-pi/agent. Model chosen from settings or first available.
  */
 
-import { createAgentSession } from "@code-yeongyu/senpi";
+import { createAgentSession } from "@code-yeongyu/op-pi";
 
 const { session } = await createAgentSession();
 

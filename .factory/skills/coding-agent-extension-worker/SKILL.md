@@ -5,7 +5,7 @@ description: Implements a single feature in the pi-mono `todotools` builtin exte
 
 # Coding Agent Extension Worker
 
-You are implementing exactly ONE feature from `features.json` in the senpi-mono coding-agent package. Your feature has been pre-assigned — read it from `features.json`, identify it by its `id`, and focus exclusively on its `description`, `preconditions`, `expectedBehavior`, `verificationSteps`, and the assertions listed in `fulfills`.
+You are implementing exactly ONE feature from `features.json` in the op-pi-mono coding-agent package. Your feature has been pre-assigned — read it from `features.json`, identify it by its `id`, and focus exclusively on its `description`, `preconditions`, `expectedBehavior`, `verificationSteps`, and the assertions listed in `fulfills`.
 
 ## Context you MUST read before starting
 
@@ -16,7 +16,7 @@ You are implementing exactly ONE feature from `features.json` in the senpi-mono 
 5. **Environment notes:** `.factory/library/environment.md` — tooling quirks, forbidden patterns.
 6. **User testing surface:** `.factory/library/user-testing.md` — test infrastructure conventions.
 7. **Mission agents guidance:** `AGENTS.md` in the mission directory — boundaries, conventions, git safety rules.
-8. **Project agents guidance:** the root `AGENTS.md` at the repo root (senpi-mono coding guidelines) — fork strategy, commit conventions, anti-patterns.
+8. **Project agents guidance:** the root `AGENTS.md` at the repo root (op-pi-mono coding guidelines) — fork strategy, commit conventions, anti-patterns.
 
 ## Hard rules — never violate
 

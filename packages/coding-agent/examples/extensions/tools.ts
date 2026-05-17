@@ -5,12 +5,12 @@
  * Tool selection persists across session reloads and respects branch navigation.
  *
  * Usage:
- * 1. Copy this file to ~/.senpi/agent/extensions/ or your project's .senpi/extensions/
+ * 1. Copy this file to ~/.op-pi/agent/extensions/ or your project's .op-pi/extensions/
  * 2. Use /tools to open the tool selector
  */
 
-import type { ExtensionAPI, ExtensionContext, ToolInfo } from "@code-yeongyu/senpi";
-import { getSettingsListTheme } from "@code-yeongyu/senpi";
+import type { ExtensionAPI, ExtensionContext, ToolInfo } from "@code-yeongyu/op-pi";
+import { getSettingsListTheme } from "@code-yeongyu/op-pi";
 import { Container, type SettingItem, SettingsList } from "@earendil-works/pi-tui";
 
 // State persisted to session

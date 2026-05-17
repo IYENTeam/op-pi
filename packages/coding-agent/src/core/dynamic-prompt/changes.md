@@ -102,13 +102,13 @@ All changes are within the `dynamic-prompt/` directory which is already a fork m
 ### What changed
 
 - `intent-gate.ts`: Reversed the 2026-04-10 "internal-only" guard. The intent gate now requires the model to emit a one-line routing line in the format `I read this as [intent] - [plan].` before acting. The guard against narrating prompt scaffolding ("Step 0", "Thinking level", XML examples) is preserved; only the routing line itself is mandated.
-- `build.ts`: Replaced the `"You are a helpful assistant."` opener with a senpi identity section. Added five new reusable sections to the assembled prompt: identity, parallel tool calls, exploration discipline, verification rigor (V1/V2/V3 tiers), and style. Added an optional `tuningSection` field for per-model addenda.
+- `build.ts`: Replaced the `"You are a helpful assistant."` opener with a op-pi identity section. Added five new reusable sections to the assembled prompt: identity, parallel tool calls, exploration discipline, verification rigor (V1/V2/V3 tiers), and style. Added an optional `tuningSection` field for per-model addenda.
 - New files in `dynamic-prompt/`: `identity.ts`, `parallel-tools.ts`, `exploration.ts`, `verification.ts`, `style.ts`. Each exports a single `build*Section()` function consumed by `build.ts` and re-exported from `index.ts`.
 - `test/dynamic-prompt/intent-gate.test.ts` and `test/dynamic-prompt/build.test.ts`: Updated to assert the verbalization mandate and the new sections.
 
 ### Why
 
-- The default fallback prompt was producing weak, generic-LLM-bot output ("You are a helpful assistant." with bare intent gate, tool list, and policies). The README already advertised forced intent verbalization, but the code contradicted it. Strengthening the default reconciles README and code, and gives every model that lacks a preset a strong neutral senpi prompt.
+- The default fallback prompt was producing weak, generic-LLM-bot output ("You are a helpful assistant." with bare intent gate, tool list, and policies). The README already advertised forced intent verbalization, but the code contradicted it. Strengthening the default reconciles README and code, and gives every model that lacks a preset a strong neutral op-pi prompt.
 - The 2026-04-10 leakage fix was a Gemini-specific patch applied as a global silencer. The proper place for that patch is a Gemini-specific overlay (or a per-model preset), not the shared default. Revoking it here while preserving the "do not narrate prompt scaffolding" guard restores the verbalization for every other model.
 - The bold parallel-tool-calls section ("if a directory or symbol is even loosely relevant to the request, run `grep`, `ls`, and `read` in parallel") was missing entirely. Adding it makes the default suitable for agentic use without falling back to model-specific presets.
 
@@ -123,7 +123,7 @@ All changes are within the existing `dynamic-prompt/` directory.
 ### Expected merge conflict zones
 
 - `intent-gate.ts`: If upstream re-introduces an "internal only" routing rule. Resolution: keep the verbalization mandate; reapply any additional anti-leakage guard on top of it.
-- `build.ts`: If upstream rewrites the assembly. Resolution: keep the senpi identity and the new section calls.
+- `build.ts`: If upstream rewrites the assembly. Resolution: keep the op-pi identity and the new section calls.
 
 ## Preset Files Renamed to Model Families (2026-04-30)
 
@@ -133,11 +133,11 @@ All changes are within the existing `dynamic-prompt/` directory.
 - `presets.ts`: Renamed the `is*Model` helpers to model-family-named functions (`isGpt5FamilyModel`, `isClaudeOpusModel`). Split `resolvePreset` into `resolvePresetName` (cheap, used by the startup header) and `resolvePreset` (builds the full prompt). Settings overrides accept the new model-named values.
 - `settings.ts`: `PromptPresetName` is now `"auto" | "claude-opus" | "kimi-k2-6" | "gpt-5"`.
 - `index.ts` (extension wiring): Passes the full `BuildDynamicSystemPromptOptions` (including `cwd`, `contextFiles`, `skills`) through to the preset builders so presets reuse the strengthened default.
-- All three `test/suite/prompt-presets-*.test.ts` files: Updated assertions to match the new preset names and the senpi-neutral identity.
+- All three `test/suite/prompt-presets-*.test.ts` files: Updated assertions to match the new preset names and the op-pi-neutral identity.
 
 ### Why
 
-- Senpi is a neutral coding agent. Persona-named presets collapsed identity into specific personas and made model selection hard to reason about. Naming presets after the model family they target makes the link from `--model` to active preset obvious.
+- op-pi is a neutral coding agent. Persona-named presets collapsed identity into specific personas and made model selection hard to reason about. Naming presets after the model family they target makes the link from `--model` to active preset obvious.
 - The old presets duplicated identity, intent, exploration, and verification language. Each was 100+ lines of mostly-shared content. The new architecture (default carries the shared behavior, preset carries only the model-specific tuning) cuts each preset to ~10 lines and keeps tuning easy to review.
 
 ### Why extension system couldn't handle this

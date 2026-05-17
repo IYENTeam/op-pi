@@ -6,8 +6,8 @@
  * and can be activated via CLI flag, /preset command, or Ctrl+Shift+U to cycle.
  *
  * Config files (merged, project takes precedence):
- * - ~/.senpi/agent/presets.json (global)
- * - <cwd>/.senpi/presets.json (project-local)
+ * - ~/.op-pi/agent/presets.json (global)
+ * - <cwd>/.op-pi/presets.json (project-local)
  *
  * Example presets.json:
  * ```json
@@ -30,7 +30,7 @@
  * ```
  *
  * Usage:
- * - `senpi --preset plan` - start with plan preset
+ * - `op-pi --preset plan` - start with plan preset
  * - `/preset` - show selector to switch presets mid-session
  * - `/preset implement` - switch to implement preset directly
  * - `Ctrl+Shift+U` - cycle through presets
@@ -40,8 +40,8 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { ExtensionAPI, ExtensionContext } from "@code-yeongyu/senpi";
-import { DynamicBorder, getAgentDir } from "@code-yeongyu/senpi";
+import type { ExtensionAPI, ExtensionContext } from "@code-yeongyu/op-pi";
+import { DynamicBorder, getAgentDir } from "@code-yeongyu/op-pi";
 import type { Api, Model } from "@earendil-works/pi-ai";
 import { Container, Key, type SelectItem, SelectList, Text } from "@earendil-works/pi-tui";
 
@@ -69,7 +69,7 @@ interface PresetsConfig {
  */
 function loadPresets(cwd: string): PresetsConfig {
 	const globalPath = join(getAgentDir(), "presets.json");
-	const projectPath = join(cwd, ".senpi", "presets.json");
+	const projectPath = join(cwd, ".op-pi", "presets.json");
 
 	let globalPresets: PresetsConfig = {};
 	let projectPresets: PresetsConfig = {};
@@ -201,7 +201,7 @@ export default function presetExtension(pi: ExtensionAPI) {
 
 		if (presetNames.length === 0) {
 			ctx.ui.notify(
-				"No presets defined. Add presets to ~/.senpi/agent/presets.json or .senpi/presets.json",
+				"No presets defined. Add presets to ~/.op-pi/agent/presets.json or .op-pi/presets.json",
 				"warning",
 			);
 			return;
@@ -312,7 +312,7 @@ export default function presetExtension(pi: ExtensionAPI) {
 		const presetNames = getPresetOrder();
 		if (presetNames.length === 0) {
 			ctx.ui.notify(
-				"No presets defined. Add presets to ~/.senpi/agent/presets.json or .senpi/presets.json",
+				"No presets defined. Add presets to ~/.op-pi/agent/presets.json or .op-pi/presets.json",
 				"warning",
 			);
 			return;

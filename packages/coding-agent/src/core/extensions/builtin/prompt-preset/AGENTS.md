@@ -1,6 +1,6 @@
 # builtin/prompt-preset
 
-Builtin extension #5. On `before_agent_start` and `model_select`, picks a system prompt preset by **model family** (gpt-5.x, claude-opus-4-{5,6,7}, kimi-k2-6) and falls back to the senpi dynamic prompt when nothing matches. Renders the active preset name in the startup header. After 2026-04-30, presets are thin wrappers around `buildDynamicSystemPrompt()` carrying only model-specific tuning.
+Builtin extension #5. On `before_agent_start` and `model_select`, picks a system prompt preset by **model family** (gpt-5.x, claude-opus-4-{5,6,7}, kimi-k2-6) and falls back to the op-pi dynamic prompt when nothing matches. Renders the active preset name in the startup header. After 2026-04-30, presets are thin wrappers around `buildDynamicSystemPrompt()` carrying only model-specific tuning.
 
 ## FILES
 
@@ -64,5 +64,5 @@ Each preset is ~10 lines. The shared default in `dynamic-prompt/` carries identi
 ## NOTES
 
 - Tests under `packages/coding-agent/test/suite/prompt-presets-*.test.ts` validate that each preset produces a non-empty `tuningSection` and contains the model-family signal.
-- The fork rationale: senpi is a neutral coding agent; persona-named presets collapsed identity into specific personas and made `--model` ↔ active preset hard to reason about. Family naming is the canonical resolution.
+- The fork rationale: op-pi is a neutral coding agent; persona-named presets collapsed identity into specific personas and made `--model` ↔ active preset hard to reason about. Family naming is the canonical resolution.
 - Adding a new model release: copy the closest existing preset, replace the model family in the test, update `presets.ts` matcher, add a regression test.

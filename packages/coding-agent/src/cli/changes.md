@@ -1,10 +1,10 @@
 # changes
 
-## Senpi package command wording (2026-05-02)
+## op-pi package command wording (2026-05-02)
 
 ### What changed
 
-- `args.ts`: Top-level help now documents `senpi update` as updating senpi instead of pi.
+- `args.ts`: Top-level help now documents `op-pi update` as updating op-pi instead of pi.
 
 ### Why
 

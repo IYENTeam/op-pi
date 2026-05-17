@@ -2,7 +2,7 @@
 
 Environment variables, external dependencies, and platform notes for this mission.
 
-**What belongs here:** Node version, external tool expectations, auth locations, quirks specific to senpi-mono.
+**What belongs here:** Node version, external tool expectations, auth locations, quirks specific to op-pi-mono.
 **What does NOT belong here:** Service ports/commands (use `.factory/services.yaml`).
 
 ---
@@ -37,8 +37,8 @@ Environment variables, external dependencies, and platform notes for this missio
 
 ## pi-mono quirks
 
-- **`.pi/` directory:** the repo uses `.pi/` (not `.pi-agent/` or `.senpi/`) as the project config dir. Existing files there: `permissions-approved.jsonl`, `git/`, `npm/`, `prompts/`, `settings.json`.
-- **Fork remotes:** `origin = code-yeongyu/senpi-mono`, `upstream = badlogic/pi-mono`. Workers should only push to `origin` and must NEVER push to `upstream`.
+- **`.pi/` directory:** the repo uses `.pi/` (not `.pi-agent/` or `.op-pi/`) as the project config dir. Existing files there: `permissions-approved.jsonl`, `git/`, `npm/`, `prompts/`, `settings.json`.
+- **Fork remotes:** `origin = code-yeongyu/op-pi-mono`, `upstream = badlogic/pi-mono`. Workers should only push to `origin` and must NEVER push to `upstream`.
 - **Lockstep versioning:** All packages share the same version. This mission does not bump versions — that's a release-time concern.
 - **`tsgo` is strict:** `any`, `@ts-ignore`, `@ts-expect-error` are forbidden. Narrow types explicitly via type guards instead.
 - **Build side effect:** `npm run build` regenerates `packages/ai/src/models.generated.ts` via `packages/ai/scripts/generate-models.ts`, so coding-agent-only validation can still dirty that unrelated tracked file. Restore it before committing if your feature did not intentionally change AI model metadata.

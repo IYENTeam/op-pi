@@ -12,8 +12,8 @@
  * The generated prompt appears as a draft in the editor for review/editing.
  */
 
-import type { ExtensionAPI, SessionEntry } from "@code-yeongyu/senpi";
-import { BorderedLoader, convertToLlm, serializeConversation } from "@code-yeongyu/senpi";
+import type { ExtensionAPI, SessionEntry } from "@code-yeongyu/op-pi";
+import { BorderedLoader, convertToLlm, serializeConversation } from "@code-yeongyu/op-pi";
 import type { AgentMessage } from "@earendil-works/pi-agent-core";
 import { complete, type Message } from "@earendil-works/pi-ai";
 

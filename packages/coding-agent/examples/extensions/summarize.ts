@@ -1,5 +1,5 @@
-import type { ExtensionAPI, ExtensionCommandContext } from "@code-yeongyu/senpi";
-import { DynamicBorder, getMarkdownTheme } from "@code-yeongyu/senpi";
+import type { ExtensionAPI, ExtensionCommandContext } from "@code-yeongyu/op-pi";
+import { DynamicBorder, getMarkdownTheme } from "@code-yeongyu/op-pi";
 import { complete, getModel } from "@earendil-works/pi-ai";
 import { Container, Markdown, matchesKey, Text } from "@earendil-works/pi-tui";
 

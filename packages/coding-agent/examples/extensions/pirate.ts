@@ -5,12 +5,12 @@
  * change agent behavior based on extension state.
  *
  * Usage:
- * 1. Copy this file to ~/.senpi/agent/extensions/ or your project's .senpi/extensions/
+ * 1. Copy this file to ~/.op-pi/agent/extensions/ or your project's .op-pi/extensions/
  * 2. Use /pirate to toggle pirate mode
  * 3. When enabled, the agent will respond like a pirate
  */
 
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
 
 export default function pirateExtension(pi: ExtensionAPI) {
 	let pirateMode = false;

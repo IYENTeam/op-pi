@@ -1,6 +1,6 @@
 # packages/agent
 
-`@earendil-works/pi-agent-core` — stateful agent loop with tool execution, message streaming, and a "harness" layer (compaction, session storage, env, skills) that the senpi CLI plugs into.
+`@earendil-works/pi-agent-core` — stateful agent loop with tool execution, message streaming, and a "harness" layer (compaction, session storage, env, skills) that the op-pi CLI plugs into.
 
 ## STRUCTURE
 

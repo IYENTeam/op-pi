@@ -7,7 +7,7 @@
       "reason": "Default-enabled continuation behavior is covered and the focused suite passes, but the runtime calls `pi.sendUserMessage(prompt)` without the contract-required `{ deliverAs: \"followUp\" }` options bag (`runtime.ts`).",
       "evidence": [
         "/Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/evidence/continuation-core/vitest-core/focused-vitest.log",
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts"
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts"
       ]
     },
     {
@@ -48,7 +48,7 @@
       "reason": "The runtime does not inject via `sendUserMessage(prompt, { deliverAs: \"followUp\" })`; source inspection shows no `deliverAs: \"followUp\"` usage in todotools continuation and the unit test asserts a single string argument only.",
       "evidence": [
         "/Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/evidence/continuation-core/vitest-core/focused-vitest.log",
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts"
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts"
       ]
     },
     {
@@ -121,7 +121,7 @@
       "reason": "Focused config tests passed for reading only `todotools.continuation.enabled` and ignoring misnamed/alternate paths.",
       "evidence": [
         "/Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/evidence/continuation-core/vitest-core/focused-vitest.log",
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts"
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts"
       ]
     },
     {
@@ -202,7 +202,7 @@
       "reason": "Focused integration tests passed with the continuation directive visible in session history as a user message.",
       "evidence": [
         "/Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/evidence/continuation-core/vitest-core/focused-vitest.log",
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/test/suite/harness.ts"
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/test/suite/harness.ts"
       ]
     },
     {
@@ -219,7 +219,7 @@
       "reason": "Focused runtime unit tests and source inspection show the runtime reads todos through the injected `getCurrentTodos` accessor per `agent_end` and keeps no local runtime copy of current todos.",
       "evidence": [
         "/Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/evidence/continuation-core/vitest-core/focused-vitest.log",
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts"
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts"
       ]
     },
     {
@@ -236,7 +236,7 @@
       "reason": "`npm run build` exited 0 and emitted the expected `dist/core/extensions/builtin/todotools` files, including `index.js`, `state.js`, `prompt.js`, `continuation/*.js`, and `tools/*.js`.",
       "evidence": [
         "/Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/evidence/continuation-core/vitest-core/npm-build.log",
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/dist/core/extensions/builtin/todotools/index.js"
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/dist/core/extensions/builtin/todotools/index.js"
       ]
     },
     {
@@ -293,7 +293,7 @@
       "reason": "The test harness exposes `getInjectedUserMessages()` and focused continuation integration tests consume it successfully without any production-code hooks.",
       "evidence": [
         "/Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/evidence/continuation-core/vitest-core/focused-vitest.log",
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/test/suite/harness.ts"
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/test/suite/harness.ts"
       ]
     },
     {
@@ -328,22 +328,22 @@
   ],
   "commands": [
     {
-      "command": "cd /Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent && npx tsx ../../node_modules/vitest/dist/cli.js --run test/suite/todowrite-extension.test.ts test/suite/task-management-section.test.ts test/suite/todotools-continuation-config.test.ts test/suite/todotools-continuation-prompt.test.ts test/suite/todotools-continuation-runtime-unit.test.ts test/suite/todotools-continuation-runtime.test.ts test/suite/todotools-continuation-compat.test.ts test/suite/todotools-continuation-chain-cap.test.ts test/suite/todotools-continuation-non-interactive.test.ts",
+      "command": "cd /Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent && npx tsx ../../node_modules/vitest/dist/cli.js --run test/suite/todowrite-extension.test.ts test/suite/task-management-section.test.ts test/suite/todotools-continuation-config.test.ts test/suite/todotools-continuation-prompt.test.ts test/suite/todotools-continuation-runtime-unit.test.ts test/suite/todotools-continuation-runtime.test.ts test/suite/todotools-continuation-compat.test.ts test/suite/todotools-continuation-chain-cap.test.ts test/suite/todotools-continuation-non-interactive.test.ts",
       "exitCode": 0,
       "observation": "Focused continuation/todotools coverage passed: 9 files, 63 tests, 0 failures."
     },
     {
-      "command": "cd /Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent && npx tsx ../../node_modules/vitest/dist/cli.js --run",
+      "command": "cd /Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent && npx tsx ../../node_modules/vitest/dist/cli.js --run",
       "exitCode": 1,
       "observation": "Authoritative rerun finished with 124 passed, 1 failed, 7 skipped; the failure was `test/suite/final-qa.test.ts` Scenario 2 (`rm *` deny rule)."
     },
     {
-      "command": "cd /Users/yeongyu/local-workspaces/senpi-mono && npm run build",
+      "command": "cd /Users/yeongyu/local-workspaces/op-pi-mono && npm run build",
       "exitCode": 0,
       "observation": "Whole-repo build succeeded and emitted the expected coding-agent todotools dist artifacts, but also regenerated `packages/ai/src/models.generated.ts`; that file was restored afterward."
     },
     {
-      "command": "cd /Users/yeongyu/local-workspaces/senpi-mono && npm run check",
+      "command": "cd /Users/yeongyu/local-workspaces/op-pi-mono && npm run check",
       "exitCode": 0,
       "observation": "Whole-repo check succeeded; Biome reported `Fixed 1 file` and reordered imports in `packages/coding-agent/test/permission/integration.test.ts`, which I restored afterward."
     }

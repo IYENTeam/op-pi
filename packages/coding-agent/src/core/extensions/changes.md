@@ -26,12 +26,12 @@
 
 ### What changed
 
-- `builtin/openai-web-search/index.ts`: When `ctx.model.api` is not an OpenAI Responses variant, the extension now also scans `payload.tools` for OpenAI native `web_search_preview` / `web_search_preview_*` entries and strips them before the request leaves senpi. The OpenAI Responses path (inject + Anthropic-tool sanitize) is unchanged.
+- `builtin/openai-web-search/index.ts`: When `ctx.model.api` is not an OpenAI Responses variant, the extension now also scans `payload.tools` for OpenAI native `web_search_preview` / `web_search_preview_*` entries and strips them before the request leaves op-pi. The OpenAI Responses path (inject + Anthropic-tool sanitize) is unchanged.
 - `test/suite/openai-web-search-extension.test.ts`: Added regression coverage for stripping `web_search_preview`, the versioned `web_search_preview_2025_03_11` variant, the `openai-completions` case, the disabled-via-env case, and a no-op assertion guaranteeing Anthropic-native `web_search_*` / `web_fetch_*` entries are left intact on anthropic-messages payloads.
 
 ### Why
 
-- Anthropic rejects requests whose `tools[]` contains `type: "web_search_preview"` with `tools.N: Input tag 'web_search_preview' found using 'type' does not match any of the expected tags`. The leak shows up for users whose `openai` provider is wired to a proxy that translates `openai-responses` → `anthropic-messages` (e.g., ccapi / quotio when routing claude-* models) and forwards `web_search_preview` verbatim. Defense-in-depth stripping ensures senpi never lets the OpenAI-only tool reach Anthropic-format backends regardless of how it ended up in the payload.
+- Anthropic rejects requests whose `tools[]` contains `type: "web_search_preview"` with `tools.N: Input tag 'web_search_preview' found using 'type' does not match any of the expected tags`. The leak shows up for users whose `openai` provider is wired to a proxy that translates `openai-responses` → `anthropic-messages` (e.g., ccapi / quotio when routing claude-* models) and forwards `web_search_preview` verbatim. Defense-in-depth stripping ensures op-pi never lets the OpenAI-only tool reach Anthropic-format backends regardless of how it ended up in the payload.
 
 ### Why extension system couldn't handle this alone
 
@@ -83,18 +83,18 @@
 - LOW: `builtin/tool-pair-guard/index.ts` if upstream changes provider-request hook wiring.
 - LOW: `builtin/tool-pair-guard/sanitize-openai-responses-payload.ts` if upstream adds an equivalent OpenAI Responses pairing normalizer.
 
-## 2026-05-15 - Normalize remaining senpi internal names
+## 2026-05-15 - Normalize remaining op-pi internal names
 
 ### What changed
 
-- `builtin/system-messages.ts`: Renamed the exported conversation constants, event type names, and helper function names to the `SENPI_*` / `Senpi*` spelling, and changed the emitted conversation event name to `senpi:conversation`.
+- `builtin/system-messages.ts`: Renamed the exported conversation constants, event type names, and helper function names to the `OP_PI_*` / `Senpi*` spelling, and changed the emitted conversation event name to `op-pi:conversation`.
 - `builtin/todotools/system-messages.ts`: Applied the same event-name and constant-name cleanup to the vendored todotools helper.
-- `builtin/todotools/state.ts`: Changed the todo state custom entry type to `senpi.todo-state`.
-- `test/suite/senpi-conversation.test.ts`: Renamed the regression test file and assertions to match the senpi runtime naming.
+- `builtin/todotools/state.ts`: Changed the todo state custom entry type to `op-pi.todo-state`.
+- `test/suite/op-pi-conversation.test.ts`: Renamed the regression test file and assertions to match the op-pi runtime naming.
 
 ### Why
 
-- The fork identity is `senpi`, and the remaining internal directive/event/state/env names should carry the same identity instead of preserving an earlier spelling.
+- The fork identity is `op-pi`, and the remaining internal directive/event/state/env names should carry the same identity instead of preserving an earlier spelling.
 
 ### Why extension system couldn't handle this alone
 
@@ -124,17 +124,17 @@
 
 - LOW: `builtin/anthropic-web-search/index.ts` and `builtin/openai-web-search/index.ts` if native web tool payload handling changes upstream.
 
-## 2026-05-13 - Rename injected system prefix to senpi
+## 2026-05-13 - Rename injected system prefix to op-pi
 
 ### What changed
 
-- `builtin/system-messages.ts`: Changed the injected builtin system-message prefix to `[system:senpi]`.
+- `builtin/system-messages.ts`: Changed the injected builtin system-message prefix to `[system:op-pi]`.
 - `builtin/todotools/system-messages.ts`: Applied the same prefix change to the vendored todotools helper.
-- `test/suite/senpi-conversation.test.ts`: Added regression coverage that both helpers emit the `senpi` marker.
+- `test/suite/op-pi-conversation.test.ts`: Added regression coverage that both helpers emit the `op-pi` marker.
 
 ### Why
 
-- The runtime identity is `senpi`, so internally injected reminder/follow-up messages should use the matching `[system:senpi]` marker.
+- The runtime identity is `op-pi`, so internally injected reminder/follow-up messages should use the matching `[system:op-pi]` marker.
 
 ### Why extension system couldn't handle this alone
 
@@ -155,11 +155,11 @@
 
 ### Why
 
-- Todo tools are now maintained as a public sibling extension like other vendored builtins, while senpi continues shipping the feature in the binary.
+- Todo tools are now maintained as a public sibling extension like other vendored builtins, while op-pi continues shipping the feature in the binary.
 
 ### Why extension system couldn't handle this alone
 
-- senpi's builtin list is assembled by core resource loading; shipping a sibling extension as a builtin still requires vendored source and the builtin sync manifest.
+- op-pi's builtin list is assembled by core resource loading; shipping a sibling extension as a builtin still requires vendored source and the builtin sync manifest.
 
 ### Expected merge conflict zones
 
@@ -286,7 +286,7 @@
 ### What changed
 
 - `loader.ts`: Reuses one `jiti` importer across each `loadExtensions()` batch while keeping `moduleCache: false` for reload freshness.
-- `loader.ts`: Aliases upstream `@mariozechner/pi-*` peer imports to the already-loaded senpi workspace packages.
+- `loader.ts`: Aliases upstream `@mariozechner/pi-*` peer imports to the already-loaded op-pi workspace packages.
 
 ### Why
 

@@ -1,14 +1,14 @@
 # changes
 
-## Senpi-branded outbound identity (2026-05-11)
+## op-pi-branded outbound identity (2026-05-11)
 
 ### What changed
 
-- `core/sdk.ts`: `getProviderHeaders()` no longer hardcodes `"pi"` / `"pi-coding-agent"`. The OpenRouter `X-OpenRouter-Title` and the Cloudflare `User-Agent` now interpolate the runtime `APP_NAME` from `config.ts` (`"senpi"` in this fork).
+- `core/sdk.ts`: `getProviderHeaders()` no longer hardcodes `"pi"` / `"pi-coding-agent"`. The OpenRouter `X-OpenRouter-Title` and the Cloudflare `User-Agent` now interpolate the runtime `APP_NAME` from `config.ts` (`"op-pi"` in this fork).
 
 ### Why
 
-- Every outbound request should identify as senpi, not pi. Hardcoded `"pi"` strings broke that contract.
+- Every outbound request should identify as op-pi, not pi. Hardcoded `"pi"` strings broke that contract.
 
 ### Why extension system couldn't handle this
 
@@ -18,16 +18,16 @@
 
 - LOW: provider-header builder.
 
-## Senpi version metadata lookup (2026-05-02)
+## op-pi version metadata lookup (2026-05-02)
 
 ### What changed
 
-- `version-check.ts`: Latest-version checks now query the configured senpi package metadata from npm instead of pi.dev.
+- `version-check.ts`: Latest-version checks now query the configured op-pi package metadata from npm instead of pi.dev.
 - `pi-user-agent.ts`: The update-check user agent now uses the runtime app name from package metadata.
 
 ### Why
 
-- `senpi update` and startup update checks must compare against senpi releases, not upstream pi-mono releases.
+- `op-pi update` and startup update checks must compare against op-pi releases, not upstream pi-mono releases.
 
 ### Why extension system couldn't handle this
 

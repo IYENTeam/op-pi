@@ -21,7 +21,7 @@ You are executing ONE manual QA feature from `features.json` that drives the rea
 - **Real LLM calls are allowed** in this skill (manual QA only). The user's `~/.pi/agent/auth.json` is presumed configured. Do NOT touch that file.
 - **Capture to `local-ignore/`** — never commit QA evidence. The `local-ignore/` directory is gitignored.
 - **Clean up test fixtures.** If you create a temporary `.pi/settings.json` for a scenario, delete it after capture so subsequent tests start from a clean slate.
-- **Deterministic evidence:** every manual feature includes a `rg -c "SYSTEM DIRECTIVE: SENPI"` count check. Always save the count to a `.count` file alongside the `.log` file. The count is the canonical pass/fail marker, not the visual scrollback.
+- **Deterministic evidence:** every manual feature includes a `rg -c "SYSTEM DIRECTIVE: OP_PI"` count check. Always save the count to a `.count` file alongside the `.log` file. The count is the canonical pass/fail marker, not the visual scrollback.
 - **No src/ changes:** you are verifying only. If you find a bug, return to orchestrator with details and do NOT fix it yourself — a coding-agent-extension-worker will handle the fix in a follow-up feature.
 
 ## Prerequisites
@@ -77,7 +77,7 @@ tmux capture-pane -p -t "$TMUX_SESSION" -S -10000 > local-ignore/qa-cross-XXX-tm
 
 ### Step 5 — Assert the count marker
 ```bash
-rg -c 'SYSTEM DIRECTIVE: SENPI' local-ignore/qa-cross-XXX-tmux.log > local-ignore/qa-cross-XXX-tmux.count || true
+rg -c 'SYSTEM DIRECTIVE: OP_PI' local-ignore/qa-cross-XXX-tmux.log > local-ignore/qa-cross-XXX-tmux.count || true
 COUNT=$(cat local-ignore/qa-cross-XXX-tmux.count)
 echo "Continuation directive count: $COUNT"
 ```

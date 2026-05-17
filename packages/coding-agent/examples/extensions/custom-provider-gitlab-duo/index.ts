@@ -5,11 +5,11 @@
  * Delegates to pi-ai's built-in Anthropic and OpenAI streaming implementations.
  *
  * Usage:
- *   senpi -e ./packages/coding-agent/examples/extensions/custom-provider-gitlab-duo
+ *   op-pi -e ./packages/coding-agent/examples/extensions/custom-provider-gitlab-duo
  *   # Then /login gitlab-duo, or set GITLAB_TOKEN=glpat-...
  */
 
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
 import {
 	type Api,
 	type AssistantMessageEventStream,

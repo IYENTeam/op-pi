@@ -5,7 +5,7 @@
  * without paying for an extra follow-up LLM turn.
  */
 
-import { defineTool, type ExtensionAPI } from "@code-yeongyu/senpi";
+import { defineTool, type ExtensionAPI } from "@code-yeongyu/op-pi";
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 

@@ -57,4 +57,4 @@ tool-call-middleware/
 
 - `TESTING.md` documents the canonical live-API test commands per protocol (Qwen for Hermes, Gemini for MorphXML, Gemma 4 for delimiter). Update it when adding new protocols.
 - This package's middleware is fork-modified — see `changes.md` for the architectural rewrite toward `minpeter/ai-sdk-tool-call-middleware` style.
-- `compat.toolCallFormat` on a custom model in `~/.senpi/agent/models.json` is what activates middleware for that model.
+- `compat.toolCallFormat` on a custom model in `~/.op-pi/agent/models.json` is what activates middleware for that model.

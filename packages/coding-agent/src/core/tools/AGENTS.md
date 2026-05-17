@@ -1,6 +1,6 @@
 # packages/coding-agent/src/core/tools
 
-Built-in tool implementations. **Prefer extensions for new tools** — this dir exists only for tools that ship in upstream `pi-mono` and need parity. The senpi-specific extras (`apply_patch`, web search, code execution, computer use) are builtin extensions, not core tools.
+Built-in tool implementations. **Prefer extensions for new tools** — this dir exists only for tools that ship in upstream `pi-mono` and need parity. The op-pi-specific extras (`apply_patch`, web search, code execution, computer use) are builtin extensions, not core tools.
 
 ## FILES
 
@@ -45,11 +45,11 @@ tools/
 - **File mutation queue is mandatory** for any tool that modifies on-disk content. Bypassing it causes interleaved-write corruption.
 - **Output accumulator + truncate** must be used for long stdout. Streaming the entire output is forbidden — it will blow the context window.
 - **Renderers return TUI nodes**, never raw strings. Use `render-utils.ts` helpers.
-- **Tools live in core only when upstream parity demands it**. Senpi-specific tools (`apply_patch`, web search, etc.) live as builtin extensions in `extensions/builtin/`.
+- **Tools live in core only when upstream parity demands it**. op-pi-specific tools (`apply_patch`, web search, etc.) live as builtin extensions in `extensions/builtin/`.
 
 ## ANTI-PATTERNS
 
-- Editing `bash.ts` `promptSnippet` to re-introduce `grep` — already fixed; senpi has a dedicated `grep` tool.
+- Editing `bash.ts` `promptSnippet` to re-introduce `grep` — already fixed; op-pi has a dedicated `grep` tool.
 - Adding a new tool here when the same effect can be a builtin extension — bloats merge surface.
 - Bypassing `file-mutation-queue.ts` — concurrent writes on the same path will corrupt.
 - Hardcoding output limits — go through `truncate.ts` policy.

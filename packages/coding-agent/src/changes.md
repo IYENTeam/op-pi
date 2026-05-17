@@ -23,7 +23,7 @@
 
 ### What changed
 
-- `main.ts`: `senpi --export ~/session.jsonl ~/out.html` expands leading `~` for both the input session path and optional output path before exporting.
+- `main.ts`: `op-pi --export ~/session.jsonl ~/out.html` expands leading `~` for both the input session path and optional output path before exporting.
 
 ### Why
 
@@ -37,17 +37,17 @@
 
 - LOW: `main.ts` around the early `parsed.export` branch.
 
-## Senpi self-update release source (2026-05-02)
+## op-pi self-update release source (2026-05-02)
 
 ### What changed
 
-- `config.ts`: Bun-binary self-update fallback now points to `code-yeongyu/senpi` releases.
-- `package-manager-cli.ts`: `senpi update senpi` is accepted as the branded self-update target and help text uses senpi wording.
-- `package.json`: Repository metadata now points to the senpi fork.
+- `config.ts`: Bun-binary self-update fallback now points to `code-yeongyu/op-pi` releases.
+- `package-manager-cli.ts`: `op-pi update op-pi` is accepted as the branded self-update target and help text uses op-pi wording.
+- `package.json`: Repository metadata now points to the op-pi fork.
 
 ### Why
 
-- Self-update messaging and release metadata should direct users to senpi, not upstream pi-mono.
+- Self-update messaging and release metadata should direct users to op-pi, not upstream pi-mono.
 
 ### Why extension system couldn't handle this
 

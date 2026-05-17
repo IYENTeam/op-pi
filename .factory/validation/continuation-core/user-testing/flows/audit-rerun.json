@@ -34,7 +34,7 @@
   "blockers": [],
   "commands": [
     {
-      "command": "git -C \"/Users/yeongyu/local-workspaces/senpi-mono\" rev-parse HEAD && git -C \"/Users/yeongyu/local-workspaces/senpi-mono\" merge-base HEAD main && git -C \"/Users/yeongyu/local-workspaces/senpi-mono\" log --oneline --reverse 1677c199..HEAD",
+      "command": "git -C \"/Users/yeongyu/local-workspaces/op-pi-mono\" rev-parse HEAD && git -C \"/Users/yeongyu/local-workspaces/op-pi-mono\" merge-base HEAD main && git -C \"/Users/yeongyu/local-workspaces/op-pi-mono\" log --oneline --reverse 1677c199..HEAD",
       "exitCode": 0,
       "observation": "Confirmed the current branch HEAD is 75064599 and merge-base HEAD main also resolves to HEAD, while the broad 1677c199..HEAD log now includes later non-mission commits; this is why a mission-scoped reconstruction was required."
     },

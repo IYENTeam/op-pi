@@ -22,11 +22,11 @@
  *   toggled the tool output open (via ctrl+e or clicking)
  *
  * Usage:
- *   senpi -e ./built-in-tool-renderer.ts
+ *   op-pi -e ./built-in-tool-renderer.ts
  */
 
-import type { BashToolDetails, EditToolDetails, ExtensionAPI, ReadToolDetails } from "@code-yeongyu/senpi";
-import { createBashTool, createEditTool, createReadTool, createWriteTool } from "@code-yeongyu/senpi";
+import type { BashToolDetails, EditToolDetails, ExtensionAPI, ReadToolDetails } from "@code-yeongyu/op-pi";
+import { createBashTool, createEditTool, createReadTool, createWriteTool } from "@code-yeongyu/op-pi";
 import { Text } from "@earendil-works/pi-tui";
 
 export default function (pi: ExtensionAPI) {

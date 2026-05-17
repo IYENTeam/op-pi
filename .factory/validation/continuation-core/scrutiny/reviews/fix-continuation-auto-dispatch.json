@@ -20,7 +20,7 @@
     {
       "area": "knowledge",
       "observation": "The mission\u2019s shared architecture/spec still documents the pre-fix `deliverAs: \"followUp\"` design even though this feature intentionally changes continuation to deferred idle polling plus plain `pi.sendUserMessage(prompt)`. Future workers reviewing the mission docs would be steered back toward the broken behavior unless those shared docs are updated.",
-      "evidence": "/Users/yeongyu/local-workspaces/senpi-mono/.factory/library/architecture.md:68,136 and /Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/features.json:392,671-682 still prescribe `deliverAs: \"followUp\"`, while commit e4b17d9c replaces that path with deferred idle dispatch in continuation/runtime.ts."
+      "evidence": "/Users/yeongyu/local-workspaces/op-pi-mono/.factory/library/architecture.md:68,136 and /Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/features.json:392,671-682 still prescribe `deliverAs: \"followUp\"`, while commit e4b17d9c replaces that path with deferred idle dispatch in continuation/runtime.ts."
     }
   ],
   "addressesFailureFrom": null,

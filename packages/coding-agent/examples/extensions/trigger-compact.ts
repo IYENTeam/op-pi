@@ -1,4 +1,4 @@
-import type { ExtensionAPI, ExtensionContext } from "@code-yeongyu/senpi";
+import type { ExtensionAPI, ExtensionContext } from "@code-yeongyu/op-pi";
 
 const COMPACT_THRESHOLD_TOKENS = 100_000;
 

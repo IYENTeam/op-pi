@@ -6,14 +6,14 @@
   "diffReviewed": true,
   "status": "pass",
   "codeReview": {
-    "summary": "The change is narrowly scoped to the test harness, matches the feature's allowed session-message-based observability approach, and correctly exposes a typed accessor without touching production code. The helper is sound because `AgentSession.sendUserMessage(..., { deliverAs: \"followUp\" })` ultimately produces a `role: \"user\"` message in session history, so filtering `session.messages` by the SENPI directive header observes real continuation injections.",
+    "summary": "The change is narrowly scoped to the test harness, matches the feature's allowed session-message-based observability approach, and correctly exposes a typed accessor without touching production code. The helper is sound because `AgentSession.sendUserMessage(..., { deliverAs: \"followUp\" })` ultimately produces a `role: \"user\"` message in session history, so filtering `session.messages` by the OP_PI directive header observes real continuation injections.",
     "issues": []
   },
   "sharedStateObservations": [
     {
       "area": "services",
       "observation": "The worker used the repo init entrypoint `.factory/init.sh`, but that setup command is not represented in `.factory/services.yaml`, so future workers have to discover it ad hoc from transcripts or habit instead of from the shared command manifest.",
-      "evidence": "Transcript skeleton for worker session 71378999-63e8-43e9-a6d0-ca96d8c1fd18 shows `Execute` of `/Users/yeongyu/local-workspaces/senpi-mono/.factory/init.sh`; `/Users/yeongyu/local-workspaces/senpi-mono/.factory/services.yaml` lists install/build/check/test commands only and no init/setup entry."
+      "evidence": "Transcript skeleton for worker session 71378999-63e8-43e9-a6d0-ca96d8c1fd18 shows `Execute` of `/Users/yeongyu/local-workspaces/op-pi-mono/.factory/init.sh`; `/Users/yeongyu/local-workspaces/op-pi-mono/.factory/services.yaml` lists install/build/check/test commands only and no init/setup entry."
     }
   ],
   "addressesFailureFrom": null,

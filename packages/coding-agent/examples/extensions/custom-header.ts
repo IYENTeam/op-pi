@@ -2,14 +2,14 @@
  * Custom Header Extension
  *
  * Demonstrates ctx.ui.setHeader() for replacing the built-in header
- * (logo + keybinding hints) with a custom component showing the senpi mascot.
+ * (logo + keybinding hints) with a custom component showing the op-pi mascot.
  */
 
-import type { ExtensionAPI, Theme } from "@code-yeongyu/senpi";
-import { VERSION } from "@code-yeongyu/senpi";
+import type { ExtensionAPI, Theme } from "@code-yeongyu/op-pi";
+import { VERSION } from "@code-yeongyu/op-pi";
 
 // --- PI MASCOT ---
-// Based on pi_mascot.ts - the senpi agent character
+// Based on pi_mascot.ts - the op-pi agent character
 function getPiMascot(theme: Theme): string[] {
 	// --- COLORS ---
 	// 3b1b Blue: R=80, G=180, B=230

@@ -6,10 +6,10 @@
       "status": "pass",
       "reason": "`packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts` registers `disable-todo-continuation` as a boolean flag with `default: false` and description text containing both 'Disable' and 'todo continuation'; the captured help artifact also lists the flag.",
       "evidence": [
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts:149-153",
-        "/Users/yeongyu/local-workspaces/senpi-mono/local-ignore/qa-help-output.txt:55",
-        "/Users/yeongyu/local-workspaces/senpi-mono/local-ignore/qa-help-output.txt:200",
-        "/Users/yeongyu/local-workspaces/senpi-mono/local-ignore/qa-help-output.txt:345",
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts:149-153",
+        "/Users/yeongyu/local-workspaces/op-pi-mono/local-ignore/qa-help-output.txt:55",
+        "/Users/yeongyu/local-workspaces/op-pi-mono/local-ignore/qa-help-output.txt:200",
+        "/Users/yeongyu/local-workspaces/op-pi-mono/local-ignore/qa-help-output.txt:345",
         "/Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/handoffs/2026-04-09T04-49-58-459Z__continuation-changelog-and-cli-smoke__05429ce3-bb83-430c-9416-328e4d629484.json"
       ]
     },
@@ -18,8 +18,8 @@
       "status": "pass",
       "reason": "The continuation runtime currently registers `pi.on(\"agent_end\"...)` and repo inspection found no `pi.on(\"turn_end\"...)` registrations under `builtin/todotools/continuation/`.",
       "evidence": [
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts:185",
-        "rg -n 'pi\\.on\\(\"agent_end\"|pi\\.on\\(\"turn_end\"' /Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation"
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/runtime.ts:185",
+        "rg -n 'pi\\.on\\(\"agent_end\"|pi\\.on\\(\"turn_end\"' /Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation"
       ]
     },
     {
@@ -27,8 +27,8 @@
       "status": "pass",
       "reason": "`continuation/config.ts` is a pure resolver over preloaded settings + flag values and the forbidden filesystem/process/network pattern scan returned no matches.",
       "evidence": [
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/config.ts",
-        "python pattern scan over /Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/config.ts reported `none` for readFile/readFileSync/existsSync/writeFile/writeFileSync/fetch/child_process/spawn/exec/import(\"fs\")"
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/config.ts",
+        "python pattern scan over /Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation/config.ts reported `none` for readFile/readFileSync/existsSync/writeFile/writeFileSync/fetch/child_process/spawn/exec/import(\"fs\")"
       ]
     },
     {
@@ -38,7 +38,7 @@
       "evidence": [
         "/Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/handoffs/2026-04-09T04-57-10-307Z__continuation-fork-and-git-safety-audit__1b6e8ca7-0427-4dca-8392-35fa9edc43a7.json",
         "git show --stat 619efcff864e06645b11dfc714c5cada4d0cffe3",
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todowrite.ts (deleted in commit 619efcff864e06645b11dfc714c5cada4d0cffe3)"
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todowrite.ts (deleted in commit 619efcff864e06645b11dfc714c5cada4d0cffe3)"
       ]
     },
     {
@@ -56,7 +56,7 @@
       "status": "pass",
       "reason": "`packages/coding-agent/CHANGELOG.md` contains a new `[Unreleased]` bullet that mentions the `todotools` refactor and `todo continuation`, including the settings key and CLI flag.",
       "evidence": [
-        "/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/CHANGELOG.md:6-9",
+        "/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/CHANGELOG.md:6-9",
         "/Users/yeongyu/.factory/missions/604eaa29-2cf3-4c01-af2e-35ceedb95304/handoffs/2026-04-09T04-49-58-459Z__continuation-changelog-and-cli-smoke__05429ce3-bb83-430c-9416-328e4d629484.json"
       ]
     }
@@ -71,17 +71,17 @@
   "blockers": [],
   "commands": [
     {
-      "command": "git -C \"/Users/yeongyu/local-workspaces/senpi-mono\" status --short && printf '\\n---DIFF-NAME-ONLY---\\n' && git -C \"/Users/yeongyu/local-workspaces/senpi-mono\" diff --name-only && printf '\\n---LOG-STAT-12---\\n' && git -C \"/Users/yeongyu/local-workspaces/senpi-mono\" log --stat --oneline -12",
+      "command": "git -C \"/Users/yeongyu/local-workspaces/op-pi-mono\" status --short && printf '\\n---DIFF-NAME-ONLY---\\n' && git -C \"/Users/yeongyu/local-workspaces/op-pi-mono\" diff --name-only && printf '\\n---LOG-STAT-12---\\n' && git -C \"/Users/yeongyu/local-workspaces/op-pi-mono\" log --stat --oneline -12",
       "exitCode": 0,
       "observation": "Current working tree shows only `.factory/library/user-testing.md` modified plus unrelated untracked `.pi/` / `.sisyphus/` paths; recent history includes the continuation-related changelog and runtime commits but current live diff alone is insufficient for mission-range fork auditing."
     },
     {
-      "command": "git -C \"/Users/yeongyu/local-workspaces/senpi-mono\" log --oneline --follow -- \"packages/coding-agent/src/core/extensions/builtin/todowrite.ts\" && printf '\\n---SHOW-619efcff---\\n' && git -C \"/Users/yeongyu/local-workspaces/senpi-mono\" show --stat --oneline 619efcff864e06645b11dfc714c5cada4d0cffe3",
+      "command": "git -C \"/Users/yeongyu/local-workspaces/op-pi-mono\" log --oneline --follow -- \"packages/coding-agent/src/core/extensions/builtin/todowrite.ts\" && printf '\\n---SHOW-619efcff---\\n' && git -C \"/Users/yeongyu/local-workspaces/op-pi-mono\" show --stat --oneline 619efcff864e06645b11dfc714c5cada4d0cffe3",
       "exitCode": 0,
       "observation": "Confirmed commit `619efcff` deleted the legacy `builtin/todowrite.ts` file while introducing the `todotools` module tree, which is the path-scope violation called out by the prior audit handoff."
     },
     {
-      "command": "rg -n \"disable-todo-continuation|pi\\.on\\(\\\"agent_end\\\"|pi\\.on\\(\\\"turn_end\\\"|todotools\\.continuation\\.enabled\" \"/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation\" \"/Users/yeongyu/local-workspaces/senpi-mono/packages/coding-agent/CHANGELOG.md\"",
+      "command": "rg -n \"disable-todo-continuation|pi\\.on\\(\\\"agent_end\\\"|pi\\.on\\(\\\"turn_end\\\"|todotools\\.continuation\\.enabled\" \"/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/src/core/extensions/builtin/todotools/continuation\" \"/Users/yeongyu/local-workspaces/op-pi-mono/packages/coding-agent/CHANGELOG.md\"",
       "exitCode": 0,
       "observation": "Matched the CLI flag registration, the `agent_end` event registration, and the changelog entry; there was no `turn_end` output in the continuation folder scan."
     },
@@ -91,12 +91,12 @@
       "observation": "Static scan of `continuation/config.ts` reported `none` for every forbidden I/O/process/network pattern, supporting the pure-resolver assertion."
     },
     {
-      "command": "rg -n \"disable-todo-continuation\" \"/Users/yeongyu/local-workspaces/senpi-mono/local-ignore/qa-help-output.txt\"",
+      "command": "rg -n \"disable-todo-continuation\" \"/Users/yeongyu/local-workspaces/op-pi-mono/local-ignore/qa-help-output.txt\"",
       "exitCode": 0,
       "observation": "The captured help-output artifact contains `--disable-todo-continuation` in the built CLI help and both `pi-test.sh` help captures."
     }
   ],
   "artifacts": [
-    "/Users/yeongyu/local-workspaces/senpi-mono/.factory/validation/continuation-core/user-testing/flows/static-audit.json"
+    "/Users/yeongyu/local-workspaces/op-pi-mono/.factory/validation/continuation-core/user-testing/flows/static-audit.json"
   ]
 }

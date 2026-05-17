@@ -1,8 +1,8 @@
-> senpi can help you use the SDK. Ask it to build an integration for your use case.
+> op-pi can help you use the SDK. Ask it to build an integration for your use case.
 
 # SDK
 
-The SDK provides programmatic access to pi's agent capabilities. Use it to embed senpi in other applications, build custom interfaces, or integrate with automated workflows.
+The SDK provides programmatic access to pi's agent capabilities. Use it to embed op-pi in other applications, build custom interfaces, or integrate with automated workflows.
 
 **Example use cases:**
 - Build a custom UI (web, desktop, mobile)
@@ -15,7 +15,7 @@ See [examples/sdk/](../examples/sdk/) for working examples from minimal to full 
 ## Quick Start
 
 ```typescript
-import { AuthStorage, createAgentSession, ModelRegistry, SessionManager } from "@code-yeongyu/senpi";
+import { AuthStorage, createAgentSession, ModelRegistry, SessionManager } from "@code-yeongyu/op-pi";
 
 // Set up credential storage and model registry
 const authStorage = AuthStorage.create();
@@ -39,7 +39,7 @@ await session.prompt("What files are in the current directory?");
 ## Installation
 
 ```bash
-npm install @code-yeongyu/senpi
+npm install @code-yeongyu/op-pi
 ```
 
 The SDK is included in the main package. No separate installation needed.
@@ -53,7 +53,7 @@ The main factory function for a single `AgentSession`.
 `createAgentSession()` uses a `ResourceLoader` to supply extensions, skills, prompt templates, themes, and context files. If you do not provide one, it uses `DefaultResourceLoader` with standard discovery.
 
 ```typescript
-import { createAgentSession, SessionManager } from "@code-yeongyu/senpi";
+import { createAgentSession, SessionManager } from "@code-yeongyu/op-pi";
 
 // Minimal: defaults with DefaultResourceLoader
 const { session } = await createAgentSession();
@@ -131,7 +131,7 @@ import {
   createAgentSessionServices,
   getAgentDir,
   SessionManager,
-} from "@code-yeongyu/senpi";
+} from "@code-yeongyu/op-pi";
 
 const createRuntime: CreateAgentSessionRuntimeFactory = async ({ cwd, sessionManager, sessionStartEvent }) => {
   const services = await createAgentSessionServices({ cwd });
@@ -337,23 +337,23 @@ const { session } = await createAgentSession({
   cwd: process.cwd(), // default
   
   // Global config directory
-  agentDir: "~/.senpi/agent", // default (expands ~)
+  agentDir: "~/.op-pi/agent", // default (expands ~)
 });
 ```
 
 `cwd` is used by `DefaultResourceLoader` for:
-- Project extensions (`.senpi/extensions/`)
+- Project extensions (`.op-pi/extensions/`)
 - Project skills:
-  - `.senpi/skills/`
+  - `.op-pi/skills/`
   - `.agents/skills/` in `cwd` and ancestor directories (up to git repo root, or filesystem root when not in a repo)
-- Project prompts (`.senpi/prompts/`)
+- Project prompts (`.op-pi/prompts/`)
 - Context files (`AGENTS.md` walking up from cwd)
 - Session directory naming
 
 `agentDir` is used by `DefaultResourceLoader` for:
 - Global extensions (`extensions/`)
 - Global skills:
-  - `skills/` under `agentDir` (for example `~/.senpi/agent/skills/`)
+  - `skills/` under `agentDir` (for example `~/.op-pi/agent/skills/`)
   - `~/.agents/skills/`
 - Global prompts (`prompts/`)
 - Global context file (`AGENTS.md`)
@@ -368,7 +368,7 @@ When you pass a custom `ResourceLoader`, `cwd` and `agentDir` no longer control 
 
 ```typescript
 import { getModel } from "@earendil-works/pi-ai";
-import { AuthStorage, ModelRegistry } from "@code-yeongyu/senpi";
+import { AuthStorage, ModelRegistry } from "@code-yeongyu/op-pi";
 
 const authStorage = AuthStorage.create();
 const modelRegistry = ModelRegistry.create(authStorage);
@@ -415,9 +415,9 @@ API key resolution priority (handled by AuthStorage):
 4. Fallback resolver (for custom provider keys from `models.json`)
 
 ```typescript
-import { AuthStorage, ModelRegistry } from "@code-yeongyu/senpi";
+import { AuthStorage, ModelRegistry } from "@code-yeongyu/op-pi";
 
-// Default: uses ~/.senpi/agent/auth.json and ~/.senpi/agent/models.json
+// Default: uses ~/.op-pi/agent/auth.json and ~/.op-pi/agent/models.json
 const authStorage = AuthStorage.create();
 const modelRegistry = ModelRegistry.create(authStorage);
 
@@ -451,7 +451,7 @@ const simpleRegistry = ModelRegistry.inMemory(authStorage);
 Use a `ResourceLoader` to override the system prompt:
 
 ```typescript
-import { createAgentSession, DefaultResourceLoader } from "@code-yeongyu/senpi";
+import { createAgentSession, DefaultResourceLoader } from "@code-yeongyu/op-pi";
 
 const loader = new DefaultResourceLoader({
   systemPromptOverride: () => "You are a helpful assistant.",
@@ -473,7 +473,7 @@ Specify which built-in tools to enable:
 - `noTools: "builtin"` disables default built-ins while keeping extension and custom tools enabled
 
 ```typescript
-import { createAgentSession } from "@code-yeongyu/senpi";
+import { createAgentSession } from "@code-yeongyu/op-pi";
 
 // Read-only mode
 const { session } = await createAgentSession({
@@ -491,7 +491,7 @@ const { session } = await createAgentSession({
 When you pass a custom `cwd`, `createAgentSession()` builds selected built-in tools for that cwd.
 
 ```typescript
-import { createAgentSession, SessionManager } from "@code-yeongyu/senpi";
+import { createAgentSession, SessionManager } from "@code-yeongyu/op-pi";
 
 const cwd = "/path/to/project";
 
@@ -517,7 +517,7 @@ const { session } = await createAgentSession({
 
 ```typescript
 import { Type } from "typebox";
-import { createAgentSession, defineTool } from "@code-yeongyu/senpi";
+import { createAgentSession, defineTool } from "@code-yeongyu/op-pi";
 
 // Inline custom tool
 const myTool = defineTool({
@@ -549,10 +549,10 @@ If you pass `tools`, include each custom or extension tool name you want enabled
 
 ### Extensions
 
-Extensions are loaded by the `ResourceLoader`. `DefaultResourceLoader` discovers extensions from `~/.senpi/agent/extensions/`, `.senpi/extensions/`, and settings.json extension sources.
+Extensions are loaded by the `ResourceLoader`. `DefaultResourceLoader` discovers extensions from `~/.op-pi/agent/extensions/`, `.op-pi/extensions/`, and settings.json extension sources.
 
 ```typescript
-import { createAgentSession, DefaultResourceLoader } from "@code-yeongyu/senpi";
+import { createAgentSession, DefaultResourceLoader } from "@code-yeongyu/op-pi";
 
 const loader = new DefaultResourceLoader({
   additionalExtensionPaths: ["/path/to/my-extension.ts"],
@@ -574,7 +574,7 @@ Extensions can register tools, subscribe to events, add commands, and more. See 
 **Event Bus:** Extensions can communicate via `pi.events`. Pass a shared `eventBus` to `DefaultResourceLoader` if you need to emit or listen from outside:
 
 ```typescript
-import { createEventBus, DefaultResourceLoader } from "@code-yeongyu/senpi";
+import { createEventBus, DefaultResourceLoader } from "@code-yeongyu/op-pi";
 
 const eventBus = createEventBus();
 const loader = new DefaultResourceLoader({
@@ -594,7 +594,7 @@ import {
   createAgentSession,
   DefaultResourceLoader,
   type Skill,
-} from "@code-yeongyu/senpi";
+} from "@code-yeongyu/op-pi";
 
 const customSkill: Skill = {
   name: "my-skill",
@@ -620,7 +620,7 @@ const { session } = await createAgentSession({ resourceLoader: loader });
 ### Context Files
 
 ```typescript
-import { createAgentSession, DefaultResourceLoader } from "@code-yeongyu/senpi";
+import { createAgentSession, DefaultResourceLoader } from "@code-yeongyu/op-pi";
 
 const loader = new DefaultResourceLoader({
   agentsFilesOverride: (current) => ({
@@ -644,7 +644,7 @@ import {
   createAgentSession,
   DefaultResourceLoader,
   type PromptTemplate,
-} from "@code-yeongyu/senpi";
+} from "@code-yeongyu/op-pi";
 
 const customCommand: PromptTemplate = {
   name: "deploy",
@@ -679,7 +679,7 @@ import {
   createAgentSessionServices,
   getAgentDir,
   SessionManager,
-} from "@code-yeongyu/senpi";
+} from "@code-yeongyu/op-pi";
 
 // In-memory (no persistence)
 const { session } = await createAgentSession({
@@ -773,7 +773,7 @@ sm.createBranchedSession(leafId);       // Extract path to new file
 ### Settings Management
 
 ```typescript
-import { createAgentSession, SettingsManager, SessionManager } from "@code-yeongyu/senpi";
+import { createAgentSession, SettingsManager, SessionManager } from "@code-yeongyu/op-pi";
 
 // Default: loads from files (global + project merged)
 const { session } = await createAgentSession({
@@ -807,8 +807,8 @@ const { session } = await createAgentSession({
 **Project-specific settings:**
 
 Settings load from two locations and merge:
-1. Global: `~/.senpi/agent/settings.json`
-2. Project: `<cwd>/.senpi/settings.json`
+1. Global: `~/.op-pi/agent/settings.json`
+2. Project: `<cwd>/.op-pi/settings.json`
 
 Project overrides global. Nested objects merge keys. Setters modify global settings by default.
 
@@ -829,7 +829,7 @@ Use `DefaultResourceLoader` to discover extensions, skills, prompts, themes, and
 import {
   DefaultResourceLoader,
   getAgentDir,
-} from "@code-yeongyu/senpi";
+} from "@code-yeongyu/op-pi";
 
 const loader = new DefaultResourceLoader({
   cwd,
@@ -880,7 +880,7 @@ import {
   ModelRegistry,
   SessionManager,
   SettingsManager,
-} from "@code-yeongyu/senpi";
+} from "@code-yeongyu/op-pi";
 
 // Set up auth storage (custom location)
 const authStorage = AuthStorage.create("/custom/agent/auth.json");
@@ -965,7 +965,7 @@ import {
   getAgentDir,
   InteractiveMode,
   SessionManager,
-} from "@code-yeongyu/senpi";
+} from "@code-yeongyu/op-pi";
 
 const createRuntime: CreateAgentSessionRuntimeFactory = async ({ cwd, sessionManager, sessionStartEvent }) => {
   const services = await createAgentSessionServices({ cwd });
@@ -1005,7 +1005,7 @@ import {
   getAgentDir,
   runPrintMode,
   SessionManager,
-} from "@code-yeongyu/senpi";
+} from "@code-yeongyu/op-pi";
 
 const createRuntime: CreateAgentSessionRuntimeFactory = async ({ cwd, sessionManager, sessionStartEvent }) => {
   const services = await createAgentSessionServices({ cwd });
@@ -1042,7 +1042,7 @@ import {
   getAgentDir,
   runRpcMode,
   SessionManager,
-} from "@code-yeongyu/senpi";
+} from "@code-yeongyu/op-pi";
 
 const createRuntime: CreateAgentSessionRuntimeFactory = async ({ cwd, sessionManager, sessionStartEvent }) => {
   const services = await createAgentSessionServices({ cwd });

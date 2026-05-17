@@ -12,7 +12,7 @@ import {
 	type ResourceLoader,
 	SessionManager,
 	SettingsManager,
-} from "@code-yeongyu/senpi";
+} from "@code-yeongyu/op-pi";
 import { getModel } from "@earendil-works/pi-ai";
 
 // Custom auth storage location

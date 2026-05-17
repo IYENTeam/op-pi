@@ -5,12 +5,12 @@
  * that lists all available slash commands in the current session.
  *
  * Usage:
- * 1. Copy this file to ~/.senpi/agent/extensions/ or your project's .senpi/extensions/
+ * 1. Copy this file to ~/.op-pi/agent/extensions/ or your project's .op-pi/extensions/
  * 2. Use /commands to see available commands
  * 3. Use /commands extensions to filter by source
  */
 
-import type { ExtensionAPI, SlashCommandInfo } from "@code-yeongyu/senpi";
+import type { ExtensionAPI, SlashCommandInfo } from "@code-yeongyu/op-pi";
 
 export default function commandsExtension(pi: ExtensionAPI) {
 	pi.registerCommand("commands", {

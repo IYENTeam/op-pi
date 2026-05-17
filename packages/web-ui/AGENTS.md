@@ -1,6 +1,6 @@
 # packages/web-ui
 
-`@earendil-works/pi-web-ui` — Lit web components + Tailwind v4 chat UI. Built on `@mariozechner/mini-lit`. Used as a starter UI shell; not bundled into senpi CLI.
+`@earendil-works/pi-web-ui` — Lit web components + Tailwind v4 chat UI. Built on `@mariozechner/mini-lit`. Used as a starter UI shell; not bundled into op-pi CLI.
 
 ## STRUCTURE
 

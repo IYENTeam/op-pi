@@ -6,7 +6,7 @@ This guide provides step-by-step instructions for manually testing each tool cal
 
 ### Required Configuration
 
-Your `~/.senpi/agent/models.json` must include the following provider configurations:
+Your `~/.op-pi/agent/models.json` must include the following provider configurations:
 
 ```json
 {
@@ -65,7 +65,7 @@ The Hermes format uses `<tool_call>` XML tags containing JSON tool call definiti
 
 **Test Command:**
 ```bash
-senpi --provider openrouter-qwen --model "qwen/qwen3.5-27b" -p "Read the contents of package.json and tell me the project name"
+op-pi --provider openrouter-qwen --model "qwen/qwen3.5-27b" -p "Read the contents of package.json and tell me the project name"
 ```
 
 **Expected Behavior:**
@@ -92,7 +92,7 @@ The MorphXml format uses XML-style function calls with parameters as child eleme
 
 **Test Command:**
 ```bash
-senpi --provider openrouter-gemini --model "google/gemini-3-flash-preview" -p "List all TypeScript files in src/ using the find tool"
+op-pi --provider openrouter-gemini --model "google/gemini-3-flash-preview" -p "List all TypeScript files in src/ using the find tool"
 ```
 
 **Expected Behavior:**
@@ -121,7 +121,7 @@ The Gemma4 format uses custom delimiters `<|"|>` for string values and special m
 
 **Test Command:**
 ```bash
-senpi --provider openrouter-gemma --model "google/gemma-4-31b-it" -p "Use bash to run 'date' and tell me the current time"
+op-pi --provider openrouter-gemma --model "google/gemma-4-31b-it" -p "Use bash to run 'date' and tell me the current time"
 ```
 
 **Expected Behavior:**
@@ -211,7 +211,7 @@ senpi --provider openrouter-gemma --model "google/gemma-4-31b-it" -p "Use bash t
 To see detailed protocol-level information, enable debug logging:
 
 ```bash
-DEBUG=pi:* senpi --provider openrouter-qwen --model "qwen/qwen3.5-27b" -p "Read package.json"
+DEBUG=pi:* op-pi --provider openrouter-qwen --model "qwen/qwen3.5-27b" -p "Read package.json"
 ```
 
 This will show:
@@ -225,7 +225,7 @@ This will show:
 To confirm which protocol is being used for a model, check the model configuration:
 
 ```bash
-senpi --provider <provider> --model <model> --info
+op-pi --provider <provider> --model <model> --info
 ```
 
 Look for the `toolCallFormat` field in the output. Valid values are:
@@ -238,6 +238,6 @@ Look for the `toolCallFormat` field in the output. Valid values are:
 
 | Protocol | Provider | Model | Test Command |
 |----------|----------|-------|--------------|
-| Hermes | openrouter-qwen | qwen/qwen3.5-27b | `senpi --provider openrouter-qwen --model "qwen/qwen3.5-27b" -p "Read package.json"` |
-| MorphXml | openrouter-gemini | google/gemini-3-flash-preview | `senpi --provider openrouter-gemini --model "google/gemini-3-flash-preview" -p "List TypeScript files"` |
-| Gemma4 | openrouter-gemma | google/gemma-4-31b-it | `senpi --provider openrouter-gemma --model "google/gemma-4-31b-it" -p "Run date command"` |
+| Hermes | openrouter-qwen | qwen/qwen3.5-27b | `op-pi --provider openrouter-qwen --model "qwen/qwen3.5-27b" -p "Read package.json"` |
+| MorphXml | openrouter-gemini | google/gemini-3-flash-preview | `op-pi --provider openrouter-gemini --model "google/gemini-3-flash-preview" -p "List TypeScript files"` |
+| Gemma4 | openrouter-gemma | google/gemma-4-31b-it | `op-pi --provider openrouter-gemma --model "google/gemma-4-31b-it" -p "Run date command"` |

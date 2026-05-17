@@ -9,7 +9,7 @@ dynamic-prompt/
 ├── build.ts                # buildDynamicSystemPrompt() — assembler, public entry
 ├── index.ts                # Public re-exports
 ├── types.ts                # AvailableTool, BuildDynamicSystemPromptOptions
-├── identity.ts             # buildIdentitySection() — senpi neutral identity
+├── identity.ts             # buildIdentitySection() — op-pi neutral identity
 ├── intent-gate.ts          # buildIntentGateSection() — Phase 0 routing line
 ├── exploration.ts          # buildExplorationSection() — "read the code first" discipline
 ├── parallel-tools.ts       # buildParallelToolsSection() — fan-out grep/ls/read in parallel
@@ -25,7 +25,7 @@ dynamic-prompt/
 
 | Task | File |
 |------|------|
-| Change senpi identity | `identity.ts` |
+| Change op-pi identity | `identity.ts` |
 | Add/modify intent classification | `intent-gate.ts` — the forced verbalization line |
 | Change parallel-tool guidance | `parallel-tools.ts` |
 | Add new "Don't do X" rule | `policies.ts` |
@@ -35,7 +35,7 @@ dynamic-prompt/
 
 ## SECTION ORDER (assembled in `build.ts`)
 
-1. **Identity** — senpi-neutral hero line
+1. **Identity** — op-pi-neutral hero line
 2. **Intent gate** — forced `I read this as [intent] - [plan].` routing line
 3. **Exploration** — "read code before claiming"
 4. **Parallel tools** — fan-out heuristics
@@ -57,7 +57,7 @@ dynamic-prompt/
 
 - Hardcoding model-specific instructions in `build.ts` — put them in a preset's `tuningSection` instead.
 - Reintroducing `lsp`/`ast` tool categories without re-adding their detection + tests.
-- Replacing the senpi identity with `"You are a helpful assistant."` — was tried, produced weak generic-bot output, reverted 2026-04-30.
+- Replacing the op-pi identity with `"You are a helpful assistant."` — was tried, produced weak generic-bot output, reverted 2026-04-30.
 - Removing the intent-gate verbalization line — the README advertises it; code must match.
 
 ## NOTES

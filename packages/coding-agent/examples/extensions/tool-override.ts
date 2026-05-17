@@ -17,10 +17,10 @@
  * is used automatically (syntax highlighting, line numbers, truncation warnings).
  *
  * Usage:
- *   senpi -e ./tool-override.ts
+ *   op-pi -e ./tool-override.ts
  */
 
-import { type ExtensionAPI, getAgentDir, withFileMutationQueue } from "@code-yeongyu/senpi";
+import { type ExtensionAPI, getAgentDir, withFileMutationQueue } from "@code-yeongyu/op-pi";
 import type { TextContent } from "@earendil-works/pi-ai";
 import { constants, readFileSync } from "fs";
 import { access, appendFile, readFile } from "fs/promises";

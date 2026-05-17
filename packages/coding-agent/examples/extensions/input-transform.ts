@@ -1,15 +1,15 @@
 /**
  * Input Transform Example - demonstrates the `input` event for intercepting user input.
  *
- * Start senpi with this extension:
- *   senpi -e ./examples/extensions/input-transform.ts
+ * Start op-pi with this extension:
+ *   op-pi -e ./examples/extensions/input-transform.ts
  *
  * Then type these inside pi:
  *   ?quick What is TypeScript?  → "Respond briefly: What is TypeScript?"
  *   ping                        → "pong" (instant, no LLM)
  *   time                        → current time (instant, no LLM)
  */
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
 
 export default function (pi: ExtensionAPI) {
 	pi.on("input", async (event, ctx) => {

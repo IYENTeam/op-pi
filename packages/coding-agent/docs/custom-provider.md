@@ -30,7 +30,7 @@ See these complete provider examples:
 ## Quick Reference
 
 ```typescript
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
 
 export default function (pi: ExtensionAPI) {
   // Override baseUrl for existing provider
@@ -59,7 +59,7 @@ export default function (pi: ExtensionAPI) {
 }
 ```
 
-The extension factory can also be `async`. For dynamic model discovery, fetch and register models in the factory instead of `session_start`. senpi waits for the factory before startup continues, so the provider is available during interactive startup and to `senpi --list-models`.
+The extension factory can also be `async`. For dynamic model discovery, fetch and register models in the factory instead of `session_start`. op-pi waits for the factory before startup continues, so the provider is available during interactive startup and to `op-pi --list-models`.
 
 ## Override Existing Provider
 
@@ -96,7 +96,7 @@ To add a completely new provider, specify `models` along with the required confi
 If the model list comes from a remote endpoint, use an async extension factory:
 
 ```typescript
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
 
 export default async function (pi: ExtensionAPI) {
   const response = await fetch("http://localhost:1234/v1/models");
@@ -208,7 +208,7 @@ models: [{
   id: "custom-model",
   // ...
   reasoning: true,
-  thinkingLevelMap: {              // map senpi levels to provider values; null hides unsupported levels
+  thinkingLevelMap: {              // map op-pi levels to provider values; null hides unsupported levels
     minimal: null,
     low: null,
     medium: null,
@@ -330,7 +330,7 @@ interface OAuthLoginCallbacks {
 
 ### OAuthCredentials
 
-Credentials are persisted in `~/.senpi/agent/auth.json`:
+Credentials are persisted in `~/.op-pi/agent/auth.json`:
 
 ```typescript
 interface OAuthCredentials {
@@ -602,7 +602,7 @@ interface ProviderModelConfig {
   /** Whether the model supports extended thinking. */
   reasoning: boolean;
 
-  /** Maps senpi thinking levels to provider/model-specific values; null marks a level unsupported. */
+  /** Maps op-pi thinking levels to provider/model-specific values; null marks a level unsupported. */
   thinkingLevelMap?: Partial<Record<"off" | "minimal" | "low" | "medium" | "high" | "xhigh", string | null>>;
 
   /** Supported input types. */

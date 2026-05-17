@@ -15,7 +15,7 @@
     {
       "id": "VAL-CROSS-020",
       "status": "pass",
-      "reason": "A `--print` run created two pending todos via `todowrite` and exited single-shot with final text `saved`; the JSON print-mode event stream shows the `todowrite` tool result, then a final assistant `saved`, with no extra user follow-up message and no `SENPI` directive.",
+      "reason": "A `--print` run created two pending todos via `todowrite` and exited single-shot with final text `saved`; the JSON print-mode event stream shows the `todowrite` tool result, then a final assistant `saved`, with no extra user follow-up message and no `OP_PI` directive.",
       "evidence": [
         "continuation-core/manual-cli/print-mode.txt",
         "continuation-core/manual-cli/print-mode-status.json",
@@ -63,7 +63,7 @@
     {
       "command": "./pi-test.sh --no-session --mode json --print \"Create and persist a todo list using the todowrite tool with exactly two incomplete items, then reply only with the single word saved.\"",
       "exitCode": 0,
-      "observation": "The JSON event stream showed a `todowrite` tool result with two pending todos, then a final assistant `saved`, with no extra user follow-up or `SENPI` directive before `agent_end`."
+      "observation": "The JSON event stream showed a `todowrite` tool result with two pending todos, then a final assistant `saved`, with no extra user follow-up or `OP_PI` directive before `agent_end`."
     }
   ],
   "artifacts": [

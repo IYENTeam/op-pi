@@ -2,7 +2,7 @@
  * Snake game extension - play snake with /snake command
  */
 
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
 import { matchesKey, visibleWidth } from "@earendil-works/pi-tui";
 
 const GAME_WIDTH = 40;

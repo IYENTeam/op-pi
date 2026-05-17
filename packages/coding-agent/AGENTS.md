@@ -1,6 +1,6 @@
 # packages/coding-agent
 
-`@code-yeongyu/senpi` — primary fork target. The CLI app users actually run (`senpi`). Highest merge-conflict surface against upstream `pi-mono`. **Always reach for the extension API before touching anything in `src/core/`**.
+`@code-yeongyu/op-pi` — primary fork target. The CLI app users actually run (`op-pi`). Highest merge-conflict surface against upstream `pi-mono`. **Always reach for the extension API before touching anything in `src/core/`**.
 
 ## STRUCTURE
 
@@ -10,8 +10,8 @@ src/
 ├── main.ts                    # Arg parse → model resolution → mode dispatch
 ├── index.ts                   # Public API (AgentSession, AuthStorage, compaction, extension types, tools)
 ├── config.ts                  # APP_NAME, VERSION, configDir/cacheDir/sessionDir resolvers
-├── migrations.ts              # Settings/session schema migrations (incl. `pi → senpi` rename)
-├── package-manager-cli.ts     # `senpi update senpi`, package commands (install/list/remove)
+├── migrations.ts              # Settings/session schema migrations (incl. `pi → op-pi` rename)
+├── package-manager-cli.ts     # `op-pi update op-pi`, package commands (install/list/remove)
 ├── changes.md                 # Fork tracker (root-level src changes)
 ├── bun/                       # Bun binary entry (cli.ts, register-bedrock.ts, restore-sandbox-env.ts)
 ├── cli/                       # args.ts, file-processor.ts, initial-message.ts, list-models.ts, session-picker.ts, config-selector.ts
@@ -54,7 +54,7 @@ test/
 
 ## EXTENSION LIFECYCLE (1-line each)
 
-1. **Discovery**: builtin (`builtin/index.ts`) + `.pi/extensions/`, `.senpi/extensions/`, `~/.pi/agent/extensions/`, `settings.json` paths, `-e` CLI flag.
+1. **Discovery**: builtin (`builtin/index.ts`) + `.pi/extensions/`, `.op-pi/extensions/`, `~/.pi/agent/extensions/`, `settings.json` paths, `-e` CLI flag.
 2. **Loading**: `extensions/loader.ts` — single shared `jiti` importer (`changes.md` 2026-05-08), aliases `@mariozechner/pi-*` → workspace packages.
 3. **Factory**: `export default function(pi: ExtensionAPI) { … }` runs at load time.
 4. **Binding**: `ExtensionRunner.bindCore()` connects `pi.*` stubs to real implementations.
@@ -68,7 +68,7 @@ test/
 - **Keybindings always configurable** — `DEFAULT_EDITOR_KEYBINDINGS` / `DEFAULT_APP_KEYBINDINGS` are the source of truth.
 - **Faux provider for tests** — never spend a real token in `npm test`. Use `harness.ts` + `pi-ai/faux`.
 - **Inlined UUIDv7 in `core/session-manager.ts`** — do NOT re-add the `uuid` package. Documented in `changes.md` 2026-04-17.
-- **Branding**: package name `@code-yeongyu/senpi`, app name `senpi`, configDir `.senpi`. Self-update target is `code-yeongyu/senpi`.
+- **Branding**: package name `@code-yeongyu/op-pi`, app name `op-pi`, configDir `.op-pi`. Self-update target is `code-yeongyu/op-pi`.
 
 ## ANTI-PATTERNS
 

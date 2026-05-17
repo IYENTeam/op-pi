@@ -1,6 +1,6 @@
 # packages/coding-agent/src/core/extensions/builtin
 
-12 in-tree extensions. Each is the canonical answer to "can senpi do X without core changes?". Registration order matters.
+12 in-tree extensions. Each is the canonical answer to "can op-pi do X without core changes?". Registration order matters.
 
 ## INVENTORY (registration order from `builtin/index.ts`)
 

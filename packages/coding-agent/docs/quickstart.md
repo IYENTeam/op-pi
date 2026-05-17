@@ -1,29 +1,29 @@
 # Quickstart
 
-This page gets you from install to a useful first senpi session.
+This page gets you from install to a useful first op-pi session.
 
 ## Install
 
-Senpi is distributed as an npm package:
+op-pi is distributed as an npm package:
 
 ```bash
-npm install -g @code-yeongyu/senpi
+npm install -g @code-yeongyu/op-pi
 ```
 
-Then start senpi in the project directory you want it to work on:
+Then start op-pi in the project directory you want it to work on:
 
 ```bash
 cd /path/to/project
-senpi
+op-pi
 ```
 
 ## Authenticate
 
-Senpi can use subscription providers through `/login`, or API-key providers through environment variables or the auth file.
+op-pi can use subscription providers through `/login`, or API-key providers through environment variables or the auth file.
 
 ### Option 1: subscription login
 
-Start senpi and run:
+Start op-pi and run:
 
 ```text
 /login
@@ -33,37 +33,37 @@ Then select a provider. Built-in subscription logins include Claude Pro/Max, Cha
 
 ### Option 2: API key
 
-Set an API key before launching senpi:
+Set an API key before launching op-pi:
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-senpi
+op-pi
 ```
 
-You can also run `/login` and select an API-key provider to store the key in `~/.senpi/agent/auth.json`.
+You can also run `/login` and select an API-key provider to store the key in `~/.op-pi/agent/auth.json`.
 
 See [Providers](providers.md) for all supported providers, environment variables, and cloud-provider setup.
 
 ## First session
 
-Once senpi starts, type a request and press Enter:
+Once op-pi starts, type a request and press Enter:
 
 ```text
 Summarize this repository and tell me how to run its checks.
 ```
 
-By default, senpi gives the model four tools:
+By default, op-pi gives the model four tools:
 
 - `read` - read files
 - `write` - create or overwrite files
 - `edit` - patch files
 - `bash` - run shell commands
 
-Additional built-in read-only tools (`grep`, `find`, `ls`) are available through tool options. Senpi runs in your current working directory and can modify files there. Use git or another checkpointing workflow if you want easy rollback.
+Additional built-in read-only tools (`grep`, `find`, `ls`) are available through tool options. op-pi runs in your current working directory and can modify files there. Use git or another checkpointing workflow if you want easy rollback.
 
-## Give senpi project instructions
+## Give op-pi project instructions
 
-Senpi loads context files at startup. Add an `AGENTS.md` file to tell it how to work in a project:
+op-pi loads context files at startup. Add an `AGENTS.md` file to tell it how to work in a project:
 
 ```markdown
 # Project Instructions
@@ -73,12 +73,12 @@ Senpi loads context files at startup. Add an `AGENTS.md` file to tell it how to 
 - Keep responses concise.
 ```
 
-Senpi loads:
+op-pi loads:
 
-- `~/.senpi/agent/AGENTS.md` for global instructions
+- `~/.op-pi/agent/AGENTS.md` for global instructions
 - `AGENTS.md` or `CLAUDE.md` from parent directories and the current directory
 
-Restart senpi, or run `/reload`, after changing context files.
+Restart op-pi, or run `/reload`, after changing context files.
 
 ## Common things to try
 
@@ -87,8 +87,8 @@ Restart senpi, or run `/reload`, after changing context files.
 Type `@` in the editor to fuzzy-search files, or pass files on the command line:
 
 ```bash
-senpi @README.md "Summarize this"
-senpi @src/app.ts @src/app.test.ts "Review these together"
+op-pi @README.md "Summarize this"
+op-pi @src/app.ts @src/app.test.ts "Review these together"
 ```
 
 Images can be pasted with Ctrl+V (Alt+V on Windows) or dragged into supported terminals.
@@ -112,31 +112,31 @@ Use `/model` or Ctrl+L to choose a model. Use Shift+Tab to cycle thinking level.
 Sessions are saved automatically:
 
 ```bash
-senpi -c                  # Continue most recent session
-senpi -r                  # Browse previous sessions
-senpi --session <path|id> # Open a specific session
+op-pi -c                  # Continue most recent session
+op-pi -r                  # Browse previous sessions
+op-pi --session <path|id> # Open a specific session
 ```
 
-Inside senpi, use `/resume`, `/new`, `/tree`, `/fork`, and `/clone` to manage sessions.
+Inside op-pi, use `/resume`, `/new`, `/tree`, `/fork`, and `/clone` to manage sessions.
 
 ### Non-interactive mode
 
 For one-shot prompts:
 
 ```bash
-senpi -p "Summarize this codebase"
-cat README.md | senpi -p "Summarize this text"
-senpi -p @screenshot.png "What's in this image?"
+op-pi -p "Summarize this codebase"
+cat README.md | op-pi -p "Summarize this text"
+op-pi -p @screenshot.png "What's in this image?"
 ```
 
 Use `--mode json` for JSON event output or `--mode rpc` for process integration.
 
 ## Next steps
 
-- [Using Senpi](usage.md) - interactive mode, slash commands, sessions, context files, and CLI reference.
+- [Using op-pi](usage.md) - interactive mode, slash commands, sessions, context files, and CLI reference.
 - [Providers](providers.md) - authentication and model setup.
 - [Settings](settings.md) - global and project configuration.
 - [Keybindings](keybindings.md) - shortcuts and customization.
-- [Senpi Packages](packages.md) - install shared extensions, skills, prompts, and themes.
+- [op-pi Packages](packages.md) - install shared extensions, skills, prompts, and themes.
 
 Platform notes: [Windows](windows.md), [Termux](termux.md), [tmux](tmux.md), [Terminal setup](terminal-setup.md), [Shell aliases](shell-aliases.md).

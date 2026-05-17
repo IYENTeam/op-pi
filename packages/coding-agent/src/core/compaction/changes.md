@@ -12,7 +12,7 @@
 
 ### Why
 
-- Plugsuit starts compaction much earlier than the OMO 78% floor. Keeping the floor made senpi's auto-compaction late and mostly reactive.
+- Plugsuit starts compaction much earlier than the OMO 78% floor. Keeping the floor made op-pi's auto-compaction late and mostly reactive.
 - Removing the floor alone is unsafe for small context windows because the default `keepRecentTokens` (20000) can exceed the useful compactable range. The effective keep-recent cap prevents early thresholds from producing empty preparations.
 - Speculative and emergency phases need stable policy functions and settings keys before they can be wired safely.
 
@@ -46,7 +46,7 @@
 
 When `keepRecentTokens` (default 20000) is larger than the total session token count, `findCutPoint` defaults to the first valid cut point and then `findCutPoint`'s backward scan extends the cut all the way to entry 0 (model_change / thinking_level_change). The result was a preparation with `messagesToSummarize: []`, `turnPrefixMessages: []`, and `firstKeptEntryId` pointing at the very first non-message entry. The new builtin compaction extension then called the LLM with an empty `<conversation></conversation>` block and the 9-section prompt's R2 rule ("If a section has no content, write 'None.'") forced the model to emit `None.` for every section. That all-`None.` summary was persisted as a real compaction entry, **destroying the conversation that should have been summarized**.
 
-A real reproducer: `~/.senpi/agent/sessions/--Users-yeongyu-local-workspaces-senpi-mono--/2026-04-28T01-50-51-950Z_*.jsonl` contains two consecutive compactions on a tiny Kimi K2.6 hello session, both stored as all-`None.` summaries with `tokensBefore` of 11527 and 11690.
+A real reproducer: `~/.op-pi/agent/sessions/--Users-yeongyu-local-workspaces-op-pi-mono--/2026-04-28T01-50-51-950Z_*.jsonl` contains two consecutive compactions on a tiny Kimi K2.6 hello session, both stored as all-`None.` summaries with `tokensBefore` of 11527 and 11690.
 
 ### Why extension system couldn't handle this
 

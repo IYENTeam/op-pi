@@ -9,7 +9,7 @@ Example extensions for pi-coding-agent.
 pi --extension examples/extensions/permission-gate.ts
 
 # Or copy to extensions directory for auto-discovery
-cp permission-gate.ts ~/.senpi/agent/extensions/
+cp permission-gate.ts ~/.op-pi/agent/extensions/
 ```
 
 ## Examples
@@ -95,7 +95,7 @@ cp permission-gate.ts ~/.senpi/agent/extensions/
 
 | Extension | Description |
 |-----------|-------------|
-| `mac-system-theme.ts` | Syncs senpi theme with macOS dark/light mode |
+| `mac-system-theme.ts` | Syncs op-pi theme with macOS dark/light mode |
 
 ### Resources
 
@@ -136,7 +136,7 @@ cp permission-gate.ts ~/.senpi/agent/extensions/
 See [docs/extensions.md](../../docs/extensions.md) for full documentation.
 
 ```typescript
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
 import { Type } from "typebox";
 
 export default function (pi: ExtensionAPI) {

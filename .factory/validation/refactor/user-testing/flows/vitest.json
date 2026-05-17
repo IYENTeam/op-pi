@@ -37,7 +37,7 @@
       "status": "pass",
       "reason": "Both session_start and session_tree rebuild todo state from branch entries and re-render the todo-sidebar widget with the helper-produced lines.",
       "evidence": [
-        "Repo-local tsx runtime check invoked the registered session_start handler on a SessionManager containing a senpi.todo-state custom entry and observed setWidget('todo-sidebar', ['Todo', '[ ] Custom todo']).",
+        "Repo-local tsx runtime check invoked the registered session_start handler on a SessionManager containing a op-pi.todo-state custom entry and observed setWidget('todo-sidebar', ['Todo', '[ ] Custom todo']).",
         "The same runtime check invoked session_tree on a SessionManager containing a todowrite toolResult entry and observed setWidget('todo-sidebar', ['Todo', '[\u2022] Tool todo']).",
         "packages/coding-agent/src/core/extensions/builtin/todotools/index.ts routes both handlers through syncFromSession(), which assigns getLatestTodosFromBranchEntries(ctx.sessionManager.getBranch()) before calling ctx.ui.setWidget('todo-sidebar', getTodoWidgetLines(currentTodos))."
       ]
@@ -76,7 +76,7 @@
       "status": "pass",
       "reason": "The entry type literal is unchanged and branch reconstruction still handles both custom todo-state entries and todowrite toolResult entries, with [] returned when no matching entry is found.",
       "evidence": [
-        "Repo-local tsx runtime check imported TODO_STATE_ENTRY_TYPE='senpi.todo-state' and confirmed getLatestTodosFromBranchEntries() reconstructed toolResult-backed todos as branchToolTodos=[{content:'Tool todo',status:'in_progress',priority:'medium'}].",
+        "Repo-local tsx runtime check imported TODO_STATE_ENTRY_TYPE='op-pi.todo-state' and confirmed getLatestTodosFromBranchEntries() reconstructed toolResult-backed todos as branchToolTodos=[{content:'Tool todo',status:'in_progress',priority:'medium'}].",
         "Focused vitest run passed test/suite/todowrite-extension.test.ts case 'reconstructs todo state from branch-specific custom entries', including a root branch assertion returning [].",
         "packages/coding-agent/src/core/extensions/builtin/todotools/state.ts explicitly updates from custom entries whose customType === TODO_STATE_ENTRY_TYPE and from message entries whose role === 'toolResult' and toolName === 'todowrite'."
       ]
@@ -86,7 +86,7 @@
       "status": "pass",
       "reason": "The new todotools entry module exports the required public symbols from a single stable specifier and loads without import errors.",
       "evidence": [
-        "Repo-local tsx runtime import from packages/coding-agent/src/core/extensions/builtin/todotools/index.ts reported exportedSymbols = { TODO_STATE_ENTRY_TYPE: 'senpi.todo-state', getLatestTodosFromBranchEntries: 'function', getTodoWidgetLines: 'function', getTodoResultLines: 'function' }.",
+        "Repo-local tsx runtime import from packages/coding-agent/src/core/extensions/builtin/todotools/index.ts reported exportedSymbols = { TODO_STATE_ENTRY_TYPE: 'op-pi.todo-state', getLatestTodosFromBranchEntries: 'function', getTodoWidgetLines: 'function', getTodoResultLines: 'function' }.",
         "packages/coding-agent/src/core/extensions/builtin/todotools/index.ts re-exports TASK_MANAGEMENT_SECTION plus TODO_STATE_ENTRY_TYPE, getLatestTodosFromBranchEntries, getTodoWidgetLines, and getTodoResultLines from the folder entrypoint."
       ]
     },

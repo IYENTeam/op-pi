@@ -38,9 +38,9 @@ permission-system/
 ## RULE EVALUATION (order)
 
 1. **CLI flags** (`--permission`) — highest precedence.
-2. **Project settings** (`.senpi/settings.json` `permissions.*`).
-3. **Global settings** (`~/.senpi/agent/settings.json`).
-4. **Session approvals** (in-memory + persisted to `~/.senpi/agent/permissions/<project>.jsonl`).
+2. **Project settings** (`.op-pi/settings.json` `permissions.*`).
+3. **Global settings** (`~/.op-pi/agent/settings.json`).
+4. **Session approvals** (in-memory + persisted to `~/.op-pi/agent/permissions/<project>.jsonl`).
 5. **Default** — interactive → ask; non-interactive → block.
 
 Pattern syntax: tool name + optional arg pattern, e.g. `bash:rm *`, `write:/etc/**`. Wildcards in `evaluate.ts`.

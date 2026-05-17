@@ -12,14 +12,14 @@
  * - Organize with subdirectories: Group related rules (e.g., frontend/, backend/)
  *
  * Usage:
- * 1. Copy this file to ~/.senpi/agent/extensions/ or your project's .senpi/extensions/
+ * 1. Copy this file to ~/.op-pi/agent/extensions/ or your project's .op-pi/extensions/
  * 2. Create .claude/rules/ folder in your project root
  * 3. Add .md files with your rules
  */
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { ExtensionAPI } from "@code-yeongyu/senpi";
+import type { ExtensionAPI } from "@code-yeongyu/op-pi";
 
 /**
  * Recursively find all .md files in a directory

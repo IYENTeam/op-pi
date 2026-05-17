@@ -21,6 +21,6 @@
       "evidence": "The fix handoff records that npm run check reformatted an unrelated file and required restoration afterward (handoff for 387b72f0-428c-4fa5-ae0d-4196e1806476:31-33), and its skillFeedback explicitly suggests adding that guidance to the skill (same handoff:50-55). The transcript skeleton for workerSessionId 387b72f0-428c-4fa5-ae0d-4196e1806476 also shows repeated git restore steps after validation before and after commit."
     }
   ],
-  "addressesFailureFrom": "/Users/yeongyu/local-workspaces/senpi-mono/.factory/validation/continuation-core/scrutiny/reviews/continuation-prompt-builder.json",
+  "addressesFailureFrom": "/Users/yeongyu/local-workspaces/op-pi-mono/.factory/validation/continuation-core/scrutiny/reviews/continuation-prompt-builder.json",
   "summary": "Reviewed the prior failed prompt-builder commit, the rerun fix commit, the fix transcript skeleton, and the relevant mission docs. Pass: commit 7385f3ff05e0a98dc52b00b06d6d84e1cebe2e87 fixes the cancelled-todo status arithmetic and sanitizes multiline/control text in continuation bullets, with targeted tests covering the original failure modes."
 }

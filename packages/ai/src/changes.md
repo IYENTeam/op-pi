@@ -52,11 +52,11 @@
 ### Expected merge conflict zones
 - LOW: `streamAnthropic()` request construction around the `onPayload` callback and SDK `messages.create()` options.
 
-## 2026-05-11 - Senpi-branded Codex originator and User-Agent
+## 2026-05-11 - op-pi-branded Codex originator and User-Agent
 
 ### What changed and why
-- `providers/openai-codex-responses.ts` `buildBaseCodexHeaders()`: changed the hardcoded `originator: "pi"` and the `User-Agent: "pi (…)"` string to `"senpi"`. Upstream chose `"pi"` as the Codex CLI identity; this fork's identity is `senpi`.
-- `utils/oauth/openai-codex.ts` `createAuthorizationFlow()`: changed the default `originator` parameter from `"pi"` to `"senpi"` and updated the JSDoc on `loginOpenAICodex` accordingly. Callers can still pass their own originator.
+- `providers/openai-codex-responses.ts` `buildBaseCodexHeaders()`: changed the hardcoded `originator: "pi"` and the `User-Agent: "pi (…)"` string to `"op-pi"`. Upstream chose `"pi"` as the Codex CLI identity; this fork's identity is `op-pi`.
+- `utils/oauth/openai-codex.ts` `createAuthorizationFlow()`: changed the default `originator` parameter from `"pi"` to `"op-pi"` and updated the JSDoc on `loginOpenAICodex` accordingly. Callers can still pass their own originator.
 
 ### Files modified
 - `providers/openai-codex-responses.ts`

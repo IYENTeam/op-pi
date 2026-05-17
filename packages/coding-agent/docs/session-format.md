@@ -5,16 +5,16 @@ Sessions are stored as JSONL (JSON Lines) files. Each line is a JSON object with
 ## File Location
 
 ```
-~/.senpi/agent/sessions/--<path>--/<timestamp>_<uuid>.jsonl
+~/.op-pi/agent/sessions/--<path>--/<timestamp>_<uuid>.jsonl
 ```
 
 Where `<path>` is the working directory with `/` replaced by `-`.
 
 ## Deleting Sessions
 
-Sessions can be removed by deleting their `.jsonl` files under `~/.senpi/agent/sessions/`.
+Sessions can be removed by deleting their `.jsonl` files under `~/.op-pi/agent/sessions/`.
 
-Pi also supports deleting sessions interactively from `/resume` (select a session and press `Ctrl+D`, then confirm). When available, senpi uses the `trash` CLI to avoid permanent deletion.
+Pi also supports deleting sessions interactively from `/resume` (select a session and press `Ctrl+D`, then confirm). When available, op-pi uses the `trash` CLI to avoid permanent deletion.
 
 ## Session Version
 
@@ -34,7 +34,7 @@ Source on GitHub ([pi-mono](https://github.com/earendil-works/pi-mono)):
 - [`packages/ai/src/types.ts`](https://github.com/earendil-works/pi-mono/blob/main/packages/ai/src/types.ts) - Base message types (UserMessage, AssistantMessage, ToolResultMessage)
 - [`packages/agent/src/types.ts`](https://github.com/earendil-works/pi-mono/blob/main/packages/agent/src/types.ts) - AgentMessage union type
 
-For TypeScript definitions in your project, inspect `node_modules/@code-yeongyu/senpi/dist/` and `node_modules/@earendil-works/pi-ai/dist/`.
+For TypeScript definitions in your project, inspect `node_modules/@code-yeongyu/op-pi/dist/` and `node_modules/@earendil-works/pi-ai/dist/`.
 
 ## Message Types
 
